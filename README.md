@@ -1,4 +1,4 @@
-# Proyecto de C++ - [Nombre del Juego]
+# Proyecto de C++ - La Caballera y la Mazmorra de Leugim (Mazmorra de niveles)
 
 ## Descripción del Proyecto
 
@@ -9,21 +9,22 @@ Este proyecto consiste en un juego de aventuras donde el jugador debe explorar u
 
 ## Equipo
 
-- **Nombre del equipo:** [Nombre del equipo]
+- **Nombre del equipo:** Ctrl+Fe
 
 ### Integrantes del equipo
 
-1. **Nombre completo:** [Nombre del estudiante 1]  
-   **Carnet:** [Carnet del estudiante 1]
+1. **Nombre completo:** Josué Emiliano Valdés  
+   **Carnet:** 00003525
 
-2. **Nombre completo:** [Nombre del estudiante 2]  
-   **Carnet:** [Carnet del estudiante 2]
+2. **Nombre completo:** Anderson José Turcios Flores  
+   **Carnet:** 00003925
 
-3. **Nombre completo:** [Nombre del estudiante 3]  
-   **Carnet:** [Carnet del estudiante 3]
-
-(Agregar más integrantes si es necesario)
-
+3. **Nombre completo:** Adriana Paola Mejía Méndez  
+   **Carnet:** 00098225
+   
+4. **Nombre completo:** Karla Reneé Rivas Hernández  
+   **Carnet:** 00107225
+   
 ## Instrucciones de Ejecución
 
 1. Clona este repositorio en tu máquina local:
