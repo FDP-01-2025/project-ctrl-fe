@@ -1,7 +1,7 @@
 <h1 align="center">Proyecto de C++ - La Caballera y la Mazmorra de Leugim (Mazmorra de niveles)</h1>
 <br><br>
 
-<h2 align="center">🎮 Descripción del Proyecto</h2>
+<h3 align="center">🎮 Descripción del Proyecto</h3>
 
 ### **_🏦 Contexto historico_**
 
