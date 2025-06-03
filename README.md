@@ -5,9 +5,93 @@
 En este juego, el jugador controla a una caballera que debe rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim donde este se fue a resguardar en su mazmorra. La aventura se desarrolla dentro de la mazmorra de Leugim donde tiene 10 pisos, que la protagonista deberá superar para llegar al enfrentamiento final.
 
 **Tematica y ambienticación**
-**Mecanica**
+El juego se desarrolla en La Torre de Leugim, una estructura mágica vertical de 10 pisos que flota en los cielos sobre un reino maldito. Fue construida por un poderoso hechicero llamado Leugim, quien encerró al príncipe en la cima para desatar el caos en el mundo.
+
+Cada piso de la torre tiene una ambientación única según el minijuego o evento que aparece:**Mecanica**
 Cada sala tendrá tres puertas hacia diferentes salas, donde el usuario se encontrará con diferentes eventos los cuales deberá superar para avanzar, en dado caso no lo supere, perderá una vida y tendrá que empezar el reto de nuevo hasta superarlo, donde las opciones de los eventos será:
 **Idea general de la jugabilidad**
+La Torre de Leugim es un juego tipo Dungeon Crawler donde una heroína debe ascender 10 niveles de una torre mágica enfrentando enemigos, trampas, y superando 4 minijuegos distintos. A lo largo del camino, podrá encontrar eventos aleatorios con resultados positivos o negativos. El juego combina acción, lógica, estrategia y combate por turnos, culminando en una batalla final contra el jefe Leugim para rescatar al príncipe.
+
+🧱 Estructura del Juego
+📦 Niveles
+9 niveles aleatorios
+
+1 nivel final con jefe
+
+Cada nivel puede contener:
+
+Minijuego
+
+Evento aleatorio
+
+Combate con enemigo
+
+🧑‍💻 Mecánicas Generales
+Comienzas con 3 vidas
+
+Fallar un reto (morir o perder) = -1 vida
+
+Pierdes si llegas a 0 vidas
+
+Puedes ganar vidas en ciertos eventos
+
+Objetivo: llegar al nivel 10 y vencer al jefe
+
+🎮 Minijuegos (4)
+Explosivos / "Bomberman"
+
+Rompe escombros para llegar a la salida
+
+Uso limitado de bombas (te pueden dañar)
+
+Mapas tipo laberinto
+
+Laberinto de habitaciones
+
+Encuentra llave y salida
+
+Algunas habitaciones tienen monstruos o nuevas puertas
+
+Shoot n' Run
+
+Pasillo de acción con enemigos y obstáculos
+
+Usa espada y arco
+
+Jefe al final (si pierdes, caes un piso)
+
+Mata al gusano
+
+Gusano con 10 secciones
+
+Combinaciones de teclas por sección
+
+Fallo = perder vida, 3 vidas en total
+
+⚙️ Eventos Aleatorios (6)
+Cofre bueno
+
+Puede contener vida extra
+
+Cofre malo (Mimic)
+
+Apariencia engañosa, si lo abres pierdes vida
+
+Elevador lógico
+
+Puzzle o acertijo para avanzar
+
+Esfinge
+
+3 preguntas, si fallas una, mueres
+
+Genio bueno
+
+Elige 1 de 3 deseos aleatorios (ej. +3 vidas, saltar pisos)
+
+Genio malvado
+
+Mismas opciones buenas, pero invertidas tras elegir
 **Temas vistos**
 1. Arreglos: 
 Para almacenar los niveles generados aleatoriamente.
