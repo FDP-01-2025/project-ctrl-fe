@@ -3,12 +3,12 @@
 ## <u>Descripción del Proyecto</u>
 
 ### Contexto historico
-En un universo hiperincreible y fantástico de fantsía se desarrolla la historia que dará vida al titulo: "La Caballera y la Mazmorra de Leugim".
+En un universo hiperincreíble y fantástico de fantasía se desarrolla la historia que dará vida al título: "La Caballera y la Mazmorra de Leugim".
 
-Un día como cualquier otro, en la villa Kirby se encuentra nuestra protagonista la caballera "Arlak" quien se encontraba pasando el rato con su novio el principe de la villa "Onailiem". De repente y sin avisar, el dueño de una temible mazmorra cercana a la villa, celoso de su amor decide capturar al guapo principe, y llevarlo a sus apocentos... Arlak, furiosa y roja de rabia decide ir y ayudar al malvado Leugim a acercarse a Dios para recuperar a su amado y vivir felices para siempre.
+Un día como cualquier otro, en la villa Kirby, se encuentra nuestra protagonista, la caballera Arlak, quien se encontraba pasando el rato con su novio, el príncipe de la villa, Onailiem. De repente y sin avisar, el dueño de una temible mazmorra cercana a la villa, celoso de su amor, decide capturar al guapo príncipe y llevarlo a sus aposentos... Arlak, furiosa y roja de rabia, decide ir y ayudar al malvado Leugim a acercarse a Dios para recuperar a su amado y vivir felices para siempre.
 
 ### Papel del jugador
-El jugador controla a la caballera que está en su camino para rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim resguardado en su mazmorra. La aventura se desarrolla dentro de la mazmorra de 10 pisos, que la protagonista deberá superar para llegar hasta Leugim y enfrentarlo en un enfrentamiento final y recuperar a su pushamon de sus malvadas garras.
+El jugador controla a la caballera, que está en su camino para rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim, resguardado en su mazmorra. La aventura se desarrolla dentro de la mazmorra de 10 pisos, que la protagonista deberá superar para llegar hasta Leugim, enfrentarlo en un enfrentamiento final y recuperar a su pushamon de sus malvadas garras.
 
 * **Tematica y ambienticación**
 El juego se desarrolla en La Torre de Leugim, una estructura mágica vertical de 10 pisos que flota en los cielos sobre una villa. Fue construida por un poderoso hechicero llamado Leugim, quien encerró al príncipe en la cima por Simp.
@@ -48,35 +48,40 @@ La Torre de Leugim es un juego tipo Dungeon Crawler donde una heroína debe asce
 Para almacenar los niveles generados aleatoriamente.
 Para manejar el inventario del jugador (vidas, bombas, llaves).
 Para guardar preguntas y respuestas de eventos como la esfinge.
+
 2. Condicionales (if, else, else if):
 Para determinar qué tipo de nivel se genera en cada piso.
 Para controlar qué ocurre cuando el jugador gana o pierde un mini-juego.
 Para verificar si el jugador tiene los elementos necesarios para avanzar (ej. llave, vidas).
+
 3. Ciclos for:
 Para recorrer las habitaciones en los laberintos.
 Para mostrar los niveles, los enemigos o las opciones del jugador.
 Para validar múltiples respuestas de la esfinge o verificar impactos a enemigos.
+
 4. Funciones:
 Para modularizar cada mini-juego.
 Para manejar eventos (genio, cofres, esfinge).
 Para calcular vidas, reiniciar niveles, y mostrar mensajes.
+
 5. Instrucción switch:
 Para ejecutar acciones según el tipo de evento o mini-juego seleccionado aleatoriamente.
 Para decidir los efectos del deseo que ofrece el genio.
+
 6. Ciclo while:
 Para repetir un nivel mientras no se haya superado y queden vidas.
 Para repetir hasta que el jugador encuentre la llave en un laberinto.
 Para controlar bucles de combate o intentos de respuestas en eventos.
+
 7. Matrices (arreglos bidimensionales):
 Para representar laberintos o mapas en mini-juegos como “Encuentra el camino con explosivos”.
 Para almacenar la estructura de las habitaciones en el minijuego del laberinto.
+
 8. Archivos
 Guardado de proceso.
 
-**Consideraciones técnicas del desarrollo**
+## **Consideraciones técnicas del desarrollo**
 **Imagenes**
-
-
 
 ## Equipo
 
