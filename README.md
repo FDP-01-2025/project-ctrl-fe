@@ -51,7 +51,7 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 |                           | Genio bueno               | Elige 1 de 3 deseos aleatorios (ej. +3 vidas, saltar pisos)                                                        |
 |                           | Genio malvado             | Mismas opciones buenas, pero invertidas tras elegir                                                                |
 
-## **Temas vistos**
+### **Temas vistos**
 
 1. **Arreglos**:
    Para almacenar los niveles generados aleatoriamente.
@@ -89,17 +89,17 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 8. **Archivos**
    Guardado de proceso.
 
-## **Consideraciones técnicas del desarrollo**
+### **Consideraciones técnicas del desarrollo**
 
 **Imagenes**
 
-## Equipo
+### Equipo
 
 ```bash
 Ctrl+Fe
 ```
 
-### Integrantes del equipo
+#### Integrantes del equipo
 
 1. **Nombre completo:** Josué Emiliano Valdés  
    **Carnet:** 00003525
@@ -112,7 +112,7 @@ Ctrl+Fe
 4. **Nombre completo:** Karla Reneé Rivas Hernández  
    **Carnet:** 00107225
 
-## Instrucciones de Ejecución
+### Instrucciones de Ejecución
 
 1. Clona este repositorio en tu máquina local:
    ```bash
