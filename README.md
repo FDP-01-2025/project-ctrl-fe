@@ -1,7 +1,7 @@
 <h1 align="center">Proyecto de C++ - La Caballera y la Mazmorra de Leugim (Mazmorra de niveles)</h1>
-<br>
+<br><br>
 
-<h2 align="center">🎮 <u>Descripción del Proyecto</u></h6>
+<h2 align="center">🎮 Descripción del Proyecto</h6>
 
 ### **_🏦 Contexto historico_**
 
@@ -13,7 +13,7 @@ Un día como cualquier otro, en la villa Kirby, se encuentra nuestra protagonist
 
 El jugador controla a la caballera, que está en su camino para rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim, resguardado en su mazmorra. La aventura se desarrolla dentro de la mazmorra de 10 pisos, que la protagonista deberá superar para llegar hasta Leugim, enfrentarlo en un enfrentamiento final y recuperar a su pushamon de sus malvadas garras.
 
-- **_🖼️ Tematica y ambienticación:_**
+- **🖼️ Tematica y ambienticación:**
   El juego se desarrolla en La Torre de Leugim, una estructura mágica vertical de 10 pisos que flota en los cielos sobre una villa. Fue construida por un poderoso hechicero llamado Leugim, quien encerró al príncipe en la cima por Simp.
 
 > Cada piso de la torre tiene una ambientación única según el minijuego o evento que aparece:
@@ -91,7 +91,7 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 
 ## Equipo
 
-<h6 align="center">Ctrl+Fe</h6>
+#### Ctrl+Fe
 
 ### Integrantes del equipo
 
