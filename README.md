@@ -3,13 +3,13 @@
 
 <h3 align="center">🎮 Descripción del Proyecto</h3>
 
-### **_🏦 Contexto historico_**
+### _🏦 Contexto historico_
 
 En un universo hiperincreíble y fantástico de fantasía se desarrolla la historia que dará vida al título: "La Caballera y la Mazmorra de Leugim".
 
 Un día como cualquier otro, en la villa Kirby, se encuentra nuestra protagonista, la caballera Arlak, quien se encontraba pasando el rato con su novio, el príncipe de la villa, Onailiem. De repente y sin avisar, el dueño de una temible mazmorra cercana a la villa, celoso de su amor, decide capturar al guapo príncipe y llevarlo a sus aposentos... Arlak, furiosa y roja de rabia, decide ir y ayudar al malvado Leugim a acercarse a Dios para recuperar a su amado y vivir felices para siempre.
 
-### **_🙍‍♀️ Papel del jugador_**
+### _🙍‍♀️ Papel del jugador_
 
 El jugador controla a la caballera, que está en su camino para rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim, resguardado en su mazmorra. La aventura se desarrolla dentro de la mazmorra de 10 pisos, que la protagonista deberá superar para llegar hasta Leugim, enfrentarlo en un enfrentamiento final y recuperar a su pushamon de sus malvadas garras.
 
@@ -90,8 +90,9 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 **Imagenes**
 
 ## Equipo
-
-#### Ctrl+Fe
+   ```bash
+   Ctrl+Fe
+   ```
 
 ### Integrantes del equipo
 
