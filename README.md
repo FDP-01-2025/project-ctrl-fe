@@ -1,6 +1,7 @@
 <h1 align="center">Proyecto de C++ - La Caballera y la Mazmorra de Leugim (Mazmorra de niveles)</h1>
+<br>
 
-## 🎮 <u>Descripción del Proyecto</u> 🎮
+## 🎮 <u>Descripción del Proyecto</u>
 
 ### 🏦 Contexto historico
 En un universo hiperincreíble y fantástico de fantasía se desarrolla la historia que dará vida al título: "La Caballera y la Mazmorra de Leugim".
@@ -45,48 +46,47 @@ La Torre de Leugim es un juego tipo Dungeon Crawler donde una heroína debe asce
 
 
 ## **Temas vistos**
-1. Arreglos: 
+1. **Arreglos**: 
 Para almacenar los niveles generados aleatoriamente.
 Para manejar el inventario del jugador (vidas, bombas, llaves).
 Para guardar preguntas y respuestas de eventos como la esfinge.
 
-2. Condicionales (if, else, else if):
+2. **Condicionales (if, else, else if)**:
 Para determinar qué tipo de nivel se genera en cada piso.
 Para controlar qué ocurre cuando el jugador gana o pierde un mini-juego.
 Para verificar si el jugador tiene los elementos necesarios para avanzar (ej. llave, vidas).
 
-3. Ciclos for:
+3. **Ciclos for**:
 Para recorrer las habitaciones en los laberintos.
 Para mostrar los niveles, los enemigos o las opciones del jugador.
 Para validar múltiples respuestas de la esfinge o verificar impactos a enemigos.
 
-4. Funciones:
+4. **Funciones**:
 Para modularizar cada mini-juego.
 Para manejar eventos (genio, cofres, esfinge).
 Para calcular vidas, reiniciar niveles, y mostrar mensajes.
 
-5. Instrucción switch:
+5. **Instrucción switch**:
 Para ejecutar acciones según el tipo de evento o mini-juego seleccionado aleatoriamente.
 Para decidir los efectos del deseo que ofrece el genio.
 
-6. Ciclo while:
+6. **Ciclo while**:
 Para repetir un nivel mientras no se haya superado y queden vidas.
 Para repetir hasta que el jugador encuentre la llave en un laberinto.
 Para controlar bucles de combate o intentos de respuestas en eventos.
 
-7. Matrices (arreglos bidimensionales):
+7. **Matrices (arreglos bidimensionales)**:
 Para representar laberintos o mapas en mini-juegos como “Encuentra el camino con explosivos”.
 Para almacenar la estructura de las habitaciones en el minijuego del laberinto.
 
-8. Archivos
+8. **Archivos**
 Guardado de proceso.
 
 ## **Consideraciones técnicas del desarrollo**
 **Imagenes**
 
 ## Equipo
-
-- **Nombre del equipo:** Ctrl+Fe
+<h6 align="center">Ctrl+Fe</h6>
 
 ### Integrantes del equipo
 
@@ -103,7 +103,6 @@ Guardado de proceso.
    **Carnet:** 00107225
    
 ## Instrucciones de Ejecución
-
 1. Clona este repositorio en tu máquina local:
    ```bash
    git clone [URL del repositorio]
