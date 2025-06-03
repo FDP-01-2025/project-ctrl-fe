@@ -3,7 +3,7 @@
 
 <h3 align="center">🎮 Descripción del Proyecto</h3>
 
-#### _🏦 Contexto historico_
+#### _<u>🏦 Contexto historico</u>_
 
 En un universo hiperincreíble y fantástico de fantasía se desarrolla la historia que dará vida al título: "La Caballera y la Mazmorra de Leugim".
 
