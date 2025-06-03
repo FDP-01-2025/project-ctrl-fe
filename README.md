@@ -1,25 +1,26 @@
-# Proyecto de C++ - La Caballera y la Mazmorra de Leugim (Mazmorra de niveles)
+<h1 align="center">Proyecto de C++ - La Caballera y la Mazmorra de Leugim (Mazmorra de niveles)</h1>
 
-## <u>Descripción del Proyecto</u>
+## 🎮 <u>Descripción del Proyecto</u> 🎮
 
-### Contexto historico
+### 🏦 Contexto historico
 En un universo hiperincreíble y fantástico de fantasía se desarrolla la historia que dará vida al título: "La Caballera y la Mazmorra de Leugim".
 
 Un día como cualquier otro, en la villa Kirby, se encuentra nuestra protagonista, la caballera Arlak, quien se encontraba pasando el rato con su novio, el príncipe de la villa, Onailiem. De repente y sin avisar, el dueño de una temible mazmorra cercana a la villa, celoso de su amor, decide capturar al guapo príncipe y llevarlo a sus aposentos... Arlak, furiosa y roja de rabia, decide ir y ayudar al malvado Leugim a acercarse a Dios para recuperar a su amado y vivir felices para siempre.
 
-### Papel del jugador
+### 🙍‍♀️ Papel del jugador
 El jugador controla a la caballera, que está en su camino para rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim, resguardado en su mazmorra. La aventura se desarrolla dentro de la mazmorra de 10 pisos, que la protagonista deberá superar para llegar hasta Leugim, enfrentarlo en un enfrentamiento final y recuperar a su pushamon de sus malvadas garras.
 
-* **Tematica y ambienticación**
+* 🖼️ **Tematica y ambienticación:**
 El juego se desarrolla en La Torre de Leugim, una estructura mágica vertical de 10 pisos que flota en los cielos sobre una villa. Fue construida por un poderoso hechicero llamado Leugim, quien encerró al príncipe en la cima por Simp.
 
 > Cada piso de la torre tiene una ambientación única según el minijuego o evento que aparece:
 
-* **Mecanica**
+* 🔩 **Mecanica:**
 Cada sala tendrá tres puertas hacia diferentes salas, donde el usuario se encontrará con diferentes eventos los cuales deberá superar para avanzar, en dado caso no lo supere, perderá una vida y tendrá que empezar el reto de nuevo hasta superarlo, donde las opciones de los eventos será:
 
-* **Idea general de la jugabilidad**
+* 👾 **Idea general de la jugabilidad:**
 La Torre de Leugim es un juego tipo Dungeon Crawler donde una heroína debe ascender 10 niveles de una torre mágica enfrentando enemigos, trampas, y superando 4 minijuegos distintos. A lo largo del camino, podrá encontrar eventos aleatorios con resultados positivos o negativos. El juego combina acción, lógica, estrategia y combate por turnos, culminando en una batalla final contra el jefe Leugim para rescatar al príncipe.
+---
 
 | Categoría                 | Subcategoría              | Detalles                                                                                     |
 |--------------------------|---------------------------|----------------------------------------------------------------------------------------------|
@@ -43,7 +44,7 @@ La Torre de Leugim es un juego tipo Dungeon Crawler donde una heroína debe asce
 |                          | Genio malvado             | Mismas opciones buenas, pero invertidas tras elegir                                          |
 
 
-**Temas vistos**
+## **Temas vistos**
 1. Arreglos: 
 Para almacenar los niveles generados aleatoriamente.
 Para manejar el inventario del jugador (vidas, bombas, llaves).
