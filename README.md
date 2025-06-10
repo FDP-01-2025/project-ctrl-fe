@@ -88,7 +88,7 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 ## **Consideraciones técnicas del desarrollo**
 
 **Imagenes**
-
+https://www.figma.com/design/n5lZId7IIKfvx0tRVgtP1N/Cntr-Fe?node-id=0-1&t=tDheFUCTkofCvffx-1
 ## Equipo
 
 ```bash
