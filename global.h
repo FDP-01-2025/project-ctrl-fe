@@ -1,8 +1,9 @@
 #pragma once
 
 //* Todos los headers
-#include "./settings/console.h"
-#include "./settings/maping.h"
+#include "./src/utils/settings/console.h"
+#include "./src/utils/settings/maping.h"
+#include "./src/utils/threads/main/main.h"
 
 class Global
 {
@@ -14,12 +15,12 @@ public:
     void showInitialScreen(const wchar_t *title)
     {
         //* Configuraciones de la consola de inicio
-        Console C(consoleW, consoleH);     // Parametros que mando
+        Console C(consoleW, consoleH); // Parametros que mando
         Map M;
-        
-        C.configConsole();                 // Aplicar configuraciones
-        C.setTitle(title); // Aplicar titulo
-        M.drawMap(0, mapW, mapH);            // Dibujar el mapa "0", osea el inicial
+
+        C.configConsole();        // Aplicar configuraciones
+        C.setTitle(title);        // Aplicar titulo
+        M.drawMap(0, mapW, mapH); // Dibujar el mapa "0", osea el inicial
     }
 
     void readPlayerStatusPoint()
@@ -34,7 +35,7 @@ public:
         switch (status)
         {
         case 0: // Osea primera ejecucion
-            // mainThread();
+            mainThread();
             break;
         case 1: // Digamos que es el primer checkPoint, el primer checkpoint,
 

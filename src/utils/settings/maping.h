@@ -30,7 +30,7 @@ public:
         switch (identifier)
         {
         case 0:
-            filename = "./src/maps/mainMaps/main.txt";
+            filename = "./src/maps/mainMaps/title.txt";
             break;
         default:
             return std::ifstream();

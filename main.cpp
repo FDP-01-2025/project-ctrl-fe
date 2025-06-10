@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "./src/utils/global.h"
+#include "./global.h"
 using namespace std;
 
 // TODO_________________________________________ MAIN _______________________________________TODO
@@ -15,5 +15,6 @@ int main()
     //* Segunda acción: Leer en que estado está el jugador (es decir, primera ejecución, o en algun punto x del juego)
     G.readPlayerStatusPoint();
 
+    //* El juego iniciará el thread correspondiente al estado del usuario
     return 0;
 };
