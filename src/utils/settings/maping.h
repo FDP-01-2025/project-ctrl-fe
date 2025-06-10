@@ -1,115 +1,131 @@
+#include <fstream>
 #include <iostream>
-using namespace std;
+#include <string>
+#include "Utils.h"
+#include "colors.h"
 
-void putMap(int key)
+#include <conio.h>
+#include <limits>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+//*Objetivo: Logica para dibujar los mapas, de manera que, simplemente hay que indicar que mapa queremos dibujar y ya
+class Map
 {
-    drawBorders();
 
-    switch (key)
-    {
-    case 1:
-        drawMainMap();
-        break;
-    }
-}
+public:
+    //* Valores iniciales
+    // PD: a pesar de que un objetivo era hacerlo variable, osea, que se relacionen junto al tamaño de consola pues, resumen, no se puede, se ocupa vectores para eso
+    static const int mH = 50;
+    static const int mW = 30;
 
-void drawBorders()
-{
-    for (int y = 0; y < ROOM_HEIGHT; y++)
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+
+    std::ifstream identifierMap(int identifier)
     {
-        for (int x = 0; x < ROOM_WIDTH; x++)
+        std::string filename;
+        switch (identifier)
         {
-            if (y == 0 || y == ROOM_HEIGHT - 1 || x == 0 || x == ROOM_WIDTH - 1)
+        case 0:
+            filename = "./src/maps/mainMaps/main.txt";
+            break;
+        default:
+            return std::ifstream();
+        }
+
+        return std::ifstream(filename);
+    }
+
+    void readMap(int key, int mapW, int mapH)
+    {
+        std::ifstream file = identifierMap(key);
+        if (!file.is_open())
+        {
+            std::cerr << "Error al abrir el archivo: " << strerror(errno) << "\n";
+        }
+
+        std::string line;
+        int y = 0;
+        while (std::getline(file, line) && y < mapH)
+        {
+            int lineLength = std::min((int)line.size(), mapW);
+            for (int x = 0; x < lineLength; ++x)
             {
-                if ((y == ROOM_HEIGHT / 2 && (x == 0 || x == ROOM_WIDTH - 1)) ||
-                    (x == ROOM_WIDTH / 2 && (y == 0 || y == ROOM_HEIGHT - 1)))
+                grid[y][x] = line[x];
+                if (line[x] == ']')
                 {
-                    cout << " ";
+                    spawnX = x + 1;
+                    spawnY = y;
+                }
+            }
+            for (int x = lineLength; x < mW; ++x)
+            {
+                grid[y][x] = ' ';
+            }
+            ++y;
+        }
+
+        height = y;
+        width = mW;
+    }
+
+    void drawMap(int key, int mapW, int mapH, int playerX = 1, int playerY = 1)
+    {
+        readMap(key, mapW, mapH);
+        // drawBorders();
+
+        for (int y = 0; y < getHeight(); ++y)
+        {
+            for (int x = 0; x < getWidth(); ++x)
+            {
+                Utils::moveCursor(playerX + x, playerY + y);
+                if (x == playerX && y == playerY)
+                {
+                    std::cout << PINK << "o" << RESET;
                 }
                 else
                 {
-                    cout << "#";
+                    std::cout << grid[y][x];
                 }
             }
-            else
+        }
+    }
+
+    void drawBorders()
+    {
+        for (int y = 0; y < mH; y++)
+        {
+            for (int x = 0; x < mW; x++)
             {
-                cout << " ";
+                // goToXY(x, y);
+                if (y == 0 || y == mH - 1 || x == 0 || x == mW - 1)
+                {
+                    if ((y == mH / 2 && (x == 0 || x == mW - 1)) ||
+                        (x == mW / 2 && (y == 0 || y == mH - 1)))
+                    {
+                        std::cout << " ";
+                    }
+                    else
+                    {
+                        std::cout << "#";
+                    }
+                }
+                else
+                {
+                    std::cout << " ";
+                }
             }
         }
     }
-}
 
-const int viewW = 40;
-const int viewH = 25;
+protected:
+    char grid[mH][mW]{};
 
-void drawMainMap()
-{
-
-    static const int mapW = 81;
-    static const int mapH = 21;
-    char mainMapa[mapH][mapW + 1] = {
-        "################################################################################",
-        "#                                                                              #",
-        "# _____________________________________________________________________________#",
-        "#                                                                               #",
-        "#                                                                           ____#",
-        "# _______________________________                                               ",
-        "#                                |                                --->       1  ",
-        "#                                |                                          _____",
-        "#                                |                                              #",
-        "#                                |                                              #",
-        "#                                |                                          ____#",
-        "#                                |                                              ",
-        "#                                |                                ---->      2  ",
-        "#                                |                                          _____",
-        "#                                |                                              #",
-        "#                                |                                              #",
-        "#                                |                                          ____#",
-        "#                                |                                              ",
-        "#                                |                                ---->      3  ",
-        "#                                |______________________________________________",
-        "################################################################################"};
-
-    system("cls");
-
-    int startX = 3 - viewW / 2;
-
-    if (startX < 0)
-        startX = 0;
-    if (startX + viewW > ROOM_WIDTH)
-        startX = 50 - viewW;
-
-    for (int y = 0; y < ROOM_HEIGHT; y++)
-    {
-        for (int x = 0; x < viewW; x++)
-        {
-            int mapX = startX + x;
-            if (mapX == 2 && y == 3)
-                std::cout << "/o";
-            else
-                std::cout << mainMapa[y][mapX];
-        }
-        std::cout << "\n";
-    }
-}
-
-#ifndef ROOM_H
-#define ROOM_H
-
-const int ROOM_WIDTH = 40;
-const int ROOM_HEIGHT = 15;
-
-enum TileType
-{
-    EMPTY,
-    KEY,
-    EXIT
+    int width = 0;
+    int height = 0;
+    int spawnX = 1;
+    int spawnY = 1;
 };
-
-struct Room
-{
-    TileType tile;
-};
-
-void drawBorders();
-#endif

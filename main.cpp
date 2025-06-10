@@ -1,20 +1,19 @@
 #include <windows.h>
 #include "./src/utils/global.h"
-#include <iostream>
-
 using namespace std;
 
 // TODO_________________________________________ MAIN _______________________________________TODO
+//* Objetivo: Estructura del orden de ejecución.
 
 int main()
 {
-    //Configuraciones iniciales
-    Console C(50, 25, 90, 25);
-    C.configConsole();
-    C.setTitle(L"LA TORRE DE LEUGIM");
+    Global G;
+    //*Primera accion: Mostrar la pantalla de Inicio
+    G.showInitialScreen(L"LA TORRE DE LEUGIM");
+    std::cin.get(); // Espera a que el usuario presione Enter
 
-    //Mapear
-    identfierMap();
+    //* Segunda acción: Leer en que estado está el jugador (es decir, primera ejecución, o en algun punto x del juego)
+    G.readPlayerStatusPoint();
 
     return 0;
 };
