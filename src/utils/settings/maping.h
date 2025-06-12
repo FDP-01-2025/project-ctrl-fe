@@ -14,34 +14,36 @@
 //*Objetivo: Logica para dibujar los mapas, de manera que, simplemente hay que indicar que mapa queremos dibujar y ya
 class Map
 {
-
-public:
+protected:
     //* Valores iniciales
     // PD: a pesar de que un objetivo era hacerlo variable, osea, que se relacionen junto al tamaño de consola pues, resumen, no se puede, se ocupa vectores para eso
     static const int mH = 50;
     static const int mW = 30;
 
-    int getWidth() const { return width; }
-    int getHeight() const { return height; }
+    char grid[mH][mW]{};
 
-    std::ifstream identifierMap(int identifier)
+    int width = 0;
+    int height = 0;
+    int spawnX = 1;
+    int spawnY = 1;
+
+public:
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
+
+    Utils utils;
+
+    std::ifstream IdentifierMap(std::string map)
     {
-        std::string filename;
-        switch (identifier)
-        {
-        case 0:
-            filename = "./src/maps/mainMaps/title.txt";
-            break;
-        default:
-            return std::ifstream();
-        }
+        std::string path = "./src/maps/";
+        std::string filename = path + map;
 
         return std::ifstream(filename);
     }
 
-    void readMap(int key, int mapW, int mapH)
+    void ReadMap(std::string key, int mapW, int mapH)
     {
-        std::ifstream file = identifierMap(key);
+        std::ifstream file = IdentifierMap(key);
         if (!file.is_open())
         {
             std::cerr << "Error al abrir el archivo: " << strerror(errno) << "\n";
@@ -72,16 +74,15 @@ public:
         width = mW;
     }
 
-    void drawMap(int key, int mapW, int mapH, int playerX = 1, int playerY = 1)
+    void DrawMap(std::string key, int mapW, int mapH, int playerX = 1, int playerY = 1)
     {
-        readMap(key, mapW, mapH);
-        // drawBorders();
+        ReadMap(key, mapW, mapH);
 
-        for (int y = 0; y < getHeight(); ++y)
+        for (int y = 0; y < GetHeight(); ++y)
         {
-            for (int x = 0; x < getWidth(); ++x)
+            for (int x = 0; x < GetWidth(); ++x)
             {
-                Utils::moveCursor(playerX + x, playerY + y);
+                utils.moveCursor(playerX + x, playerY + y);
                 if (x == playerX && y == playerY)
                 {
                     std::cout << PINK << "o" << RESET;
@@ -93,39 +94,4 @@ public:
             }
         }
     }
-
-    void drawBorders()
-    {
-        for (int y = 0; y < mH; y++)
-        {
-            for (int x = 0; x < mW; x++)
-            {
-                // goToXY(x, y);
-                if (y == 0 || y == mH - 1 || x == 0 || x == mW - 1)
-                {
-                    if ((y == mH / 2 && (x == 0 || x == mW - 1)) ||
-                        (x == mW / 2 && (y == 0 || y == mH - 1)))
-                    {
-                        std::cout << " ";
-                    }
-                    else
-                    {
-                        std::cout << "#";
-                    }
-                }
-                else
-                {
-                    std::cout << " ";
-                }
-            }
-        }
-    }
-
-protected:
-    char grid[mH][mW]{};
-
-    int width = 0;
-    int height = 0;
-    int spawnX = 1;
-    int spawnY = 1;
 };

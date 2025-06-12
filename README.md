@@ -89,6 +89,7 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 
 **Imagenes**
 https://www.figma.com/design/n5lZId7IIKfvx0tRVgtP1N/Cntr-Fe?node-id=0-1&t=tDheFUCTkofCvffx-1
+
 ## Equipo
 
 ```bash
@@ -114,3 +115,10 @@ Ctrl+Fe
    ```bash
    git clone [URL del repositorio]
    ```
+
+## Nomenclatura
+
+- Carpetas: nombre-ejemplo (pincho)
+- Archivos: nombreEjemplo.cpp (camelCase)
+- Variables: nombreVariable (camelCase)
+- Funciones: NombreFuncion (PascalCase)

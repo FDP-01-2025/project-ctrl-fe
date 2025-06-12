@@ -28,7 +28,13 @@ public:
     Console(int w = 100, int h = 40, int bW = 100, int bH = 40, int fw = 8, int fh = 16)
         : consoleW(w), consoleH(h), bufferW(bW), bufferH(bH), fontW(fw), fontH(fh) {}
 
-    void configConsole()
+    void ResetConfigure(int w, int h)
+    {
+        consoleW = w;
+        consoleH = h;
+    }
+
+    void ConfigConsole()
     {
         // Libera cualquier consola existente (por si este .exe es de consola)
         FreeConsole();
@@ -52,12 +58,12 @@ public:
             }
 
             // Validamos que las configuraciones que queremos estan dentro de los limites
-            if (validConfigs(hConsoleOUT))
+            if (ValidConfigs(hConsoleOUT))
             {
-                apllySettings();
-                setConsoleFont();
-                hideCursor();
-                centerWindow();
+                ApllySettings();
+                SetConsoleFont();
+                HideCursor();
+                CenterWindow();
             }
         }
         else
@@ -67,7 +73,7 @@ public:
         }
     }
 
-    bool validConfigs(HANDLE handle)
+    bool ValidConfigs(HANDLE handle)
     {
         // Obtener info actual de consola para conocer límites
         if (!GetConsoleScreenBufferInfo(handle, &csbi))
@@ -111,7 +117,7 @@ public:
         return true;
     }
 
-    void apllySettings()
+    void ApllySettings()
     {
         SMALL_RECT tempWindow = {0, 0, 1, 1};
         SetConsoleWindowInfo(hConsoleOUT, TRUE, &tempWindow);
@@ -133,7 +139,7 @@ public:
         }
     }
 
-    void centerWindow()
+    void CenterWindow()
     {
         HWND hwnd = GetConsoleWindow(); // Obtiene el handle de la ventana de consola
         if (!hwnd)
@@ -157,7 +163,7 @@ public:
         SetWindowPos(hwnd, HWND_TOP, posX, posY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
     }
 
-    void setConsoleFont()
+    void SetConsoleFont()
     {
         HMODULE hKernel = GetModuleHandleA("kernel32.dll");
         if (!hKernel)
@@ -186,17 +192,17 @@ public:
         }
     }
 
-    void setTitle(const wchar_t *title)
+    void SetTitle(const wchar_t *title)
     {
         SetConsoleTitleW(title);
     }
 
-    void setColor(WORD attributes)
+    void SetColor(WORD attributes)
     {
         SetConsoleTextAttribute(hConsoleOUT, attributes);
     }
 
-    void hideCursor()
+    void HideCursor()
     {
         GetConsoleCursorInfo(hConsoleOUT, &cursorInfo);
         cursorInfo.bVisible = FALSE;
