@@ -4,8 +4,10 @@
 #include "./src/utils/settings/console.h"
 #include "./src/utils/settings/maping.h"
 #include "./src/utils/threads/main/main.h"
-#include "./src/utils/threads/main/menu.h"
+#include "./src/utils/threads/main/firstMenu.h"
+#include "./src/utils/threads/main/secondMenu.h"
 #include "./src/utils/threads/main/initializer.h"
+#include "./src/utils/threads/main/storyBoard.h"
 
 class Global
 {
@@ -47,15 +49,10 @@ public:
         {
             consoleSettings.ConfigConsole();
             consoleSettings.SetTitle(L"Dungeon of leguim"); // Aplicar titulo
-            if (InitializerThread())
-            {
-                processThread = STATE_INITIALIZED;
-            }
-            else
-            {
-                processThread = STATE_NOT_STARTED;
+            //Condicional para evaluar si el proceso se completó
+            processThread = InitializerThread() ? STATE_INITIALIZED : STATE_NOT_STARTED;
+            if (processThread == STATE_NOT_STARTED)
                 std::cout << "Initializer no se completo";
-            }
         }
     }
     // TODO ----- PROCESO (2) ----
@@ -86,8 +83,10 @@ public:
         switch (processThread)
         {
         case STATE_FIRST_INIT:
-            // LOGICA de mostrar el story board, si sale bien entonces:
-            processThread = STATE_STORYBOARD_SHOWN;
+            // LOGICA de mostrar el story board
+            processThread = ShowStoryBoard() ? STATE_STORYBOARD_SHOWN : STATE_NOT_STARTED;
+            if (processThread == STATE_NOT_STARTED)
+                std::cout << "storyBoard no se completo";
             break;
         case STATE_SECOND_INIT:
             // Si ya se mostró, toncs no hacer nada :p y solo poner que ya se mostró
@@ -126,8 +125,11 @@ public:
         switch (processThread)
         {
         case STATE_INITIAL_MENU_DONE:
-            // Muestra el menú y si sale bien:
-            processThread = STATE_SECOND_MENU_DONE;
+            if (StartSecondMenu())
+            {
+                processThread = STATE_SECOND_MENU_DONE;
+            }
+
             break;
         case STATE_SECOND_MENU_DONE:
             // No muestra el menu porque se supone que ya tiene partida guardada con la dificultad ya puesta

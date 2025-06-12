@@ -1,0 +1,3 @@
+bool StartSecondMenu(){
+    return true;
+}
