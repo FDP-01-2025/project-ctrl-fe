@@ -6,19 +6,19 @@
 #include <conio.h>
 #include <wchar.h>
 
-#ifndef _CONSOLE_FONT_INFOEX
-#define _CONSOLE_FONT_INFOEX
+// #ifndef _CONSOLE_FONT_INFOEX
+// #define _CONSOLE_FONT_INFOEX
 
-typedef struct _CONSOLE_FONT_INFOEX
-{
-    ULONG cbSize;
-    DWORD nFont;
-    COORD dwFontSize;
-    UINT FontFamily;
-    UINT FontWeight;
-    WCHAR FaceName[LF_FACESIZE];
-} CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
-#endif
+// typedef struct _CONSOLE_FONT_INFOEX
+// {
+//     ULONG cbSize;
+//     DWORD nFont;
+//     COORD dwFontSize;
+//     UINT FontFamily;
+//     UINT FontWeight;
+//     WCHAR FaceName[LF_FACESIZE];
+// } CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
+// #endif
 
 typedef BOOL(WINAPI *PFN_SetCurrentConsoleFontEx)(HANDLE, BOOL, PCONSOLE_FONT_INFOEX);
 

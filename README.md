@@ -109,16 +109,55 @@ Ctrl+Fe
 4. **Nombre completo:** Karla Reneé Rivas Hernández  
    **Carnet:** 00107225
 
-## Instrucciones de Ejecución
+## 📦 Compilación y Ejecución del Proyecto
+
+### 🧩 Instrucciones de Ejecución
 
 1. Clona este repositorio en tu máquina local:
    ```bash
-   git clone [URL del repositorio]
+   git clone https://github.com/FDP-01-2025/project-ctrl-fe.git
+   ```
+2. Entra a la carpeta del proyecto y compílalo con el siguiente comando:
+   ```bash
+   g++ main.cpp -o main.exe -mwindows
+   ```
+3. Una vez compilado, **ejecuta el archivo `main.exe` desde el explorador de archivos de Windows** (doble clic), no desde la terminal, para evitar la apertura de una consola negra adicional.
+
+---
+
+### ❓ ¿Por qué se utiliza la opción `-mwindows`?
+
+La bandera `-mwindows` le indica al compilador que el programa se ejecutará como una **aplicación de escritorio (GUI)** y no como una **aplicación de consola**. Esto evita que se abra una ventana de terminal negra al ejecutar el `.exe`, lo cual puede ser útil para mejorar la presentación o evitar conflictos visuales, especialmente si se desea una experiencia más limpia para el usuario final.
+
+## ✅ Reglas para realizar commits
+
+Para mantener un historial de cambios claro, profesional y consistente, se deben seguir las siguientes reglas al momento de hacer commits:
+
+1. **Evita commits con una sola palabra.**
+2. **Sigue este formato obligatorio:**
+
+   ```
+   [Emoji] [Verbo en infinitivo] [Descripción del cambio]
    ```
 
-## Nomenclatura
+   Ejemplos válidos:
 
-- Carpetas: nombre-ejemplo (pincho)
-- Archivos: nombreEjemplo.cpp (camelCase)
-- Variables: nombreVariable (camelCase)
-- Funciones: NombreFuncion (PascalCase)
+   - ✨ Agregar minijuego tipo Bomberman
+   - 🐛 Corregir bug en lógica de explosión
+
+3. **Solo se permite un (1) emoji por mensaje de commit.**
+4. **No se permite el uso de palabras ofensivas o vulgares**, ni en español ni en inglés.
+5. **Utiliza siempre verbos en infinitivo** para estandarizar la forma del mensaje.
+
+---
+
+## 📚 Nomenclatura y Convenciones de Código
+
+| Elemento      | Formato    | Ejemplo              | Notas                                           |
+| ------------- | ---------- | -------------------- | ----------------------------------------------- |
+| **Carpetas**  | kebab-case | `nombre-ejemplo`     | Usar guiones para separar palabras              |
+| **Archivos**  | camelCase  | `nombreEjemplo.cpp`  | Iniciar con minúscula, sin espacios             |
+| **Variables** | camelCase  | `int nombreVariable` | Variables y atributos en minúscula inicial      |
+| **Funciones** | PascalCase | `NombreFuncion()`    | Cada palabra inicia con mayúscula, sin espacios |
+
+---

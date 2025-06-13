@@ -82,7 +82,7 @@ public:
         {
             for (int x = 0; x < GetWidth(); ++x)
             {
-                utils.moveCursor(playerX + x, playerY + y);
+                utils.MoveCursor(playerX + x, playerY + y);
                 if (x == playerX && y == playerY)
                 {
                     std::cout << PINK << "o" << RESET;
@@ -92,6 +92,23 @@ public:
                     std::cout << grid[y][x];
                 }
             }
+        }
+    }
+
+    char GetTile(int x, int y) const
+    {
+        if (x >= 0 && x < width && y >= 0 && y < height)
+        {
+            return grid[y][x];
+        }
+        return ' ';
+    }
+
+    void SetTile(int x, int y, char value)
+    {
+        if (x >= 0 && x < width && y >= 0 && y < height)
+        {
+            grid[y][x] = value;
         }
     }
 };
