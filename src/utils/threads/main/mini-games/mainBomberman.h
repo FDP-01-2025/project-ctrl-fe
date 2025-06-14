@@ -24,7 +24,7 @@ const int MAX_BOMBS = 25; // Número máximo de bombas en juego
 class MainBomberman
 {
 public:
-    MainBomberman();     // Constructor del juego
+    MainBomberman(); // Constructor del juego
 
     // Ejecuta el ciclo principal del juego
     // Retorna true si pasa todos los niveles, false si pierde
@@ -41,16 +41,16 @@ private:
     Bomb bombs[MAX_BOMBS]; // Arreglo de bombas
     int bombCount = 0;     // Número actual de bombas activas
 
-    int currentLevel;      // Nivel actual
-    bool isRunning;        // Estado de ejecución del juego
+    int currentLevel; // Nivel actual
+    bool isRunning;   // Estado de ejecución del juego
 
     int offsetX = 1, offsetY = 1; // Offset para el render del mapa en pantalla
-    std::string currentMapName;  // Ruta del mapa actual
+    std::string currentMapName;   // Ruta del mapa actual
 
     // Métodos auxiliares
-    void processInput(char input);     // Procesa entrada del jugador
-    void LoadLevel(int level);         // Carga un nuevo nivel
-    void handleExplosion(int i);       // Maneja explosión de la bomba i
+    void processInput(char input); // Procesa entrada del jugador
+    void LoadLevel(int level);     // Carga un nuevo nivel
+    void handleExplosion(int i);   // Maneja explosión de la bomba i
 };
 
 // Constructor: inicializa estado y carga primer nivel
@@ -69,7 +69,7 @@ bool MainBomberman::Run()
         utils.ClearScreen(); // Limpia consola
 
         // Dibuja mapa, jugador, bombas y HUD
-        map.DrawWithPlayer(currentMapName, map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
+        map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
         bombRenderer.Draw(bombs, bombCount, 1, 1);
         hud.Draw(player, currentLevel, map.GetWidth());
 
@@ -129,7 +129,37 @@ void MainBomberman::processInput(char input)
     bool changeLevel = player.TryMove(input, map);
     if (changeLevel)
     {
-        currentLevel++;
+        int nextLevel = currentLevel + 1;
+
+        // Determinar la ruta del siguiente mapa
+        std::string difficultyFolder;
+        switch (player.GetDifficulty())
+        {
+        case Player::EASY:
+            difficultyFolder = "easy-levels";
+            break;
+        case Player::NORMAL:
+            difficultyFolder = "normal-levels";
+            break;
+        case Player::HARD:
+            difficultyFolder = "hard-levels";
+            break;
+        }
+
+        std::string nextMapPath = "src/maps/maps-bomberman/" + difficultyFolder + "/level" + std::to_string(nextLevel) + ".txt";
+
+        // Verificar si existe el siguiente nivel
+        std::ifstream file(nextMapPath);
+        if (!file.is_open())
+        {
+            utils.ClearScreen();
+            std::cout << "\n¡Felicidades! Has completado todos los niveles.\n";
+            isRunning = false;
+            return; // Finaliza el juego exitosamente
+        }
+
+        // Si existe, cargar el siguiente nivel
+        currentLevel = nextLevel;
         LoadLevel(currentLevel);
     }
 }
@@ -142,21 +172,24 @@ void MainBomberman::LoadLevel(int level)
     // Define carpeta según dificultad
     switch (player.GetDifficulty())
     {
-    case Player::EASY: difficultyFolder = "easy-levels"; break;
-    case Player::NORMAL: difficultyFolder = "normal-levels"; break;
-    case Player::HARD: difficultyFolder = "hard-levels"; break;
+    case Player::EASY:
+        difficultyFolder = "easy-levels";
+        break;
+    case Player::NORMAL:
+        difficultyFolder = "normal-levels";
+        break;
+    case Player::HARD:
+        difficultyFolder = "hard-levels";
+        break;
     }
 
     // Construye la ruta al archivo del mapa
     currentMapName = "src/maps/maps-bomberman/" + difficultyFolder + "/level" + std::to_string(level) + ".txt";
     std::ifstream file(currentMapName);
 
-    // Si el archivo no existe, aquí podría manejarse el fin del juego
-    // (Se encuentra comentado pero disponible para agregar el final de la sala)
-
     // Si el archivo existe, lo carga
     map.ReadMap(currentMapName, map.GetWidth(), map.GetHeight());
-    bombCount = 0; // Reinicia bombas
+    bombCount = 0;                                        // Reinicia bombas
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY()); // Coloca al jugador en spawn
 }
 
@@ -203,7 +236,7 @@ void MainBomberman::handleExplosion(int i)
     // Redibuja tras explosión
     utils.ClearScreen();
     hud.Draw(player, currentLevel, map.GetWidth());
-    map.DrawWithPlayer(currentMapName, map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
+    map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
     bombRenderer.Draw(bombs, bombCount, 1, 1);
     utils.Sleep(30);
 
