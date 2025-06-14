@@ -119,7 +119,7 @@ Ctrl+Fe
    ```
 2. Entra a la carpeta del proyecto y compílalo con el siguiente comando:
    ```bash
-   g++ main.cpp -o main.exe -mwindows
+   g++ main.cpp -o dungeonLeugim -I./src -mwindows
    ```
 3. Una vez compilado, **ejecuta el archivo `main.exe` desde el explorador de archivos de Windows** (doble clic), no desde la terminal, para evitar la apertura de una consola negra adicional.
 

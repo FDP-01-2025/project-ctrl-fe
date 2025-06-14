@@ -64,6 +64,20 @@
         "ctime": "cpp",
         "ratio": "cpp",
         "thread": "cpp",
-        "*.txt": "cpp"
+        "*.txt": "cpp",
+        "bit": "cpp",
+        "charconv": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp",
+        "format": "cpp",
+        "iomanip": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "span": "cpp",
+        "stop_token": "cpp",
+        "text_encoding": "cpp",
+        "variant": "cpp"
     }
 }

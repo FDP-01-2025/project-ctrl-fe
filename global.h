@@ -8,6 +8,7 @@
 #include "./src/utils/threads/main/secondMenu.h"
 #include "./src/utils/threads/main/initializer.h"
 #include "./src/utils/threads/main/storyBoard.h"
+#include "./src/utils/threads/main/mini-games/mainBomberman.h"
 
 class Global
 {
@@ -20,6 +21,7 @@ protected:
 
     Console consoleSettings;
     Map mapSettings;
+    MainBomberman bomberman;
 
     enum ProcessState
     {
@@ -49,7 +51,7 @@ public:
         {
             consoleSettings.ConfigConsole();
             consoleSettings.SetTitle(L"Dungeon of leguim"); // Aplicar titulo
-            //Condicional para evaluar si el proceso se completó
+            // Condicional para evaluar si el proceso se completó
             processThread = InitializerThread() ? STATE_INITIALIZED : STATE_NOT_STARTED;
             if (processThread == STATE_NOT_STARTED)
                 std::cout << "Initializer no se completo";
@@ -147,5 +149,12 @@ public:
         if (processThread == STATE_SECOND_MENU_DONE)
         {
         }
+        // Aqui se inicia el juego, se carga el mapa y se inicia el hilo del juego
+        else if (processThread == STATE_GAME_STARTED)
+        {
+            // Iniciar el juego
+        }
+
+        bool completoLaSala = bomberman.Run();
     }
 };

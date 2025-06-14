@@ -14,19 +14,19 @@ int main()
 
     //! ----- (2) -----
     //* Segunda acción: Leer en que estado está el jugador (es decir, primera ejecución, o en algun punto x del juego)
-    mainCalls.ReadPlayerStatusPoint();
+    //mainCalls.ReadPlayerStatusPoint();
 
     //! ----- (3) -----
     //*Tercera acción: mostrar el storyboard
-    mainCalls.SetStoryBoard();
+    //mainCalls.SetStoryBoard();
 
     //! ----- (4) -----
     //*Cuarta accion: Mostrar la pantalla de Inicio
-    mainCalls.ShowInitialMenu(L"Menu");
+    //mainCalls.ShowInitialMenu(L"Menu");
 
     //! ----- (5) -----
     //*Quinta accion: Mostrar meu de niveles
-    mainCalls.ShowSecondMenu();
+    //mainCalls.ShowSecondMenu();
 
     //! ----- (6) -----
     //* Sexta acción, iniciar el hilo de juegos
