@@ -2,18 +2,18 @@
 #define MAPING_H
 
 // Include de librerías necesarias
-#include <fstream>  // Para manejo de archivos
-#include <iostream> 
-#include <string>   
+#include <fstream> // Para manejo de archivos
+#include <iostream>
+#include <string>
 #include <conio.h> // Para funciones como _kbhit() y _getch()
 #include <limits>  // Para std::numeric_limits
-#ifdef _WIN32 // Solo incluir en sistemas Windows
+#ifdef _WIN32      // Solo incluir en sistemas Windows
 #include <windows.h>
 #endif
 
 // Include de las cabeceras de las clases utilizadas
-#include "Utils.h" 
-#include "colors.h" 
+#include "Utils.h"
+#include "colors.h"
 
 // Constantes globales para el tamaño máximo del mapa
 const int MAP_HEIGHT = 95;
@@ -90,11 +90,11 @@ public:
     //     width = mW;
     // }
 
-     // Lee el mapa desde un archivo de texto plano
+    // Lee el mapa desde un archivo de texto plano
     void ReadMap(std::string key, int mapW, int mapH)
     {
         std::ifstream file(key); // Abre el archivo especificado por `key`
-        
+
         if (!file.is_open())
         {
             std::cerr << "Error al abrir el archivo: " << key << " -> " << strerror(errno) << "\n";
@@ -154,11 +154,8 @@ public:
         }
     }
 
-    // Dibuja el mapa con jugador y con desplazamiento (offset)
-    void DrawWithPlayer(std::string key, int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
+    void DrawWithPlayer(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
     {
-        ReadMap(key, mapW, mapH); // Carga el mapa
-
         for (int y = 0; y < GetHeight(); ++y)
         {
             for (int x = 0; x < GetWidth(); ++x)
@@ -167,11 +164,11 @@ public:
 
                 if (x == playerX && y == playerY)
                 {
-                    std::cout << PINK << "o" << RESET; // Dibuja jugador
+                    std::cout << PINK << "o" << RESET;
                 }
                 else
                 {
-                    char tile = grid[y][x]; // Caracter del mapa
+                    char tile = grid[y][x];
                     switch (tile)
                     {
                     case '#':
@@ -199,7 +196,7 @@ public:
                         std::cout << YELLOW_BRIGHT << "*" << RESET;
                         break;
                     default:
-                        std::cout << tile; // Imprime sin color si no es especial
+                        std::cout << tile;
                         break;
                     }
                 }

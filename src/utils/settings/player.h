@@ -43,7 +43,7 @@ public:
 
     // Acciones del jugador
     // Intenta mover al jugador en base a un input y el mapa
-    bool TryMove(char input, class Map map);
+    bool TryMove(char input, Map &map);
     // Movimiento básico si la casilla es caminable
     void Move(int dx, int dy, char nextTile);
     // Coloca una bomba si hay bombas disponibles
@@ -155,7 +155,7 @@ void Player::Move(int dx, int dy, char nextTile)
 }
 
 // Intenta mover al jugador en base a un input y el mapa
-bool Player::TryMove(char input, Map map)
+bool Player::TryMove(char input, Map &map)
 {
     // Define las direcciones de movimiento
     int dx = 0, dy = 0;
@@ -194,15 +194,15 @@ bool Player::TryMove(char input, Map map)
     if (tile == '#' || tile == '0' || tile == '~' || tile == 'H' || tile == 'A')
         return false;
 
+    // Mueve al jugador a la nueva posición
+    Move(dx, dy, tile);
+
     // Si la casilla es una bomba, incrementa el contador de bombas y la elimina del mapa
     if (tile == 'B')
     {
         IncrementBombs();
         map.SetTile(newX, newY, ' ');
     }
-
-    // Mueve al jugador a la nueva posición
-    Move(dx, dy, tile);
 
     // Si pisa puerta '/', retorna true para indicar cambio de nivel
     return tile == '/';
