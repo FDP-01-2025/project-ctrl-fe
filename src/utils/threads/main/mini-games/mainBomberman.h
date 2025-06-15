@@ -33,7 +33,7 @@ public:
 private:
     // Componentes del juego
     Map map;
-    Player player;
+    Player& player = Player::GetInstance();
     HUDBomberman hud;
     Utils utils;
     BombRenderer bombRenderer;
@@ -139,7 +139,7 @@ void MainBomberman::processInput(char input)
             difficultyFolder = "easy-levels";
             break;
         case Player::NORMAL:
-            difficultyFolder = "normal-levels";
+            difficultyFolder = "medium-levels";
             break;
         case Player::HARD:
             difficultyFolder = "hard-levels";

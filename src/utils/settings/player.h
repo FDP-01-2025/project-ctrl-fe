@@ -18,8 +18,6 @@ public:
         HARD
     };
 
-    Player();
-
     // Getters
     int GetX() const;
     int GetY() const;
@@ -52,20 +50,30 @@ public:
     void IncrementBombs();
     void IncrementLife();
 
+    // Evitar copia y asignación
+    Player(const Player &) = delete;
+    Player &operator=(const Player &) = delete;
+
+    // Método estático para obtener la instancia única
+    static Player &GetInstance()
+    {
+        static Player instance; // instancia única (lazy initialization)
+        return instance;
+    }
+
 private:
     int x, y;
     int lives;
     int bombsAvailable;
-    int maxBombs;
+    int maxBombs = 25;
     Difficulty difficulty;
     bool controlB;
+
+    // Constructor privado para evitar instancias externas
+    Player() : x(0), y(0), lives(3), difficulty(EASY), controlB(false), bombsAvailable(1) {}
 };
 
 #include "maping.h"
-
-// Constructor por defecto del jugador
-Player::Player()
-    : x(1), y(1), lives(3), bombsAvailable(5), maxBombs(25), difficulty(EASY), controlB(true) {}
 
 int Player::GetX() const { return x; }
 int Player::GetY() const { return y; }
@@ -98,9 +106,10 @@ void Player::SetLives(int newLives)
 // Establece el número de bombas disponibles
 void Player::SetBombs(int newBombs)
 {
-    bombsAvailable = newBombs;
-    if (bombsAvailable > maxBombs)
-        bombsAvailable = maxBombs;
+    if (newBombs > maxBombs)
+    bombsAvailable = maxBombs;
+    else
+        bombsAvailable = newBombs;
 }
 
 //! Activa o desactiva el control de la tecla B

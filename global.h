@@ -3,6 +3,7 @@
 //* Todos los headers
 #include "./src/utils/settings/console.h"
 #include "./src/utils/settings/maping.h"
+#include "./src/utils/settings/player.h"
 #include "./src/utils/threads/main/main.h"
 #include "./src/utils/threads/main/firstMenu.h"
 #include "./src/utils/threads/main/secondMenu.h"
@@ -21,6 +22,7 @@ protected:
 
     Console consoleSettings;
     Map mapSettings;
+    Player& player = Player::GetInstance();
     MainBomberman bomberman;
 
     enum ProcessState
@@ -163,17 +165,26 @@ public:
             switch (selectedDifficulty)
             {
             case 1:
-                // Iniciar modo normal
+                // Iniciar modo facil
+                player.SetLives(5);
+                player.SetDifficulty(Player::EASY);
+                player.SetBombs(10); 
                 bomberman.Run(); // o tu lógica aquí
                 break;
 
             case 2:
                 // Iniciar modo medio
+                player.SetLives(3);
+                player.SetDifficulty(Player::NORMAL);
+                player.SetBombs(5); 
                 bomberman.Run(); // o lógica medio
                 break;
 
             case 3:
                 // Iniciar modo difícil
+                player.SetLives(1);
+                player.SetDifficulty(Player::HARD);
+                player.SetBombs(3);
                 bomberman.Run(); // o lógica difícil
                 break;
 
