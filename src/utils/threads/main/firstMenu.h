@@ -1,25 +1,46 @@
 #pragma once
+#include <windows.h>
 #include <iostream>
+#include <conio.h>
 using namespace std;
-// Return 1 = le dio a jugar
-// Return 2 = le dio a continuar
-// Return 3 = le dio a salir
-// Return 0 = error en algo
+#include "utils/settings/colors.h" 
+
 int StartMenu()
 {
-    int option;
+    string options[] = {"Jugar", "Continuar", "Salir"};
+    int currentOption = 0;
+    int totalOptions = 3;
 
-    cout << "====== MENU PRINCIPAL ======\n";
-    cout << "1. Jugar\n";
-    cout << "2. Continuar\n";
-    cout << "Seleccione una opción: ";
-    cin >> opcion;
+    while (true)
+    {
+        system("cls");
 
-    if (opcion == 1)
-        return 1;
-    else if (opcion == 2)
-        return 2;
-    else
-        return 0;
+        cout << WHITE_BRIGHT << "\n\n\t\tTORRE DE LEUGIM\n";
+        cout << GRAY << "\t\t------------------------\n\n";
 
+        for (int i = 0; i < totalOptions; ++i)
+        {
+            if (i == currentOption)
+                cout << GREEN << "\t\t>> " << options[i] << " <<" << RESET << endl;
+            else
+                cout << WHITE_BRIGHT << "\t\t   " << options[i] << RESET << endl;
+        }
+
+        int key = _getch();
+
+        if (key == 224) // flecha
+        {
+            key = _getch();
+            if (key == 72) // ↑
+                currentOption = (currentOption - 1 + totalOptions) % totalOptions;
+            else if (key == 80) // ↓
+                currentOption = (currentOption + 1) % totalOptions;
+        }
+        else if (key == 13) // ENTER
+        {
+            return currentOption + 1; // 1 = jugar, 2 = continuar, 3 = salir
+        }
+    }
+
+    return 0;
 }

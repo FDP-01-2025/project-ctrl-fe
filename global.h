@@ -110,6 +110,7 @@ public:
             case 1: // Si le dio a jugar entonces? (deberia borrar cualquier partida anterior que tenga si es que tiene o no para comenzar de 0)
                     // Si sale bien entonces:
                 processThread = STATE_INITIAL_MENU_DONE;
+                ShowSecondMenu();
                 break;
             case 2: // Si le dio a continuar es que tiene partida guardada, entonces no es necesario mostrar el segundo menú
                 processThread = STATE_SECOND_MENU_DONE;
@@ -153,8 +154,7 @@ public:
         else if (processThread == STATE_GAME_STARTED)
         {
             // Iniciar el juego
+            bool completoLaSala = bomberman.Run();
         }
-
-        bool completoLaSala = bomberman.Run();
     }
 };
