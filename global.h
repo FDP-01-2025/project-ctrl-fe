@@ -117,22 +117,33 @@ public:
                 break;
             default:
                 processThread = STATE_NOT_STARTED;
-                std::cout << "El menu principal no se completo";
+                if (ConfirmExitMenu())
+                {
+                    exit(0); // Finaliza el juego
+                }
+                else
+                {
+                    // El usuario no quiso salir, se queda en el menú
+                    processThread = STATE_STORYBOARD_SHOWN;
+                }
                 break;
             }
         }
     }
     // TODO ----- PROCESO (5) ----
+    int selectedDifficulty = 0;
+
     void ShowSecondMenu()
     {
         switch (processThread)
         {
         case STATE_INITIAL_MENU_DONE:
-            if (StartSecondMenu())
-            {
-                processThread = STATE_SECOND_MENU_DONE;
-            }
 
+            selectedDifficulty = StartSecondMenu(); //
+            if (selectedDifficulty >= 1 && selectedDifficulty <= 3)
+            {
+                processThread = STATE_GAME_STARTED;
+            }
             break;
         case STATE_SECOND_MENU_DONE:
             // No muestra el menu porque se supone que ya tiene partida guardada con la dificultad ya puesta
@@ -147,14 +158,29 @@ public:
     void StartGame()
     {
         // En este punto ya habiramos: Mostrado el logo, Leer el estado del usuario, mostrar la historia y mostrar ambos menus
-        if (processThread == STATE_SECOND_MENU_DONE)
+        if (processThread == STATE_GAME_STARTED)
         {
-        }
-        // Aqui se inicia el juego, se carga el mapa y se inicia el hilo del juego
-        else if (processThread == STATE_GAME_STARTED)
-        {
-            // Iniciar el juego
-            bool completoLaSala = bomberman.Run();
+            switch (selectedDifficulty)
+            {
+            case 1:
+                // Iniciar modo normal
+                bomberman.Run(); // o tu lógica aquí
+                break;
+
+            case 2:
+                // Iniciar modo medio
+                bomberman.Run(); // o lógica medio
+                break;
+
+            case 3:
+                // Iniciar modo difícil
+                bomberman.Run(); // o lógica difícil
+                break;
+
+            default:
+                std::cout << "Dificultad no válida\n";
+                break;
+            }
         }
     }
 };

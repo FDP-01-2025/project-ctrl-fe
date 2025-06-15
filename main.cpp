@@ -22,7 +22,7 @@ int main()
 
     //! ----- (4) -----
     //*Cuarta accion: Mostrar la pantalla de Inicio
-    mainCalls.ShowInitialMenu(L"Menu");
+    mainCalls.ShowInitialMenu(L"Menu");// Este método llama automáticamente a ShowSecondMenu() si el jugador elige "Jugar"
 
     //! ----- (5) -----
     //*Quinta accion: Mostrar meu de niveles
