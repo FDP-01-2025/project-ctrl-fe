@@ -5,7 +5,6 @@
 #include <iostream>
 #include <string>
 // Include de las cabeceras de las clases utilizadas
-#include "utils/settings/utils.h"
 #include "utils/settings/hudBase.h"
 #include "utils/settings/colors.h"
 
@@ -22,13 +21,16 @@ public:
     // Recibe el jugador, el nivel actual y el ancho del mapa (opcional)
     void Draw(const Player &player, int currentLevel, int mapWidth = 0) override
     {
+        utils.ClearScreen();
         int hudX = mapWidth + 3;
         int y = 3;
 
         // Información del jugador
+        std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
         PrintLine(hudX, y, "Sala - " + std::to_string(currentLevel), WHITE_BRIGHT);
         y++;
 
+        std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
         PrintLine(hudX, y, "Vida - " + std::to_string(player.GetLives()), RED);
         std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
         PrintLine(hudX, y, "B - " + std::to_string(player.GetBombs()), ORANGE);

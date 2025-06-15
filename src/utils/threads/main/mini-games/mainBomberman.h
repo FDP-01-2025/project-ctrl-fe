@@ -33,10 +33,11 @@ public:
 private:
     // Componentes del juego
     Map map;
-    Player& player = Player::GetInstance();
+    Player &player = Player::GetInstance();
     HUDBomberman hud;
     Utils utils;
     BombRenderer bombRenderer;
+    std::string difficultyFolder;
 
     Bomb bombs[MAX_BOMBS]; // Arreglo de bombas
     int bombCount = 0;     // Número actual de bombas activas
@@ -51,18 +52,23 @@ private:
     void processInput(char input); // Procesa entrada del jugador
     void LoadLevel(int level);     // Carga un nuevo nivel
     void handleExplosion(int i);   // Maneja explosión de la bomba i
+    void DetermineDifficultyFolder();
 };
 
 // Constructor: inicializa estado y carga primer nivel
 MainBomberman::MainBomberman() : currentLevel(1), isRunning(true), bombCount(0)
 {
-    LoadLevel(currentLevel);
 }
 
 // Método principal de ejecución del juego
 bool MainBomberman::Run()
 {
+    utils.ClearScreen();
     player.ActivateControlB(true); // Activa control para colocar bombas
+    // Determina la carpeta correcta según dificultad
+    DetermineDifficultyFolder();
+    // Carga el primer nivel
+    LoadLevel(currentLevel);
 
     while (isRunning)
     {
@@ -132,16 +138,16 @@ void MainBomberman::processInput(char input)
         int nextLevel = currentLevel + 1;
 
         // Determinar la ruta del siguiente mapa
-        std::string difficultyFolder;
+
         switch (player.GetDifficulty())
         {
-        case Player::EASY:
+        case Player::Difficulty::EASY:
             difficultyFolder = "easy-levels";
             break;
-        case Player::NORMAL:
+        case Player::Difficulty::NORMAL:
             difficultyFolder = "medium-levels";
             break;
-        case Player::HARD:
+        case Player::Difficulty::HARD:
             difficultyFolder = "hard-levels";
             break;
         }
@@ -167,18 +173,16 @@ void MainBomberman::processInput(char input)
 // Carga el mapa de un nivel determinado
 void MainBomberman::LoadLevel(int level)
 {
-    std::string difficultyFolder;
-
     // Define carpeta según dificultad
     switch (player.GetDifficulty())
     {
-    case Player::EASY:
+    case Player::Difficulty::EASY:
         difficultyFolder = "easy-levels";
         break;
-    case Player::NORMAL:
-        difficultyFolder = "normal-levels";
+    case Player::Difficulty::NORMAL:
+        difficultyFolder = "medium-levels";
         break;
-    case Player::HARD:
+    case Player::Difficulty::HARD:
         difficultyFolder = "hard-levels";
         break;
     }
@@ -188,6 +192,8 @@ void MainBomberman::LoadLevel(int level)
     std::ifstream file(currentMapName);
 
     // Si el archivo existe, lo carga
+    utils.ClearScreenComplety();
+
     map.ReadMap(currentMapName, map.GetWidth(), map.GetHeight());
     bombCount = 0;                                        // Reinicia bombas
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY()); // Coloca al jugador en spawn
@@ -254,6 +260,22 @@ void MainBomberman::handleExplosion(int i)
                     map.SetTile(nx, ny, ' ');
             }
         }
+    }
+}
+
+void MainBomberman::DetermineDifficultyFolder()
+{
+    switch (player.GetDifficulty())
+    {
+    case Player::Difficulty::EASY:
+        difficultyFolder = "easy-levels";
+        break;
+    case Player::Difficulty::NORMAL:
+        difficultyFolder = "medium-levels";
+        break;
+    case Player::Difficulty::HARD:
+        difficultyFolder = "hard-levels";
+        break;
     }
 }
 

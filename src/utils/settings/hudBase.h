@@ -8,9 +8,11 @@
 #define HUD_BASE_H
 
 #include "player.h"
+#include "utils.h"
 
 class HUDBase {
 public:
+    Utils utils; // Instancia de la clase Utils para operaciones comunes
     // Constructor por defecto
     // Esto significa que las clases derivadas deben implementar sus propios destructores
     virtual ~HUDBase() = default;

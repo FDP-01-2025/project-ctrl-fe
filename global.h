@@ -24,6 +24,7 @@ protected:
     Map mapSettings;
     Player& player = Player::GetInstance();
     MainBomberman bomberman;
+    Utils utils;
 
     enum ProcessState
     {
@@ -162,6 +163,7 @@ public:
         // En este punto ya habiramos: Mostrado el logo, Leer el estado del usuario, mostrar la historia y mostrar ambos menus
         if (processThread == STATE_GAME_STARTED)
         {
+            utils.ClearScreenComplety(); // Limpia la pantalla antes de iniciar el juego
             switch (selectedDifficulty)
             {
             case 1:
