@@ -22,7 +22,7 @@ protected:
 
     Console consoleSettings;
     Map mapSettings;
-    Player& player = Player::GetInstance();
+    Player &player = Player::GetInstance();
     MainBomberman bomberman;
     Utils utils;
 
@@ -45,7 +45,7 @@ protected:
 public:
     //* Valores iniciales
     Global(int w = 70, int h = 20, int mW = 70, int mH = 20)
-        : consoleW(w), consoleH(h), mapW(mW), mapH(mH), consoleSettings(w, h, mW, mH) {}
+        : consoleSettings(w, h), mapW(mW), mapH(mH) {}
 
     // TODO ----- PROCESO (1) ----
     void Initializer()
@@ -54,6 +54,8 @@ public:
         {
             consoleSettings.ConfigConsole();
             consoleSettings.SetTitle(L"Dungeon of leguim"); // Aplicar titulo
+
+            Sleep(500);
             // Condicional para evaluar si el proceso se completó
             processThread = InitializerThread() ? STATE_INITIALIZED : STATE_NOT_STARTED;
             if (processThread == STATE_NOT_STARTED)
@@ -170,7 +172,7 @@ public:
                 // Iniciar modo facil
                 player.SetLives(5);
                 player.SetDifficulty(Player::EASY);
-                player.SetBombs(10); 
+                player.SetBombs(10);
                 bomberman.Run(); // o tu lógica aquí
                 break;
 
@@ -178,7 +180,7 @@ public:
                 // Iniciar modo medio
                 player.SetLives(3);
                 player.SetDifficulty(Player::NORMAL);
-                player.SetBombs(5); 
+                player.SetBombs(5);
                 bomberman.Run(); // o lógica medio
                 break;
 

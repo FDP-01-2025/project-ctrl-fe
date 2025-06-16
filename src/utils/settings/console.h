@@ -1,28 +1,12 @@
-#pragma once // Asegura que el archivo solo se incluya una vez en la compilación
+#pragma once
 
 // Include de librerías necesarias
-#include <windows.h>   // Librería principal para manipulación de consola en Windows
-#include <iostream>    
-#include <cstdio>      // Para funciones de C como freopen
-#include <conio.h>     // Para manejo de teclado (_getch, _kbhit, etc.)
-#include <wchar.h>     // Para soporte de wide characters (wchar_t, lstrcpyW, etc.)
-
-// Comentado: definición de CONSOLE_FONT_INFOEX por si no está disponible
-/*
-#ifndef _CONSOLE_FONT_INFOEX
-#define _CONSOLE_FONT_INFOEX
-
-typedef struct _CONSOLE_FONT_INFOEX
-{
-    ULONG cbSize;
-    DWORD nFont;
-    COORD dwFontSize;
-    UINT FontFamily;
-    UINT FontWeight;
-    WCHAR FaceName[LF_FACESIZE];
-} CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
-#endif
-*/
+#include <windows.h> // API de Windows para control de consola
+#include <iostream>  // Para salida de errores (std::cerr)
+#include <cstdio>    // Para freopen_s
+#include <conio.h>   // Para _kbhit, _getch
+#include <wchar.h>   // Para funciones de caracteres anchos
+#include <algorithm> // Para std::max y std::min
 
 // Define un puntero a función que apunta a SetCurrentConsoleFontEx de Windows API
 typedef BOOL(WINAPI *PFN_SetCurrentConsoleFontEx)(HANDLE, BOOL, PCONSOLE_FONT_INFOEX);
@@ -32,103 +16,73 @@ class Console
 {
 public:
     // Constructor con valores por defecto para dimensiones de consola, buffer y fuente
-    Console(int w = 100, int h = 40, int bW = 100, int bH = 40, int fw = 8, int fh = 16)
-        : consoleW(w), consoleH(h), bufferW(bW), bufferH(bH), fontW(fw), fontH(fh) {}
-
-    // Permite reiniciar el tamaño deseado de la consola
-    void ResetConfigure(int w, int h)
+    Console(int w = 100, int h = 40, int fw = 8, int fh = 16)
+        : consoleW(w), consoleH(h), fontW(fw), fontH(fh)
     {
-        consoleW = w;
-        consoleH = h;
+        // Buffer igual al tamaño de ventana por defecto
+        bufferW = w;
+        bufferH = h;
     }
 
     // Configura la consola: crea una nueva consola, redirige entradas/salidas y aplica ajustes
     void ConfigConsole()
     {
-        FreeConsole(); // Libera la consola actual (si existe)
-
-        if (AllocConsole()) // Asigna una nueva consola
+        bool attached = AttachConsole(ATTACH_PARENT_PROCESS);
+        if (!attached)
         {
-            // Redirige stdout, stdin y stderr a la consola recién creada
-            if (!freopen("CONOUT$", "w", stdout))
-                std::cerr << "Error al redirigir stdout.\n";
-            if (!freopen("CONIN$", "r", stdin))
-                std::cerr << "Error al redirigir stdin.\n";
-            if (!freopen("CONOUT$", "w", stderr))
-                std::cerr << "Error al redirigir stderr.\n";
-
-            // Obtiene los handles de entrada y salida de la consola
-            hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
-            hConsoleIN = GetStdHandle(STD_INPUT_HANDLE);
-
-            // Verifica si el handle es válido
-            if (hConsoleOUT == NULL || hConsoleOUT == INVALID_HANDLE_VALUE)
+            // No hay consola padre, crear una nueva consola
+            if (!AllocConsole())
             {
-                std::cerr << "Error: Handle de consola invalido.\n";
+                std::cerr << "No se pudo crear consola." << std::endl;
                 return;
             }
 
-            // 🟡 Habilita soporte para secuencias ANSI (colores y estilos \033[...m)
-            DWORD dwMode = 0;
-            if (GetConsoleMode(hConsoleOUT, &dwMode))
-            {
-                dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-                if (!SetConsoleMode(hConsoleOUT, dwMode))
-                {
-                    std::cerr << "No se pudo habilitar procesamiento ANSI.\n";
-                }
-            }
+            // Redirigir streams estándar a la consola creada
+            FILE *fp;
+            freopen_s(&fp, "CONOUT$", "w", stdout);
+            freopen_s(&fp, "CONOUT$", "w", stderr);
+            freopen_s(&fp, "CONIN$", "r", stdin);
+        }
 
-            // Si la configuración es válida, aplica los cambios visuales
-            if (ValidConfigs(hConsoleOUT))
-            {
-                ApllySettings();   // Aplica tamaño de buffer y ventana
-                SetConsoleFont(); // Cambia el tipo y tamaño de fuente
-                HideCursor();     // Oculta el cursor
-                CenterWindow();   // Centra la ventana en la pantalla
-            }
-        }
-        else
-        {
-            std::cerr << "No se pudo crear la consola." << std::endl;
-        }
+        hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
+        hConsoleIN = GetStdHandle(STD_INPUT_HANDLE);
+
+        // PRIMERO: Configurar buffer
+        bufferSize = {static_cast<SHORT>(consoleW), static_cast<SHORT>(consoleH)};
+        SetConsoleScreenBufferSize(hConsoleOUT, bufferSize);
+
+        // SEGUNDO: Configurar ventana (en 2 pasos)
+        SMALL_RECT tmp = {0, 0, 1, 1};
+        SetConsoleWindowInfo(hConsoleOUT, TRUE, &tmp);
+
+        windowSize = {0, 0, static_cast<SHORT>(consoleW - 1), static_cast<SHORT>(consoleH - 1)};
+        SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize);
+
+        // TERCERO: Fuente y otros ajustes
+        SetConsoleFont();
+        Sleep(200); // Espera crítica
+        CenterWindow();
+        HideCursor();
     }
 
     // Verifica y ajusta configuraciones de consola según límites máximos
     bool ValidConfigs(HANDLE handle)
     {
-        if (!GetConsoleScreenBufferInfo(handle, &csbi)) // Obtiene info actual del buffer
+        if (!GetConsoleScreenBufferInfo(handle, &csbi))
         {
-            DWORD error = GetLastError();
-            LPSTR errorMsg = nullptr;
-
-            FormatMessageA( // Obtiene mensaje legible del error
-                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-                nullptr,
-                error,
-                0,
-                (LPSTR)&errorMsg,
-                0,
-                nullptr);
-
-            std::cerr << "Error al obtener info de la consola. Codigo: " << error << "\n";
-            std::cerr << "Mensaje: " << (errorMsg ? errorMsg : "Error desconocido") << "\n";
+            std::cerr << "Error obteniendo info consola\n";
             return false;
         }
 
         maxSize = csbi.dwMaximumWindowSize;
 
-        // Ajusta dimensiones si exceden los máximos
-        if (consoleW > maxSize.X)
-            consoleW = maxSize.X;
-        if (consoleH > maxSize.Y)
-            consoleH = maxSize.Y;
+        // Ajustar a máximos permitidos
+        consoleW = std::min(consoleW, static_cast<int>(maxSize.X));
+        consoleH = std::min(consoleH, static_cast<int>(maxSize.Y));
 
-        // Ajusta buffer si es menor que la ventana
-        if (bufferW < consoleW)
-            bufferW = consoleW;
-        if (bufferH < consoleH)
-            bufferH = consoleH;
+        // Buffer DEBE ser igual al tamaño de ventana
+        bufferW = consoleW;
+        bufferH = consoleH;
 
         return true;
     }
@@ -136,24 +90,26 @@ public:
     // Aplica tamaño del buffer y la ventana de la consola
     void ApllySettings()
     {
-        // Reduce ventana a 1x1 temporalmente para permitir cambio de buffer
-        SMALL_RECT tempWindow = {0, 0, 1, 1};
-        SetConsoleWindowInfo(hConsoleOUT, TRUE, &tempWindow);
-
-        // Establece tamaño del buffer
-        bufferSize = {(SHORT)bufferW, (SHORT)bufferH};
+        bufferSize = {static_cast<SHORT>(consoleW), static_cast<SHORT>(consoleH)};
         if (!SetConsoleScreenBufferSize(hConsoleOUT, bufferSize))
         {
-            std::cerr << "Error al establecer tamano buffer. Codigo: " << GetLastError() << "\n";
+            std::cerr << "Error estableciendo buffer: " << GetLastError() << "\n";
             return;
         }
 
-        // Establece tamaño final de la ventana
-        windowSize = {0, 0, (SHORT)(consoleW - 1), (SHORT)(consoleH - 1)};
+        // Paso 1: Reducir temporalmente
+        SMALL_RECT tmp = {0, 0, 1, 1};
+        SetConsoleWindowInfo(hConsoleOUT, TRUE, &tmp);
+
+        // Paso 2: Establecer tamaño final
+        windowSize = {0, 0, static_cast<SHORT>(consoleW - 1), static_cast<SHORT>(consoleH - 1)};
         if (!SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize))
         {
-            std::cerr << "Error al establecer tamano ventana. Codigo: " << GetLastError() << "\n";
-            return;
+            std::cerr << "Error ajustando ventana: " << GetLastError() << "\n";
+            // Si falla, intentar con tamaño máximo permitido
+            windowSize = {0, 0, static_cast<SHORT>(csbi.dwMaximumWindowSize.X - 1),
+                          static_cast<SHORT>(csbi.dwMaximumWindowSize.Y - 1)};
+            SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize);
         }
     }
 
@@ -164,21 +120,15 @@ public:
         if (!hwnd)
             return;
 
-        int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-        int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-        RECT rect;
+        RECT workArea, rect;
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
         GetWindowRect(hwnd, &rect);
-        int windowWidth = rect.right - rect.left;
-        int windowHeight = rect.bottom - rect.top;
 
-        int posX = (screenWidth - windowWidth) / 2;
-        int posY = (screenHeight - windowHeight) / 2;
+        int posX = workArea.left + (workArea.right - workArea.left - (rect.right - rect.left)) / 2;
+        int posY = workArea.top + (workArea.bottom - workArea.top - (rect.bottom - rect.top)) / 2;
 
-        // Posiciona ventana al centro sin cambiar tamaño ni orden Z
         SetWindowPos(hwnd, HWND_TOP, posX, posY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
     }
-
     // Cambia la fuente de la consola
     void SetConsoleFont()
     {
@@ -225,6 +175,14 @@ public:
     // Oculta el cursor de texto en la consola
     void HideCursor()
     {
+        if (hConsoleOUT == INVALID_HANDLE_VALUE)
+        {
+            hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
+            if (hConsoleOUT == INVALID_HANDLE_VALUE)
+                return;
+        }
+
+        CONSOLE_CURSOR_INFO cursorInfo;
         GetConsoleCursorInfo(hConsoleOUT, &cursorInfo);
         cursorInfo.bVisible = FALSE;
         SetConsoleCursorInfo(hConsoleOUT, &cursorInfo);
