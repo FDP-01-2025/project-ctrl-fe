@@ -10,6 +10,7 @@
 #include "./src/utils/threads/main/initializer.h"
 #include "./src/utils/threads/main/storyBoard.h"
 #include "./src/utils/threads/main/mini-games/mainBomberman.h"
+#include "./src/utils/visuals/screens/multiColors.h"
 
 class Global
 {
@@ -19,6 +20,9 @@ protected:
 
     int mapW;
     int mapH;
+
+    char chars[100][100] = {};
+    int colors[100][100] = {};
 
     Console consoleSettings;
     Map mapSettings;
@@ -45,7 +49,7 @@ protected:
 public:
     //* Valores iniciales
     Global(int w = 70, int h = 20, int mW = 70, int mH = 20)
-        : consoleSettings(w, h), mapW(mW), mapH(mH) {}
+        : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH) {}
 
     // TODO ----- PROCESO (1) ----
     void Initializer()
@@ -53,13 +57,20 @@ public:
         if (processThread == STATE_NOT_STARTED)
         {
             consoleSettings.ConfigConsole();
-            consoleSettings.SetTitle(L"Dungeon of leguim"); // Aplicar titulo
+            consoleSettings.SetTitle(L"Dungeon of leguim"); // Título
 
             Sleep(500);
-            // Condicional para evaluar si el proceso se completó
-            processThread = InitializerThread() ? STATE_INITIALIZED : STATE_NOT_STARTED;
+
+            /*char chars[100][100] = {};
+            int colors[100][100] = {};
+            srand((unsigned)time(0)); // Semilla única, una vez al inicio
+
+            processThread = InitializerThread(chars, colors, 100, 45, 4) ? STATE_INITIALIZED : STATE_NOT_STARTED;
+
             if (processThread == STATE_NOT_STARTED)
-                std::cout << "Initializer no se completo";
+                std::cout << "Initializer no se completo";*/
+
+            processThread = STATE_INITIALIZED;
         }
     }
     // TODO ----- PROCESO (2) ----
