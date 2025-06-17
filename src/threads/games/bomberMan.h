@@ -2,12 +2,12 @@
 #define MAIN_BOMBERMAN_H
 
 // Archivos de cabecera necesarios
-#include "utils/settings/utils.h"
-#include "mini-games/bomberman/hudBomberman.h"
-#include "utils/settings/maping.h"
-#include "utils/settings/player.h"
-#include "mini-games/bomberman/bombRenderer.h"
-#include "mini-games/bomberman/bomb.h"
+#include "utils/functions/utils.h"
+#include "core/modules/bomberman/hudBomberman.h"
+#include "utils/player/maping.h"
+#include "utils/player/player.h"
+#include "core/modules/bomberman/bombRenderer.h"
+#include "core/modules/bomberman/bomb.h"
 
 #include <fstream>
 #include <iostream>

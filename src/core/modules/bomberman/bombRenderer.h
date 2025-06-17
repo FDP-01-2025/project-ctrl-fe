@@ -5,9 +5,9 @@
 #include <iostream> 
 
 // Include de las cabeceras de las clases utilizadas
-#include "utils/settings/utils.h" 
-#include "mini-games/bomberman/bomb.h" 
-#include "utils/settings/colors.h" 
+#include "utils/functions/utils.h" 
+#include "core/modules/bomberman/bomb.h" 
+#include "utils/screen/colors.h" 
 
 // Clase responsable de dibujar las bombas en la consola
 class BombRenderer

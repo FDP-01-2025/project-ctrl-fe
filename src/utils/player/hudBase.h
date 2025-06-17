@@ -8,7 +8,7 @@
 #define HUD_BASE_H
 
 #include "player.h"
-#include "utils.h"
+#include "utils/functions/utils.h"
 
 class HUDBase {
 public:

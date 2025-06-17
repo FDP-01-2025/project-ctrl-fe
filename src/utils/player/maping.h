@@ -12,8 +12,8 @@
 #endif
 
 // Include de las cabeceras de las clases utilizadas
-#include "Utils.h"
-#include "colors.h"
+#include "utils/screen/colors.h"
+#include "utils/functions/utils.h"
 
 // Constantes globales para el tamaño máximo del mapa
 const int MAP_HEIGHT = 95;

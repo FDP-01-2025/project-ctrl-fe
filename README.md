@@ -161,4 +161,33 @@ Para mantener un historial de cambios claro, profesional y consistente, se deben
 | **Funciones** | PascalCase | `NombreFuncion()`    | Cada palabra inicia con mayúscula, sin espacios |
 
 ---
- g++ .\main.cpp -I./src -o TorreDeLeugim.exe -mwindows
+
+g++ .\main.cpp -I./src -o TorreDeLeugim.exe -mwindows
+
+## Logica de carpetas
+
+- **Assets**: Carpeta con todos los recursos del juego que no son código, como imágenes, sonidos, mapas y textos cargados en tiempo de ejecución.
+
+- **Build**: Archivos generados automáticamente durante la compilación, como ejecutables y archivos temporales. No contiene código fuente ni recursos originales.
+
+- **src**: Carpeta que contiene todo el código fuente escrito para el juego.
+
+- **Data**: Información estructurada o de soporte que el juego usa pero que no es código ni recursos multimedia.
+
+- **Sounds**: Archivos de audio utilizados en el juego.
+
+- **Maps**: Archivos de texto que representan los mapas del juego. (Evitar nombrar subcarpetas como "map")
+
+- **Core**: Código que no es visible para el jugador pero que hace funcionar el juego internamente.
+
+- **Engine**: Configuraciones generales, sistemas base de renderizado y audio. Controla la apariencia y comportamiento general del juego.
+
+- **Interface**: Código para mostrar la interfaz gráfica principal del juego.
+
+- **Utils**: Código reutilizable en distintas partes del juego.
+
+- **Startup**: Archivos necesarios para el inicio del juego, como logo, pantalla de carga, intro y configuración inicial.
+
+- **Modules**: Módulos independientes con funcionalidades específicas para cada minijuego o evento.
+
+"En programación, un módulo es una unidad o bloque independiente de código que agrupa funciones, procedimientos, clases, variables y datos relacionados para cumplir con una tarea específica o un conjunto de funcionalidades dentro de un programa."

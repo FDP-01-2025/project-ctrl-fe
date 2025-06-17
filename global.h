@@ -1,16 +1,15 @@
 #pragma once
 
 //* Todos los headers
-#include "./src/utils/settings/console.h"
-#include "./src/utils/settings/maping.h"
-#include "./src/utils/settings/player.h"
-#include "./src/utils/threads/main/main.h"
-#include "./src/utils/threads/main/firstMenu.h"
-#include "./src/utils/threads/main/secondMenu.h"
-#include "./src/utils/threads/main/initializer.h"
-#include "./src/utils/threads/main/storyBoard.h"
-#include "./src/utils/threads/main/mini-games/mainBomberman.h"
-#include "./src/utils/visuals/screens/multiColors.h"
+#include "./src/core/engine/settings/console.h"
+#include "./src/utils/player/maping.h"
+#include "./src/utils/player/player.h"
+#include "./src/threads/startup/introductionMenu.h"
+#include "./src/threads/startup/difficultiesMenu.h"
+#include "./src/threads/startup/splashScreen.h"
+#include "./src/threads/startup/storyBoard.h"
+#include "./src/threads/games/bomberMan.h"
+#include "./src/utils/screen/multiColors.h"
 
 class Global
 {

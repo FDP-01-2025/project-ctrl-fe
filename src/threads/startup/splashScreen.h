@@ -2,7 +2,7 @@
 #include <iostream>
 #include <windows.h>
 #include <thread>
-#include "./utils/visuals/screens/multiColors.h"
+#include "utils/screen/multiColors.h"
 
 void SetColor(int color)
 {

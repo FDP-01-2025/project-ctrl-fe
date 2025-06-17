@@ -3,7 +3,7 @@
 #include <iostream>
 #include <conio.h>
 using namespace std;
-#include "utils/settings/colors.h"
+#include "utils/screen/colors.h"
 
 int GetConsoleWidth()
 {

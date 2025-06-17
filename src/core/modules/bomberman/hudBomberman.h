@@ -1,12 +1,12 @@
 #ifndef HUD_BOMBERMAN_H
 #define HUD_BOMBERMAN_H
 
-//Include de librerías necesarias
+// Include de librerías necesarias
 #include <iostream>
 #include <string>
 // Include de las cabeceras de las clases utilizadas
-#include "utils/settings/hudBase.h"
-#include "utils/settings/colors.h"
+#include "utils/player/hudBase.h"
+#include "utils/screen/colors.h"
 
 class HUDBomberman : public HUDBase
 {
