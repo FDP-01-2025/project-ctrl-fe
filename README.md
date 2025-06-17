@@ -161,3 +161,4 @@ Para mantener un historial de cambios claro, profesional y consistente, se deben
 | **Funciones** | PascalCase | `NombreFuncion()`    | Cada palabra inicia con mayúscula, sin espacios |
 
 ---
+ g++ .\main.cpp -I./src -o TorreDeLeugim.exe -mwindows

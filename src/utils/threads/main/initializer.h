@@ -12,7 +12,7 @@ void SetColor(int color)
 // Animación con retorno
 bool InitializerThread(char chars[100][100], int colors[100][100], int width = 100, int height = 45, int durationSeconds = 4)
 {
-    const int delayMs = 50;
+    /*const int delayMs = 50;
     DWORD start = GetTickCount();
 
     while ((GetTickCount() - start) < durationSeconds * 1000)
@@ -34,6 +34,6 @@ bool InitializerThread(char chars[100][100], int colors[100][100], int width = 1
     }
 
     SetColor(7); // Restaurar blanco
-    system("cls");
+    system("cls");*/
     return true;
 }

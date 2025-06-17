@@ -8,6 +8,22 @@
 #include <wchar.h>   // Para funciones de caracteres anchos
 #include <algorithm> // Para std::max y std::min
 
+// Comentado: definición de CONSOLE_FONT_INFOEX por si no está disponibleMore actions
+
+#ifndef _CONSOLE_FONT_INFOEX
+#define _CONSOLE_FONT_INFOEX
+
+typedef struct _CONSOLE_FONT_INFOEX
+{
+    ULONG cbSize;
+    DWORD nFont;
+    COORD dwFontSize;
+    UINT FontFamily;
+    UINT FontWeight;
+    WCHAR FaceName[LF_FACESIZE];
+} CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
+#endif
+
 // Define un puntero a función que apunta a SetCurrentConsoleFontEx de Windows API
 typedef BOOL(WINAPI *PFN_SetCurrentConsoleFontEx)(HANDLE, BOOL, PCONSOLE_FONT_INFOEX);
 
@@ -27,42 +43,41 @@ public:
     // Configura la consola: crea una nueva consola, redirige entradas/salidas y aplica ajustes
     void ConfigConsole()
     {
-        bool attached = AttachConsole(ATTACH_PARENT_PROCESS);
-        if (!attached)
+        FreeConsole(); // Libera la consola actual (si existe)More actions
+
+        if (AllocConsole()) // Asigna una nueva consola
         {
-            // No hay consola padre, crear una nueva consola
-            if (!AllocConsole())
+            // Redirige stdout, stdin y stderr a la consola recién creadaMore actions
+            if (!freopen("CONOUT$", "w", stdout))
+                std::cerr << "Error al redirigir stdout.\n";
+            if (!freopen("CONIN$", "r", stdin))
+                std::cerr << "Error al redirigir stdin.\n";
+            if (!freopen("CONOUT$", "w", stderr))
+                std::cerr << "Error al redirigir stderr.\n";
+
+            // Obtiene los handles de entrada y salida de la consola
+            hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
+            hConsoleIN = GetStdHandle(STD_INPUT_HANDLE);
+
+            // Verifica si el handle es válido
+            if (hConsoleOUT == NULL || hConsoleOUT == INVALID_HANDLE_VALUE)
             {
-                std::cerr << "No se pudo crear consola." << std::endl;
+                std::cerr << "Error: Handle de consola invalido.\n";
                 return;
             }
-
-            // Redirigir streams estándar a la consola creada
-            FILE *fp;
-            freopen_s(&fp, "CONOUT$", "w", stdout);
-            freopen_s(&fp, "CONOUT$", "w", stderr);
-            freopen_s(&fp, "CONIN$", "r", stdin);
+            // Si la configuración es válida, aplica los cambios visuales
+            if (ValidConfigs(hConsoleOUT))
+            {
+                ApllySettings();  // Aplica tamaño de buffer y ventana
+                SetConsoleFont(); // Cambia el tipo y tamaño de fuente
+                HideCursor();     // Oculta el cursor
+                CenterWindow();   // Centra la ventana en la pantalla
+            }
         }
-
-        hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
-        hConsoleIN = GetStdHandle(STD_INPUT_HANDLE);
-
-        // PRIMERO: Configurar buffer
-        bufferSize = {static_cast<SHORT>(consoleW), static_cast<SHORT>(consoleH)};
-        SetConsoleScreenBufferSize(hConsoleOUT, bufferSize);
-
-        // SEGUNDO: Configurar ventana (en 2 pasos)
-        SMALL_RECT tmp = {0, 0, 1, 1};
-        SetConsoleWindowInfo(hConsoleOUT, TRUE, &tmp);
-
-        windowSize = {0, 0, static_cast<SHORT>(consoleW - 1), static_cast<SHORT>(consoleH - 1)};
-        SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize);
-
-        // TERCERO: Fuente y otros ajustes
-        SetConsoleFont();
-        Sleep(200); // Espera crítica
-        CenterWindow();
-        HideCursor();
+        else
+        {
+            std::cerr << "No se pudo crear la consola." << std::endl;
+        }
     }
 
     // Verifica y ajusta configuraciones de consola según límites máximos
@@ -70,6 +85,20 @@ public:
     {
         if (!GetConsoleScreenBufferInfo(handle, &csbi))
         {
+            DWORD error = GetLastError();
+            LPSTR errorMsg = nullptr;
+
+            FormatMessageA( // Obtiene mensaje legible del error
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                nullptr,
+                error,
+                0,
+                (LPSTR)&errorMsg,
+                0,
+                nullptr);
+
+            std::cerr << "Error al obtener info de la consola. Codigo: " << error << "\n";
+            std::cerr << "Mensaje: " << (errorMsg ? errorMsg : "Error desconocido") << "\n";
             std::cerr << "Error obteniendo info consola\n";
             return false;
         }
