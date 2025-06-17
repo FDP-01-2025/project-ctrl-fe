@@ -73,9 +73,25 @@ public:
                 if (!file)
                         return "";
 
-                std::string content((std::istreambuf_iterator<char>(file)),
-                                    std::istreambuf_iterator<char>());
+                std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
                 return content;
+        }
+
+        //Function to get the assets path relative to the executable directory
+        std::string GetAssetsPath()
+        {
+                // Declaration of the buffer to hold the path
+                char buffer[MAX_PATH];
+                // Get the full path of the executable and extract the directory
+                GetModuleFileNameA(NULL, buffer, MAX_PATH);
+                // Find the last occurrence of the path separator to get the directory
+                std::string fullPath(buffer);
+                // Find the last occurrence of either '\' or '/' to handle both Windows and Unix-like paths
+                size_t pos = fullPath.find_last_of("\\/");
+                // If not found, return an empty string
+                std::string exeDir = fullPath.substr(0, pos);
+                // Return the assets path relative to the executable directory
+                return exeDir + "\\..\\assets\\"; 
         }
 };
 

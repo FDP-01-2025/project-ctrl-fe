@@ -116,6 +116,8 @@ bool MainBomberman::Run()
     return true; // Si se completa correctamente
 }
 
+
+
 // Procesa entrada del jugador
 void MainBomberman::processInput(char input)
 {
@@ -152,7 +154,7 @@ void MainBomberman::processInput(char input)
             break;
         }
 
-        std::string nextMapPath = "src/maps/maps-bomberman/" + difficultyFolder + "/level" + std::to_string(nextLevel) + ".txt";
+        std::string nextMapPath = utils.GetAssetsPath() + "maps\\bomberman\\" + difficultyFolder + "\\level" + std::to_string(nextLevel) + ".txt";
 
         // Verificar si existe el siguiente nivel
         std::ifstream file(nextMapPath);
@@ -188,7 +190,7 @@ void MainBomberman::LoadLevel(int level)
     }
 
     // Construye la ruta al archivo del mapa
-    currentMapName = "src/maps/maps-bomberman/" + difficultyFolder + "/level" + std::to_string(level) + ".txt";
+    std::string currentMapName = utils.GetAssetsPath() + "maps\\bomberman\\" + difficultyFolder + "\\level" + std::to_string(level) + ".txt";
     std::ifstream file(currentMapName);
 
     // Si el archivo existe, lo carga

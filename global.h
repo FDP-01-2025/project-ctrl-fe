@@ -8,7 +8,7 @@
 #include "./src/threads/startup/difficultiesMenu.h"
 #include "./src/threads/startup/splashScreen.h"
 #include "./src/threads/startup/storyBoard.h"
-#include "./src/threads/games/bomberMan.h"
+#include "./src/threads/games/bomberman.h"
 #include "./src/utils/screen/multiColors.h"
 
 class Global
