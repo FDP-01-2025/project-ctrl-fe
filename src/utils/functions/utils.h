@@ -97,6 +97,14 @@ public:
                 // Return the relative path to the assets folder (one directory up + assets)
                 return exeDir + "\\..\\assets\\";
         }
+
+        // Function use to prints a single line of text at a specific position in the HUD.
+        // Automatically moves the cursor to the next line (y++).
+        void PrintLine(int x, int &y, const std::string &text, const std::string &color = GRAY_BRIGHT) const
+        {
+                std::cout << "\033[" << y << ";" << x << "H" << color << text << RESET;
+                y++;
+        }
 };
 
-#endif 
+#endif
