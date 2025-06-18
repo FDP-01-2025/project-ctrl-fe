@@ -1,16 +1,21 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-
+// We use pragma once to prevent multiple inclusions of this header file
 #pragma once
+// Include necessary libraries
 #include <string>
+#include <fstream>
+#include <utility>
 
-class Map;
+// Include headers for used classes
+#include "utils/functions/utils.h"
 
-// Clase que representa al jugador en el juego
+// This class represents the player in the Bomberman-style game.
+// It handles position, lives, bombs, difficulty and also manages save/load of player state.
 class Player
 {
 public:
-    // Dificultad del juego
+    // Difficulty levels available in the game
     enum Difficulty
     {
         EASY,
@@ -18,203 +23,378 @@ public:
         HARD
     };
 
-    // Getters
-    int GetX() const;
-    int GetY() const;
-    int GetLives() const;
-    int GetBombs() const;
-    int GetMaxBombs() const;
-    bool CanPlaceBomb() const;
-    Difficulty GetDifficulty() const;
-    // Obtiene si el control de la tecla B está activo
-    bool IsControlBActive() const;
+    Player() {}
 
-    // Setters
-    // Establece la posición del jugador
-    void SetPosition(int x, int y);
-    // Establece la dificultad del juego
-    void SetDifficulty(Difficulty dif);
-    // SE pone si esta activa o desactiva el control de la tecla B
-    void ActivateControlB(bool state);
-    void SetLives(int lives);
-    void SetBombs(int bombs);
-
-    // Acciones del jugador
-    // Intenta mover al jugador en base a un input y el mapa
-    bool TryMove(char input, Map &map);
-    // Movimiento básico si la casilla es caminable
-    void Move(int dx, int dy, char nextTile);
-    // Coloca una bomba si hay bombas disponibles
-    void PlaceBomb();
-    void LoseLife();
-    void IncrementBombs();
-    void IncrementLife();
-
-    // Evitar copia y asignación
-    Player(const Player &) = delete;
-    Player &operator=(const Player &) = delete;
-
-    // Método estático para obtener la instancia única
-    static Player &GetInstance()
+    // Get the player's X position from saved file
+    int GetX()
     {
-        static Player instance; // instancia única (lazy initialization)
-        return instance;
+        loadState();
+        return x;
+    }
+
+    // Get the player's Y position
+    int GetY()
+    {
+        loadState();
+        return y;
+    }
+
+    // Get how many lives the player currently has
+    int GetLives()
+    {
+        loadState();
+        return lives;
+    }
+
+    // Get how many bombs the player can currently place
+    int GetBombs()
+    {
+        loadState();
+        return bombsAvailable;
+    }
+
+    // Get the maximum bombs the player is allowed to have
+    int GetMaxBombs() { return maxBombs; }
+
+    // Get the current game difficulty
+    Difficulty GetDifficulty()
+    {
+        loadState();
+        return difficulty;
+    }
+
+    // Check whether control B (bomb placement) is active
+    bool IsControlBActive()
+    {
+        loadState();
+        return controlB;
+    }
+
+    // Enables or disables the control for placing bombs
+    // Only updates the ControlB value in the file
+    void ActivateControlB(bool state)
+    {
+        controlB = state;
+        saveControlB(); // save just this specific field
+    }
+
+    // Updates the player's position and saves only that data
+    void SetPosition(int newX, int newY)
+    {
+        x = newX;
+        y = newY;
+        savePosition(); // save only X and Y values
+    }
+
+    // Set the number of lives and save them
+    void SetLives(int newLives)
+    {
+        lives = newLives;
+        saveLives(); // save only lives field
+    }
+
+    // Set how many bombs the player has (up to a max) and save them
+    void SetBombs(int newBombs)
+    {
+        bombsAvailable = (newBombs > maxBombs) ? maxBombs : newBombs;
+        saveBombs(); // save only bombs field
+    }
+
+    // Set the difficulty level and update the file with only that field
+    void SetDifficulty(Difficulty dif)
+    {
+        difficulty = dif;
+        saveDifficulty();
+    }
+
+    // Moves the player on the grid if the next tile is valid
+    // Valid tiles are: space (' '), path ('/'), or bonus bomb ('B')
+    void Move(int dx, int dy, char nextTile)
+    {
+        if (nextTile == ' ' || nextTile == '/' || nextTile == 'B')
+        {
+            x += dx;
+            y += dy;
+            saveState(); // full state save after movement
+        }
+    }
+
+    // Check if the player can place at least one bomb
+    bool CanPlaceBomb() { return GetBombs() > 0; }
+
+    // Places a bomb: reduces bomb count by 1 and saves the full state
+    void PlaceBomb()
+    {
+        if (bombsAvailable > 0)
+        {
+            bombsAvailable--;
+            saveState();
+        }
+    }
+
+    // Subtract one life and save state
+    void LoseLife()
+    {
+        lives--;
+        saveState();
+    }
+
+    // Add a bomb (if under limit) and save
+    void IncrementBombs()
+    {
+        if (bombsAvailable < maxBombs)
+        {
+            bombsAvailable++;
+            saveState();
+        }
+    }
+
+    // Add one life and save
+    void IncrementLife()
+    {
+        lives++;
+        saveState();
+    }
+
+    // Convert keyboard input into movement direction
+    // Returns a pair (dx, dy)
+    std::pair<int, int> GetInputDirection(char input)
+    {
+        int dx = 0, dy = 0;
+        if (input == 'w')
+            dy = -1;
+        else if (input == 's')
+            dy = 1;
+        else if (input == 'a')
+            dx = -1;
+        else if (input == 'd')
+            dx = 1;
+        return {dx, dy};
+    }
+
+    // Reset the player's full state depending on difficulty
+    // Called at game start or when restarting from menu
+    void ResetState(Difficulty dif)
+    {
+        removeStatusFile(); // delete any old save
+        difficulty = dif;
+        x = 1;
+        y = 1;
+        controlB = false;
+
+        // Setup based on difficulty
+        switch (difficulty)
+        {
+        case EASY:
+            lives = 5;
+            bombsAvailable = 10;
+            break;
+        case NORMAL:
+            lives = 3;
+            bombsAvailable = 5;
+            break;
+        case HARD:
+            lives = 1;
+            bombsAvailable = 3;
+            break;
+        }
+
+        saveState(); // Save entire state
+    }
+
+    // Deletes the save file from disk
+    void removeStatusFile()
+    {
+        std::remove(filename.c_str());
+    }
+
+    // Force load player state manually (e.g. from outside class)
+    void LoadStateManual()
+    {
+        loadState();
     }
 
 private:
-    int x, y;
-    int lives;
-    int bombsAvailable;
+    // Player data
+    int x = 0, y = 0;
+    int lives = 3;
+    int bombsAvailable = 1;
     int maxBombs = 25;
-    Difficulty difficulty;
-    bool controlB;
+    Difficulty difficulty = EASY;
+    bool controlB = false;
+    Utils utils;
 
-    // Constructor privado para evitar instancias externas
-    Player() : x(0), y(0), lives(3), difficulty(EASY), controlB(false), bombsAvailable(1) {}
+    // Save file path: something like assets/data/playerState.txt
+    const std::string filename = utils.GetAssetsPath() + "data\\playerState.txt";
+
+    // Save all player data to file (full state)
+    // This function writes the entire player state to the save file,
+    // overwriting any previous content.
+    void saveState()
+    {
+        std::ofstream out(filename);
+        if (out.is_open())
+        {
+            // Write the player's X coordinate
+            out << "X: " << x << "\n";
+            // Write the player's Y coordinate
+            out << "Y: " << y << "\n";
+            // Write the player's remaining lives
+            out << "Lives: " << lives << "\n";
+            // Write the number of bombs the player currently has available
+            out << "Bombs: " << bombsAvailable << "\n";
+            // Write the difficulty level as an integer
+            out << "Difficulty: " << (int)difficulty << "\n";
+            // Write whether the controlB is active (1) or not (0)
+            out << "ControlB: " << (controlB ? 1 : 0) << "\n";
+            out.close();
+        }
+    }
+
+    // Load the player state from file
+    // This function reads the saved player state from the file,
+    // restoring all fields by reading line by line.
+    void loadState()
+    {
+        std::ifstream in(filename);
+        if (in.is_open())
+        {
+            std::string label;
+            int diff = 0, ctrlB = 0;
+            // Attempt to read each labeled field from the file.
+            // The order must match exactly how saveState writes the data.
+            if (in >> label >> x &&
+                in >> label >> y &&
+                in >> label >> lives &&
+                in >> label >> bombsAvailable &&
+                in >> label >> diff &&
+                in >> label >> ctrlB)
+            {
+                // Convert integer read back to enum type for difficulty
+                difficulty = (Difficulty)diff;
+                // Convert integer read back to bool for controlB
+                controlB = ctrlB != 0;
+            }
+            in.close();
+        }
+    }
+
+    // Save only the ControlB line (without affecting other data)
+    // This function updates only the ControlB line in the save file
+    // while preserving all other saved data intact.
+    // Since direct editing of files in place is not trivial,
+    // it copies all lines to a temporary file, replacing only ControlB,
+    // then replaces the original file with the temporary one.
+    void saveControlB()
+    {
+        std::ifstream in(filename);
+        std::ofstream out("temp.txt");
+        std::string line;
+
+        while (std::getline(in, line))
+        {
+            // Check if the line starts with "ControlB:"
+            if (line.rfind("ControlB:", 0) == 0)
+                out << "ControlB: " << (controlB ? 1 : 0) << "\n"; // Write updated value
+            else
+                out << line << "\n"; // Copy line unchanged
+        }
+
+        in.close();
+        out.close();
+        // Delete the original file
+        std::remove(filename.c_str());
+        // Rename the temporary file to original filename
+        std::rename("temp.txt", filename.c_str());
+    }
+
+    // Save only X and Y position (used after movement)
+    // Similar logic to saveControlB, but updates only the player's X and Y coordinates.
+    void savePosition()
+    {
+        std::ifstream in(filename);
+        std::ofstream out("temp.txt");
+        std::string line;
+        while (std::getline(in, line))
+        {
+            if (line.rfind("X:", 0) == 0)
+                out << "X: " << x << "\n"; // Update X position
+            else if (line.rfind("Y:", 0) == 0)
+                out << "Y: " << y << "\n"; // Update Y position
+            else
+                out << line << "\n"; // Copy other lines unchanged
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp.txt", filename.c_str());
+    }
+
+    // Save only bombsAvailable field
+    // Updates the bombsAvailable count in the save file,
+    // preserving all other data by rewriting to a temp file.
+    void saveBombs()
+    {
+        std::ifstream in(filename);
+        std::ofstream out("temp.txt");
+        std::string line;
+        while (std::getline(in, line))
+        {
+            if (line.rfind("Bombs:", 0) == 0)
+                out << "Bombs: " << bombsAvailable << "\n"; // Update bombs count
+            else
+                out << line << "\n"; // Copy other lines unchanged
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp.txt", filename.c_str());
+    }
+
+    // Save only the number of lives
+    // Updates player's lives count while preserving the rest of the save file.
+    void saveLives()
+    {
+        std::ifstream in(filename);
+        std::ofstream out("temp.txt");
+        std::string line;
+        while (std::getline(in, line))
+        {
+            if (line.rfind("Lives:", 0) == 0)
+                out << "Lives: " << lives << "\n"; // Update lives count
+            else
+                out << line << "\n"; // Copy other lines unchanged
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp.txt", filename.c_str());
+    }
+
+    // Save only the difficulty field
+    // Updates difficulty level in the save file,
+    // preserving all other data by rewriting the file.
+    void saveDifficulty()
+    {
+        std::ifstream in(filename);
+        std::ofstream out("temp.txt");
+        std::string line;
+        while (std::getline(in, line))
+        {
+            if (line.rfind("Difficulty:", 0) == 0)
+                out << "Difficulty: " << (int)difficulty << "\n"; // Update difficulty
+            else
+                out << line << "\n"; // Copy other lines unchanged
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp.txt", filename.c_str());
+    }
 };
-
-#include "maping.h"
-
-int Player::GetX() const { return x; }
-int Player::GetY() const { return y; }
-int Player::GetLives() const { return lives; }
-int Player::GetBombs() const { return bombsAvailable; }
-int Player::GetMaxBombs() const { return maxBombs; }
-Player::Difficulty Player::GetDifficulty() const { return difficulty; }
-bool Player::IsControlBActive() const { return controlB; }
-
-//! Setters
-// Establece la posición del jugador
-void Player::SetPosition(int newX, int newY)
-{
-    x = newX;
-    y = newY;
-}
-
-// Establece la dificultad del juego
-void Player::SetDifficulty(Difficulty dif)
-{
-    difficulty = dif;
-}
-
-// Establece el número de vidas del jugador
-void Player::SetLives(int newLives)
-{
-    lives = newLives;
-}
-
-// Establece el número de bombas disponibles
-void Player::SetBombs(int newBombs)
-{
-    if (newBombs > maxBombs)
-    bombsAvailable = maxBombs;
-    else
-        bombsAvailable = newBombs;
-}
-
-//! Activa o desactiva el control de la tecla B
-void Player::ActivateControlB(bool state)
-{
-    controlB = state;
-}
-
-//! Acciones del jugador
-// Verifica si el jugador puede colocar una bomba
-bool Player::CanPlaceBomb() const
-{
-    return bombsAvailable > 0;
-}
-
-// Coloca una bomba si hay bombas disponibles
-// Si hay bombas disponibles, decrementa el contador de bombas
-void Player::PlaceBomb()
-{
-    if (bombsAvailable > 0)
-        --bombsAvailable;
-}
-
-// Incrementa el número de bombas disponibles si no se ha alcanzado el máximo
-void Player::IncrementBombs()
-{
-    if (bombsAvailable < maxBombs)
-        ++bombsAvailable;
-}
-
-// Incrementa la cantidad de vidas del jugador
-void Player::IncrementLife()
-{
-    ++lives;
-}
-
-// Decrementa la cantidad de vidas del jugador
-void Player::LoseLife()
-{
-    --lives;
-}
-
-// Movimiento del jugador
-// Mueve al jugador en la dirección especificada si la casilla es caminable
-void Player::Move(int dx, int dy, char nextTile)
-{
-    if (nextTile == ' ' || nextTile == '/' || nextTile == 'B')
-    {
-        x += dx;
-        y += dy;
-    }
-}
-
-// Intenta mover al jugador en base a un input y el mapa
-bool Player::TryMove(char input, Map &map)
-{
-    // Define las direcciones de movimiento
-    int dx = 0, dy = 0;
-
-    // Determina la dirección del movimiento según el input
-    switch (input)
-    {
-    case 'w':
-        // Mueve hacia arriba
-        dy = -1;
-        break;
-    case 's':
-        // Mueve hacia abajo
-        dy = 1;
-        break;
-    case 'a':
-        // Mueve hacia la izquierda
-        dx = -1;
-        break;
-    case 'd':
-        // Mueve hacia la derecha
-        dx = 1;
-        break;
-    default:
-        // Si el input no es válido, no se mueve
-        return false;
-    }
-
-    // Calcula las nuevas coordenadas del jugador
-    int newX = x + dx;
-    int newY = y + dy;
-    // Verifica si las nuevas coordenadas están dentro de los límites del mapa
-    char tile = map.GetTile(newX, newY);
-
-    // Si la casilla no es caminable, no se mueve
-    if (tile == '#' || tile == '0' || tile == '~' || tile == 'H' || tile == 'A')
-        return false;
-
-    // Mueve al jugador a la nueva posición
-    Move(dx, dy, tile);
-
-    // Si la casilla es una bomba, incrementa el contador de bombas y la elimina del mapa
-    if (tile == 'B')
-    {
-        IncrementBombs();
-        map.SetTile(newX, newY, ' ');
-    }
-
-    // Si pisa puerta '/', retorna true para indicar cambio de nivel
-    return tile == '/';
-}
 
 #endif

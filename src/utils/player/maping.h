@@ -1,59 +1,59 @@
 #ifndef MAPING_H
 #define MAPING_H
 
-// Include de librerías necesarias
-#include <fstream> // Para manejo de archivos
+// Include necessary libraries
+#include <fstream>   // For file handling
 #include <iostream>
 #include <string>
-#include <conio.h> // Para funciones como _kbhit() y _getch()
-#include <limits>  // Para std::numeric_limits
-#ifdef _WIN32      // Solo incluir en sistemas Windows
+#include <conio.h>   // For functions like _kbhit() and _getch()
+#include <limits>    // For std::numeric_limits
+#ifdef _WIN32        // Only include on Windows systems
 #include <windows.h>
 #endif
 
-// Include de las cabeceras de las clases utilizadas
+// Include headers of used classes
 #include "utils/screen/colors.h"
 #include "utils/functions/utils.h"
 
-// Constantes globales para el tamaño máximo del mapa
+// Global constants for the maximum map size
 const int MAP_HEIGHT = 95;
 const int MAP_WIDTH = 60;
 
-//*Objetivo: Logica para dibujar los mapas, de manera que, simplemente hay que indicar que mapa queremos dibujar y ya
+//*Purpose: Logic to draw maps; you just need to specify which map to draw and it will render
 class Map
 {
 protected:
-    //* Valores iniciales
-    // PD: a pesar de que un objetivo era hacerlo variable, osea, que se relacionen junto al tamaño de consola pues, resumen, no se puede, se ocupa vectores para eso
-    const int mH = 50; // Altura fija "interna"
-    const int mW = 30; // Ancho fijo "interno"
+    //* Initial values
+    // Note: Even though one of the goals was to make this variable (based on console size), 
+    // it's not feasible — vectors are required for that
+    const int mH = 50; // Fixed internal height
+    const int mW = 30; // Fixed internal width
 
-    // Matriz de caracteres que representa el mapa
+    // Character matrix representing the map
     char grid[MAP_HEIGHT][MAP_WIDTH]{};
 
-    // Dimensiones del mapa cargado
+    // Dimensions of the loaded map
     int width = 0;
     int height = 0;
 
-    // Posición de aparición del jugador
+    // Player spawn position
     int spawnX = 1;
     int spawnY = 1;
 
 public:
-    // Getters de dimensiones y posición de aparición
+    // Getters for dimensions and spawn position
     int GetWidth() const { return width; }
     int GetHeight() const { return height; }
     int GetSpawnX() const { return spawnX; }
     int GetSpawnY() const { return spawnY; }
 
-    Utils utils; // Objeto utilitario para impresión/movimiento de cursor
+    Utils utils; // Utility object for printing/moving the cursor
 
-    // Código comentado para leer mapas desde una ruta compuesta
+    // --- Deprecated map reading method from composed path ---
     // std::ifstream IdentifierMap(std::string map)
-    //  {
-    //      std::string path = "/maps/";
-    //      std::string filename = path + map;
-
+    // {
+    //     std::string path = "/maps/";
+    //     std::string filename = path + map;
     //     return std::ifstream(filename);
     // }
 
@@ -62,7 +62,7 @@ public:
     //     std::ifstream file = IdentifierMap(key);
     //     if (!file.is_open())
     //     {
-    //         std::cerr << "Error al abrir el archivo: " << strerror(errno) << "\n";
+    //         std::cerr << "Error opening file: " << strerror(errno) << "\n";
     //     }
 
     //     std::string line;
@@ -90,14 +90,14 @@ public:
     //     width = mW;
     // }
 
-    // Lee el mapa desde un archivo de texto plano
+    // Reads the map from a plain text file
     void ReadMap(std::string key, int mapW, int mapH)
     {
-        std::ifstream file(key); // Abre el archivo especificado por `key`
+        std::ifstream file(key); // Open file from `key` path
 
         if (!file.is_open())
         {
-            std::cerr << "Error al abrir el archivo: " << key << " -> " << strerror(errno) << "\n";
+            std::cerr << "Error opening file: " << key << " -> " << strerror(errno) << "\n";
             return;
         }
 
@@ -111,7 +111,7 @@ public:
             for (int x = 0; x < lineLength; ++x)
             {
                 grid[y][x] = line[x];
-                if (line[x] == ']') // Marca de punto de aparición
+                if (line[x] == ']') // Spawn marker
                 {
                     spawnX = x + 1;
                     spawnY = y;
@@ -119,7 +119,7 @@ public:
             }
             for (int x = lineLength; x < MAP_WIDTH; ++x)
             {
-                grid[y][x] = ' '; // Rellena con espacios si la línea es corta
+                grid[y][x] = ' '; // Fill with spaces if line is short
             }
 
             if (lineLength > maxWidth)
@@ -132,10 +132,10 @@ public:
         width = maxWidth;
     }
 
-    // Dibuja el mapa en consola con el jugador (opcional)
+    // Draws the map on screen, optionally with player
     void DrawMap(std::string key, int mapW, int mapH, int playerX = 1, int playerY = 1)
     {
-        ReadMap(key, mapW, mapH); // Carga el mapa
+        ReadMap(key, mapW, mapH); // Load the map
 
         for (int y = 0; y < GetHeight(); ++y)
         {
@@ -144,16 +144,17 @@ public:
                 utils.MoveCursor(playerX + x, playerY + y);
                 if (x == playerX && y == playerY)
                 {
-                    std::cout << PINK << "o" << RESET; // Dibuja el jugador
+                    std::cout << PINK << "o" << RESET; // Draw player
                 }
                 else
                 {
-                    std::cout << grid[y][x]; // Dibuja el mapa
+                    std::cout << grid[y][x]; // Draw map tile
                 }
             }
         }
     }
 
+    // Draws map and player, with configurable offset
     void DrawWithPlayer(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
     {
         for (int y = 0; y < GetHeight(); ++y)
@@ -204,17 +205,17 @@ public:
         }
     }
 
-    // Retorna el carácter que hay en la posición (x, y)
+    // Returns the character at position (x, y)
     char GetTile(int x, int y) const
     {
         if (x >= 0 && x < width && y >= 0 && y < height)
         {
             return grid[y][x];
         }
-        return ' '; // Retorna espacio si está fuera de rango
+        return ' '; // Return space if out of bounds
     }
 
-    // Cambia el carácter en la posición (x, y)
+    // Sets the character at position (x, y)
     void SetTile(int x, int y, char value)
     {
         if (x >= 0 && x < width && y >= 0 && y < height)

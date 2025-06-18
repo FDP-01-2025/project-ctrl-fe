@@ -8,13 +8,13 @@
 #include <chrono>
 
 #ifdef _WIN32
-#include <windows.h> // Para funciones específicas de consola en Windows
+#include <windows.h> // For Windows-specific console functions
 #endif
 
 class Utils
 {
 public:
-        // Limpia la pantalla de la consola
+        // Clears the console screen by moving the cursor to the top-left corner
         void ClearScreen()
         {
 #ifdef _WIN32
@@ -22,10 +22,11 @@ public:
                 COORD coord = {0, 0};
                 SetConsoleCursorPosition(hConsole, coord);
 #else
-                std::cout << "\033[H";
+                std::cout << "\033[H"; // ANSI escape code to move cursor to top-left
 #endif
         }
 
+        // Completely clears the console screen, including filling it with spaces and resetting colors
         void ClearScreenComplety()
         {
 #ifdef _WIN32
@@ -38,35 +39,36 @@ public:
 
                 cells = csbi.dwSize.X * csbi.dwSize.Y;
 
-                // Llenar toda la pantalla con espacios
+                // Fill the entire screen with spaces
                 FillConsoleOutputCharacter(hConsole, ' ', cells, {0, 0}, &written);
-                // Llenar los atributos (color) por defecto
+                // Reset all attributes (like colors) to default
                 FillConsoleOutputAttribute(hConsole, csbi.wAttributes, cells, {0, 0}, &written);
-                // Posicionar el cursor en la esquina superior izquierda
+                // Move the cursor to the top-left corner
                 SetConsoleCursorPosition(hConsole, {0, 0});
 #else
-                std::cout << "\033[2J\033[H";
+                std::cout << "\033[2J\033[H"; // ANSI codes to clear screen and move cursor home
 #endif
         }
 
-        // Pausa la ejecución del programa durante un tiempo dado (en milisegundos)
+        // Pauses the execution of the program for a specified amount of milliseconds
         void Sleep(int milliseconds)
         {
                 // std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+                // (Currently commented out)
         }
 
-        // Mueve el cursor a una posición específica en la consola (x: columna, y: fila)
+        // Moves the console cursor to a specific position (x: column, y: row)
         void MoveCursor(int x, int y)
         {
 #ifdef _WIN32
                 COORD pos = {(SHORT)x, (SHORT)y};
                 SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 #else
-                std::cout << "\033[" << y << ";" << x << "H";
+                std::cout << "\033[" << y << ";" << x << "H"; // ANSI escape code for cursor positioning
 #endif
         }
 
-        // Lee el contenido completo de un archivo de texto y lo retorna como string
+        // Reads the entire content of a text file and returns it as a std::string
         std::string ReadFile(const std::string &path)
         {
                 std::ifstream file(path);
@@ -77,22 +79,24 @@ public:
                 return content;
         }
 
-        //Function to get the assets path relative to the executable directory
+        // Function to get the assets directory path relative to the executable's directory
         std::string GetAssetsPath()
         {
-                // Declaration of the buffer to hold the path
+                // Buffer to store the executable path
                 char buffer[MAX_PATH];
-                // Get the full path of the executable and extract the directory
+                // Get the full path of the current executable
                 GetModuleFileNameA(NULL, buffer, MAX_PATH);
-                // Find the last occurrence of the path separator to get the directory
+                // Convert to std::string for easier manipulation
                 std::string fullPath(buffer);
-                // Find the last occurrence of either '\' or '/' to handle both Windows and Unix-like paths
+                // Find the last path separator '\' or '/' to isolate directory
                 size_t pos = fullPath.find_last_of("\\/");
-                // If not found, return an empty string
+                if (pos == std::string::npos)
+                        return ""; // Return empty string if no separator found
+
                 std::string exeDir = fullPath.substr(0, pos);
-                // Return the assets path relative to the executable directory
-                return exeDir + "\\..\\assets\\"; 
+                // Return the relative path to the assets folder (one directory up + assets)
+                return exeDir + "\\..\\assets\\";
         }
 };
 
-#endif // UTILS_H
+#endif 

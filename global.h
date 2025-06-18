@@ -25,7 +25,7 @@ protected:
 
     Console consoleSettings;
     Map mapSettings;
-    Player &player = Player::GetInstance();
+    Player player;
     MainBomberman bomberman;
     Utils utils;
 
@@ -179,27 +179,22 @@ public:
             switch (selectedDifficulty)
             {
             case 1:
-                // Iniciar modo facil
-                player.SetLives(5);
-                player.SetDifficulty(Player::EASY);
-                player.SetBombs(10);
-                bomberman.Run(); // o tu lógica aquí
+                player.removeStatusFile();
+                player.ResetState(Player::EASY);
+                bomberman.Run();
                 break;
 
             case 2:
-                // Iniciar modo medio
-                player.SetLives(3);
-                player.SetDifficulty(Player::NORMAL);
-                player.SetBombs(5);
-                bomberman.Run(); // o lógica medio
+                player.removeStatusFile();
+                player.ResetState(Player::NORMAL); 
+                bomberman.Run(); 
                 break;
 
             case 3:
                 // Iniciar modo difícil
-                player.SetLives(1);
-                player.SetDifficulty(Player::HARD);
-                player.SetBombs(3);
-                bomberman.Run(); // o lógica difícil
+                player.removeStatusFile();
+                player.ResetState(Player::HARD);
+                bomberman.Run();
                 break;
 
             default:

@@ -1,38 +1,38 @@
-#ifndef BOMB_RENDERER_H // Directiva de preprocesador para evitar inclusiones múltiples
+#ifndef BOMB_RENDERER_H // Prevents this file from being included more than once
 #define BOMB_RENDERER_H
 
-//Include de librerías necesarias
-#include <iostream> 
+// Includes necessary libraries
+#include <iostream>
 
-// Include de las cabeceras de las clases utilizadas
-#include "utils/functions/utils.h" 
-#include "core/modules/bomberman/bomb.h" 
-#include "utils/screen/colors.h" 
+// Includes header files of the used classes
+#include "utils/functions/utils.h"
+#include "core/modules/bomberman/bomb.h"
+#include "utils/screen/colors.h"
 
-// Clase responsable de dibujar las bombas en la consola
+// Class that draws bombs on the screen
 class BombRenderer
 {
 public:
-    Utils utils; // Objeto utilitario para funciones como mover el cursor
+    Utils utils; // Helper object to do things like moving the cursor (cursor = where the text appears)
 
-    // Método para dibujar todas las bombas en pantalla
-    // bombs[]: arreglo de bombas a dibujar
-    // count: cantidad de bombas en el arreglo
-    // offsetX y offsetY: desplazamiento opcional en la posición de dibujo
+    // Method to draw all the bombs on the screen
+    // bombs[]: array of bombs to draw
+    // count: how many bombs are in the array
+    // offsetX and offsetY: optional position shift (offset = move the position)
     void Draw(Bomb bombs[], int count, int offsetX = 0, int offsetY = 0);
 };
 
-// Implementación del método Draw
+// Code for the Draw method
 void BombRenderer::Draw(Bomb bombs[], int count, int offsetX, int offsetY)
 {
-    // Itera sobre todas las bombas
-    for (int i = 0; i < count; ++i) 
+    // Loop through all the bombs
+    for (int i = 0; i < count; ++i)
     {
-        int x = bombs[i].GetX(); // Obtiene la coordenada X de la bomba
-        int y = bombs[i].GetY(); // Obtiene la coordenada Y de la bomba
-        utils.MoveCursor(offsetX + x, offsetY + y); // Mueve el cursor a la posición correspondiente
-        std::cout << ORANGE << "0" << RESET; // Dibuja la bomba como '0' en color naranja y luego reinicia el color
+        int x = bombs[i].GetX(); // Get the bomb's X position
+        int y = bombs[i].GetY(); // Get the bomb's Y position
+        utils.MoveCursor(offsetX + x, offsetY + y); // Move cursor to where the bomb should appear
+        std::cout << ORANGE << "0" << RESET; // Print bomb as '0' in orange, then reset color
     }
 }
 
-#endif // Fin del include guard
+#endif 

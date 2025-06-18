@@ -1,0 +1,6 @@
+X: 1
+Y: 1
+Lives: 3
+Bombs: 5
+Difficulty: 1
+ControlB: 1

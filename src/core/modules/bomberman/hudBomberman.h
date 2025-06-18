@@ -1,63 +1,58 @@
 #ifndef HUD_BOMBERMAN_H
 #define HUD_BOMBERMAN_H
 
-// Include de librerías necesarias
+// Include required libraries
 #include <iostream>
 #include <string>
-// Include de las cabeceras de las clases utilizadas
+
+// Include headers for used classes
 #include "utils/player/hudBase.h"
 #include "utils/screen/colors.h"
 
+// Class to draw the HUD (HUD = info panel) for the Bomberman game
 class HUDBomberman : public HUDBase
 {
 public:
-    // Obtener ancho del HUD donde el override es porque se reescribió el método de la clase base
+    // Get the width of the HUD
+    // 'override' means this replaces a method from the base class
     int GetWidth() const override
     {
         return 25;
     }
 
-    // Funcion para dibujar el HUD en la consola
-    // Recibe el jugador, el nivel actual y el ancho del mapa (opcional)
-    void Draw(const Player &player, int currentLevel, int mapWidth = 0) override
+    // Function to draw the HUD on the screen
+    // Takes the player, current level, and optional map width
+    void Draw(Player player, int currentLevel, int mapWidth = 0) override
     {
-        utils.ClearScreen();
-        int hudX = mapWidth + 3;
-        int y = 3;
+        utils.ClearScreen(); // Clear the screen before drawing the HUD
+        int hudX = mapWidth + 3; // X position of the HUD
+        int y = 3; // Y starting position
 
-        // Información del jugador
+        // Player information
         std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
-        PrintLine(hudX, y, "Sala - " + std::to_string(currentLevel), WHITE_BRIGHT);
+        PrintLine(hudX, y, "Room - " + std::to_string(currentLevel), WHITE_BRIGHT);
         y++;
 
         std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
-        PrintLine(hudX, y, "Vida - " + std::to_string(player.GetLives()), RED);
+        PrintLine(hudX, y, "Lives - " + std::to_string(player.GetLives()), RED);
         std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
         PrintLine(hudX, y, "B - " + std::to_string(player.GetBombs()), ORANGE);
         y++;
 
-        // Objetivo del juego
-        PrintLine(hudX, y, "[Objetivo]:", WHITE_BRIGHT);
-        PrintLine(hudX, y, "Encuentra la puerta");
-        PrintLine(hudX, y, "Destruye % con bombas");
-        PrintLine(hudX, y, "Evita morir con fuego");
+        // Game objective
+        PrintLine(hudX, y, "[Goal]:", WHITE_BRIGHT);
+        PrintLine(hudX, y, "Find the door");
+        PrintLine(hudX, y, "Destroy % with bombs");
+        PrintLine(hudX, y, "Don't die by fire");
         y++;
 
-        // Controles
-        PrintLine(hudX, y, "Controles:", WHITE_BRIGHT);
-        PrintLine(hudX, y, "[WASD]: Moverse");
-        PrintLine(hudX, y, "[B]: Bomba");
+        // Controls
+        PrintLine(hudX, y, "Controls:", WHITE_BRIGHT);
+        PrintLine(hudX, y, "[WASD]: Move");
+        PrintLine(hudX, y, "[B]: Place bomb");
 
-        std::cout << RESET;
-    }
-
-private:
-    // Funcion para printar una línea de texto en una posición específica del HUD
-    void PrintLine(int x, int &y, const std::string &text, const std::string &color = GRAY_BRIGHT) const
-    {
-        std::cout << "\033[" << y << ";" << x << "H" << color << text << RESET;
-        y++;
+        std::cout << RESET; // Reset text color
     }
 };
 
-#endif // HUD_BOMBERMAN_H
+#endif 

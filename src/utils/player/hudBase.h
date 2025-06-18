@@ -1,25 +1,38 @@
-// HUD es un acrónimo de "Heads-Up Display", 
-//que se refiere a una interfaz gráfica que 
-//muestra información importante al jugador sin interrumpir 
-//la experiencia de juego. En este caso, el 
-//HUD muestra información sobre el jugador, como su vida, objetos dependiendo del nivel y objetivos del juego.
-
 #ifndef HUD_BASE_H
 #define HUD_BASE_H
 
+// Include headers for used classes
 #include "player.h"
 #include "utils/functions/utils.h"
 
-class HUDBase {
+// HUD stands for "Heads-Up Display".
+// It refers to an interface that shows critical game information
+// (like player stats, level info, objectives, etc.) without disrupting gameplay.
+// This base class defines the general interface for all HUDs.
+class HUDBase
+{
 public:
-    Utils utils; // Instancia de la clase Utils para operaciones comunes
-    // Constructor por defecto
-    // Esto significa que las clases derivadas deben implementar sus propios destructores
+    Utils utils; // Instance of the Utils class for common operations
+
+    // Default virtual destructor.
+    // This ensures proper cleanup in derived classes.
     virtual ~HUDBase() = default;
-    //Obtener ancho del HUD donde se declaro con virtual porrque se pueda cambiar en las clases derivadas
+
+    // Returns the width of the HUD.
+    // Declared as virtual so derived classes can customize it.
     virtual int GetWidth() const = 0;
-    // Se dibuja el HUD en la consola 
-    virtual void Draw(const Player& player, int currentLevel, int mapWidth = 0) = 0;
+
+    // Renders the HUD in the console.
+    // Must be implemented by derived classes.
+    virtual void Draw(Player player, int currentLevel, int mapWidth = 0) = 0;
+
+    // Prints a single line of text at a specific position in the HUD.
+    // Automatically moves the cursor to the next line (y++).
+    void PrintLine(int x, int &y, const std::string &text, const std::string &color = GRAY_BRIGHT) const
+    {
+        std::cout << "\033[" << y << ";" << x << "H" << color << text << RESET;
+        y++;
+    }
 };
 
 #endif

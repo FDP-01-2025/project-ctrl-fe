@@ -1,7 +1,7 @@
 #ifndef MAIN_BOMBERMAN_H
 #define MAIN_BOMBERMAN_H
 
-// Archivos de cabecera necesarios
+// Include required header files
 #include "utils/functions/utils.h"
 #include "core/modules/bomberman/hudBomberman.h"
 #include "utils/player/maping.h"
@@ -9,84 +9,81 @@
 #include "core/modules/bomberman/bombRenderer.h"
 #include "core/modules/bomberman/bomb.h"
 
+// Include neccessary libraries
 #include <fstream>
 #include <iostream>
-#include <conio.h>
-#include <limits>
+#include <conio.h> // for _kbhit() and _getch() that allow non-blocking keyboard input
+#include <limits>  // for std::numeric_limits that allows us to clear input buffer
+#include <tuple>   // for std::pair used in player movement direction
 
 #ifdef _WIN32
-#include <windows.h> // Solo en Windows para sonidos y consola
+#include <windows.h> // Only needed for sound effects on Windows
 #endif
 
-const int MAX_BOMBS = 25; // Número máximo de bombas en juego
+const int MAX_BOMBS = 25; // Maximum number of bombs allowed
 
-// Clase principal que controla el juego estilo Bomberman
+// Main class controlling the Bomberman-style game
 class MainBomberman
 {
 public:
-    MainBomberman(); // Constructor del juego
-
-    // Ejecuta el ciclo principal del juego
-    // Retorna true si pasa todos los niveles, false si pierde
-    bool Run();
+    MainBomberman(); // Constructor initializes state
+    bool Run();      // Main game loop, returns true if all levels are passed
 
 private:
-    // Componentes del juego
+    // Game components
     Map map;
-    Player &player = Player::GetInstance();
+    Player player;
     HUDBomberman hud;
     Utils utils;
     BombRenderer bombRenderer;
     std::string difficultyFolder;
 
-    Bomb bombs[MAX_BOMBS]; // Arreglo de bombas
-    int bombCount = 0;     // Número actual de bombas activas
+    Bomb bombs[MAX_BOMBS]; // Active bomb list, we use a fixed-size array for simplicity because
+    // the maximum number of bombs is known and limited
+    int bombCount = 0; // Current active bombs
 
-    int currentLevel; // Nivel actual
-    bool isRunning;   // Estado de ejecución del juego
+    int currentLevel; // Current game level
+    bool isRunning;   // Game running state
 
-    int offsetX = 1, offsetY = 1; // Offset para el render del mapa en pantalla
-    std::string currentMapName;   // Ruta del mapa actual
+    int offsetX = 1, offsetY = 1; // Map drawing offset
+    std::string currentMapName;   // Current map file name
 
-    // Métodos auxiliares
-    void processInput(char input); // Procesa entrada del jugador
-    void LoadLevel(int level);     // Carga un nuevo nivel
-    void handleExplosion(int i);   // Maneja explosión de la bomba i
-    void DetermineDifficultyFolder();
+    // Internal helper methods
+    void processInput(char input);                       // Handle player input
+    void LoadLevel(int level);                           // Load level from file
+    void handleExplosion(int i);                         // Handle explosion logic for bomb i
+    void ApplyExplosionAt(int x, int y, int dx, int dy); // Apply explosion at direction
+    void DetermineDifficultyFolder();                    // Set folder based on difficulty
 };
 
-// Constructor: inicializa estado y carga primer nivel
-MainBomberman::MainBomberman() : currentLevel(1), isRunning(true), bombCount(0)
-{
-}
+// Constructor: initialize level, bomb count and running flag
+MainBomberman::MainBomberman() : currentLevel(1), isRunning(true), bombCount(0) {}
 
-// Método principal de ejecución del juego
+// Main game loop logic
 bool MainBomberman::Run()
 {
     utils.ClearScreen();
-    player.ActivateControlB(true); // Activa control para colocar bombas
-    // Determina la carpeta correcta según dificultad
-    DetermineDifficultyFolder();
-    // Carga el primer nivel
-    LoadLevel(currentLevel);
+    player.ActivateControlB(true); // Enable 'B' control for placing bombs
+    DetermineDifficultyFolder();   // Set level folder based on difficulty
+    LoadLevel(currentLevel);       // Load first level
 
     while (isRunning)
     {
-        utils.ClearScreen(); // Limpia consola
+        utils.ClearScreen();
 
-        // Dibuja mapa, jugador, bombas y HUD
+        // Render map, bombs, player, and HUD
         map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
         bombRenderer.Draw(bombs, bombCount, 1, 1);
         hud.Draw(player, currentLevel, map.GetWidth());
 
-        // Verifica bombas que ya deben explotar
+        // Check bombs that should explode
         for (int i = 0; i < bombCount;)
         {
             if (bombs[i].HasExploded())
             {
-                handleExplosion(i); // Explosión y limpieza
+                handleExplosion(i); // Apply explosion effects
 
-                // Compacta arreglo al eliminar bomba
+                // Shift bombs to remove exploded one
                 for (int j = i; j < bombCount - 1; ++j)
                     bombs[j] = bombs[j + 1];
                 --bombCount;
@@ -97,164 +94,154 @@ bool MainBomberman::Run()
             }
         }
 
-        // Captura entrada del usuario si hay
+        // Read user input if available
         if (_kbhit())
             processInput(_getch());
 
-        // Verifica condición de derrota
+        // If player has no more lives, end game
         if (player.GetLives() <= 0)
         {
             utils.ClearScreen();
-            std::cout << "\nHas perdido todas tus vidas. ¡Game Over!\n";
+            std::cout << "\nYou have lost all your lives. Game Over!\n";
             isRunning = false;
-            return false; // El jugador perdió
+            return false;
         }
 
-        utils.Sleep(30); // Delay entre frames
+        utils.Sleep(15); // Short delay between frames
     }
 
-    return true; // Si se completa correctamente
+    return true; // Game completed successfully
 }
 
-
-
-// Procesa entrada del jugador
+// Handle player key input
 void MainBomberman::processInput(char input)
 {
-    // Coloca bomba si se presiona 'b'
+    // Place a bomb if 'b' is pressed and allowed
     if (input == 'b' && player.IsControlBActive())
     {
+        // Check if player can place a bomb and if the maximum limit is not reached
         if (player.CanPlaceBomb() && (bombCount < MAX_BOMBS))
         {
-            bombs[bombCount++] = Bomb(player.GetX(), player.GetY());
-            map.SetTile(player.GetX(), player.GetY(), '0'); // Marca bomba en mapa
+            // Place a bomb at player's current position
+            bombs[bombCount++] = Bomb(player.GetX(), player.GetY(), player.GetDifficulty());
+            map.SetTile(player.GetX(), player.GetY(), '0'); // Mark bomb on map
+            // Save player state after placing a bomb
             player.PlaceBomb();
         }
         return;
     }
 
-    // Movimiento y posible cambio de nivel
-    bool changeLevel = player.TryMove(input, map);
-    if (changeLevel)
+    // Handle movement input
+    std::pair<int, int> dir = player.GetInputDirection(input);
+    int dx = dir.first;
+    int dy = dir.second;
+
+    if (dx == 0 && dy == 0)
+        return; // Invalid key
+
+    int newX = player.GetX() + dx;
+    int newY = player.GetY() + dy;
+
+    char tile = map.GetTile(newX, newY);
+
+    // Allow movement only to walkable tiles
+    if (tile == ' ' || tile == 'B' || tile == '/')
     {
-        int nextLevel = currentLevel + 1;
-
-        // Determinar la ruta del siguiente mapa
-
-        switch (player.GetDifficulty())
+        // Pick up bomb power-up
+        if (tile == 'B')
         {
-        case Player::Difficulty::EASY:
-            difficultyFolder = "easy-levels";
-            break;
-        case Player::Difficulty::NORMAL:
-            difficultyFolder = "medium-levels";
-            break;
-        case Player::Difficulty::HARD:
-            difficultyFolder = "hard-levels";
-            break;
+            player.IncrementBombs();
+            map.SetTile(newX, newY, ' ');
+            utils.MoveCursor(offsetX + newX, offsetY + newY);
+            return;
         }
 
-        std::string nextMapPath = utils.GetAssetsPath() + "maps\\bomberman\\" + difficultyFolder + "\\level" + std::to_string(nextLevel) + ".txt";
-
-        // Verificar si existe el siguiente nivel
-        std::ifstream file(nextMapPath);
-        if (!file.is_open())
+        // Move to next level
+        if (tile == '/')
         {
-            utils.ClearScreen();
-            std::cout << "\n¡Felicidades! Has completado todos los niveles.\n";
-            isRunning = false;
-            return; // Finaliza el juego exitosamente
+            // If player reaches the door, load next level
+            int nextLevel = currentLevel + 1;
+            // Determine the difficulty folder based on player state
+            DetermineDifficultyFolder();
+            // Build the next level map path
+            std::string nextMapPath = utils.GetAssetsPath() + "maps\\bomberman\\" + difficultyFolder + "\\level" + std::to_string(nextLevel) + ".txt";
+            // Check if the next level file exists
+            std::ifstream file(nextMapPath);
+            if (!file.is_open())
+            {
+                utils.ClearScreen();
+                std::cout << "\nCongratulations! You've completed all levels.\n";
+                isRunning = false;
+                return;
+            }
+            // Close the file after checking
+            file.close();
+            currentLevel = nextLevel;
+            // Load the next level
+            LoadLevel(currentLevel);
+            return;
         }
 
-        // Si existe, cargar el siguiente nivel
-        currentLevel = nextLevel;
-        LoadLevel(currentLevel);
+        // Move player if tile is valid
+        player.Move(dx, dy, tile);
     }
 }
 
-// Carga el mapa de un nivel determinado
+// Load a specific level from file
 void MainBomberman::LoadLevel(int level)
 {
-    // Define carpeta según dificultad
-    switch (player.GetDifficulty())
-    {
-    case Player::Difficulty::EASY:
-        difficultyFolder = "easy-levels";
-        break;
-    case Player::Difficulty::NORMAL:
-        difficultyFolder = "medium-levels";
-        break;
-    case Player::Difficulty::HARD:
-        difficultyFolder = "hard-levels";
-        break;
-    }
+    // Call the function to set the difficulty folder based on player state
+    DetermineDifficultyFolder();
 
-    // Construye la ruta al archivo del mapa
+    // Build full path to level file
     std::string currentMapName = utils.GetAssetsPath() + "maps\\bomberman\\" + difficultyFolder + "\\level" + std::to_string(level) + ".txt";
-    std::ifstream file(currentMapName);
 
-    // Si el archivo existe, lo carga
+    // Clear screen and load map if found
     utils.ClearScreenComplety();
-
+    // We call ReadMap from the Map class to load the map
     map.ReadMap(currentMapName, map.GetWidth(), map.GetHeight());
-    bombCount = 0;                                        // Reinicia bombas
-    player.SetPosition(map.GetSpawnX(), map.GetSpawnY()); // Coloca al jugador en spawn
+    bombCount = 0;                                        // Reset bombs
+    player.SetPosition(map.GetSpawnX(), map.GetSpawnY()); // Set spawn point
 }
 
-// Maneja el efecto de una explosión de bomba
+// Handle the explosion effects of a bomb
 void MainBomberman::handleExplosion(int i)
 {
+    // We declare the coordinates of the bomb
     int x = bombs[i].GetX();
     int y = bombs[i].GetY();
 
-    // Lambda que aplica la explosión en una dirección
-    auto applyExplosion = [&](int dx, int dy)
-    {
-        int nx = x + dx, ny = y + dy;
-        char tile = map.GetTile(nx, ny);
-
-        // Si el jugador está en la zona, pierde una vida
-        if (nx == player.GetX() && ny == player.GetY())
-            player.LoseLife();
-
-        // Si el tile es rompible, lo destruye o genera ítem
-        if (tile != '#' && tile != '~' && tile != ']' && tile != '/' && tile != '0')
-        {
-            if (tile == '%')
-                map.SetTile(nx, ny, (rand() % 4 == 0) ? 'B' : '*'); // 25% chance de 'B'
-            else
-                map.SetTile(nx, ny, '*');
-        }
-    };
-
-    // Explosión en cruz
-    applyExplosion(0, 0);  // Centro
-    applyExplosion(0, -1); // Arriba
-    applyExplosion(0, 1);  // Abajo
-    applyExplosion(-1, 0); // Izquierda
-    applyExplosion(1, 0);  // Derecha
+    // Explode in 5 directions: center + up/down/left/right
+    ApplyExplosionAt(x, y, 0, 0);  // Center
+    ApplyExplosionAt(x, y, 0, -1); // Up
+    ApplyExplosionAt(x, y, 0, 1);  // Down
+    ApplyExplosionAt(x, y, -1, 0); // Left
+    ApplyExplosionAt(x, y, 1, 0);  // Right
 
 #ifdef _WIN32
-    // Sonido de explosión en Windows
+    // Play explosion sound (Windows only)
     Beep(800, 50);
     Beep(600, 50);
     Beep(300, 100);
 #endif
 
-    // Redibuja tras explosión
+    // Redraw game state after explosion
     utils.ClearScreen();
     hud.Draw(player, currentLevel, map.GetWidth());
     map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
     bombRenderer.Draw(bombs, bombCount, 1, 1);
     utils.Sleep(30);
 
-    // Limpia llamas de la explosión
+    // Clean up explosion fire tiles, we use a 3x3 area around the bomb
+    // This will remove the explosion fire tiles in cardinal directions
+    // We iterate over a 3x3 area centered on the bomb
+    // and remove any fire tiles ('*' or '0') in cardinal directions
+    // This will remove the explosion fire tiles in cardinal directions
     for (int dx = -1; dx <= 1; ++dx)
     {
         for (int dy = -1; dy <= 1; ++dy)
         {
-            // Solo direcciones cardinales (no diagonales)
-            if ((dx == 0 || dy == 0) && !(dx != 0 && dy != 0))
+            if ((dx == 0 || dy == 0) && !(dx != 0 && dy != 0)) // Only cardinal directions
             {
                 int nx = x + dx, ny = y + dy;
                 char tile = map.GetTile(nx, ny);
@@ -265,17 +252,62 @@ void MainBomberman::handleExplosion(int i)
     }
 }
 
+// Apply the effect of an explosion at a given tile (center or direction)
+void MainBomberman::ApplyExplosionAt(int x, int y, int dx, int dy)
+{
+    // Calculate the coordinates of the tile to apply explosion
+    // We calculate the new coordinates based on the current position and direction
+    // dx and dy are the direction offsets, e.g. (0, -1) for up
+    // We calculate the new coordinates based on the current position and direction
+    int nx = x + dx;
+    int ny = y + dy;
+    char tile = map.GetTile(nx, ny);
+
+    // Player hit by explosion
+    if (nx == player.GetX() && ny == player.GetY())
+        player.LoseLife();
+
+    // If the tile is destructible, destroy it or spawn power-up
+    if (tile != '#' && tile != '~' && tile != ']' && tile != '/' && tile != '0')
+    {
+        // If the tile is destructible, we can destroy it
+        if (tile == '%')
+        {
+            switch (player.GetDifficulty())
+            {
+            //Probability of spawning bombs based on difficulty
+            case Player::Difficulty::EASY:
+                map.SetTile(nx, ny, (rand() % 2 == 0) ? 'B' : '*'); // 50% chance to spawn a bomb power-up
+                break;
+            case Player::Difficulty::NORMAL:
+                map.SetTile(nx, ny, (rand() % 3 == 0) ? 'B' : '*'); // 33% chance
+                break;
+            case Player::Difficulty::HARD:
+                map.SetTile(nx, ny, (rand() % 5 == 0) ? 'B' : '*'); // 20% chance
+                break;
+            }
+        }
+        else
+            map.SetTile(nx, ny, '*');
+    }
+}
+
+// Set difficulty folder string based on selected difficulty
 void MainBomberman::DetermineDifficultyFolder()
 {
+    // First get the difficulty from player state and set the folder accordingly
     switch (player.GetDifficulty())
     {
     case Player::Difficulty::EASY:
+        // Set the folder for easy levels
         difficultyFolder = "easy-levels";
         break;
     case Player::Difficulty::NORMAL:
+        // Set the folder for medium levels
         difficultyFolder = "medium-levels";
         break;
     case Player::Difficulty::HARD:
+        // Set the folder for hard levels
         difficultyFolder = "hard-levels";
         break;
     }
