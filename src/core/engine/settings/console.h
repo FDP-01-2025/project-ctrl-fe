@@ -35,7 +35,7 @@ class Console
 {
 public:
     // Constructor con valores por defecto para dimensiones de consola, buffer y fuente
-    Console(int w = 100, int h = 40, int fw = 10, int fh = 16)
+    Console(int w = 100, int h = 45, int fw = 10, int fh = 16)
         : consoleW(w), consoleH(h), fontW(fw), fontH(fh)
     {
         // Buffer igual al tamaño de ventana por defecto
@@ -74,10 +74,13 @@ public:
             // Si la configuración es válida, aplica los cambios visuales
             if (ValidConfigs(hConsoleOUT))
             {
-                ApllySettings();  // Aplica tamaño de buffer y ventana
+                ApllySettings(); // Aplica tamaño de buffer y ventana
+                Sleep(10);
+                hwnd = GetConsoleWindow();
                 SetConsoleFont(); // Cambia el tipo y tamaño de fuente
                 HideCursor();     // Oculta el cursor
-                CenterWindow();   // Centra la ventana en la pantalla
+                StylizeWindow();
+                CenterWindow(); // Centra la ventana en la pantalla
             }
         }
         else
@@ -108,16 +111,16 @@ public:
             std::cerr << "Error obteniendo info consola\n";
             return false;
         }
+        /*
+                maxSize = csbi.dwMaximumWindowSize;
 
-        maxSize = csbi.dwMaximumWindowSize;
+                // Ajustar a máximos permitidos
+                consoleW = std::min(consoleW, static_cast<int>(maxSize.X));
+                consoleH = std::min(consoleH, static_cast<int>(maxSize.Y));
 
-        // Ajustar a máximos permitidos
-        consoleW = std::min(consoleW, static_cast<int>(maxSize.X));
-        consoleH = std::min(consoleH, static_cast<int>(maxSize.Y));
-
-        // Buffer DEBE ser igual al tamaño de ventana
-        bufferW = consoleW;
-        bufferH = consoleH;
+                // Buffer DEBE ser igual al tamaño de ventana
+                bufferW = consoleW;
+                bufferH = consoleH;*/
 
         return true;
     }
@@ -182,7 +185,6 @@ public:
     // Centra la ventana de la consola en la pantalla
     void CenterWindow()
     {
-        HWND hwnd = GetConsoleWindow();
         if (!hwnd)
             return;
 
@@ -223,6 +225,44 @@ public:
         cursorInfo.bVisible = FALSE;
         SetConsoleCursorInfo(hConsoleOUT, &cursorInfo);
     }
+    void StylizeWindow()
+    {
+        // Quitar estilos de borde y redimensionamiento
+        LONG style = GetWindowLong(hwnd, GWL_STYLE);
+        style &= ~WS_CAPTION;
+        style &= ~WS_THICKFRAME;
+        style &= ~WS_MAXIMIZEBOX;
+        style &= ~WS_MINIMIZEBOX;
+        style &= ~WS_SYSMENU;
+
+        SetWindowLong(hwnd, GWL_STYLE, style);
+
+        // Forzar que Windows reprocese los estilos aplicados
+        SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+
+    /*
+    void DisableResize()
+{
+
+    // Obtener el estilo actual
+    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+
+    // Quitar redimensionamiento y botón de maximizar
+    style &= ~WS_SIZEBOX;       // quita el borde redimensionable
+    style &= ~WS_MAXIMIZEBOX;   // quita el botón de maximizar
+
+    // Dejar la barra de título (WS_CAPTION) y botón de cerrar (WS_SYSMENU)
+    // Los otros flags importantes ya están presentes por defecto
+
+    // Aplicar cambios
+    SetWindowLong(hwnd, GWL_STYLE, style);
+
+    // Forzar redibujo del frame para aplicar los nuevos estilos
+    SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+} */
 
 protected:
     // Parámetros de configuración
@@ -243,4 +283,5 @@ protected:
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     COORD maxSize;
     CONSOLE_CURSOR_INFO cursorInfo;
+    HWND hwnd;
 };

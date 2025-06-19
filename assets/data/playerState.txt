@@ -1,6 +1,6 @@
-X: 7
-Y: 11
-Lives: 5
-Bombs: 10
-Difficulty: 0
-ControlB: 1
+X: 1
+Y: 9
+Lives: 5
+Bombs: 10
+Difficulty: 0
+ControlB: 1

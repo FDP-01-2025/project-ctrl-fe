@@ -47,7 +47,7 @@ protected:
 
 public:
     //* Valores iniciales
-    Global(int w = 70, int h = 20, int mW = 70, int mH = 20)
+    Global(int w = 100, int h = 45, int mW = 70, int mH = 20)
         : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH) {}
 
     // TODO ----- PROCESO (1) ----

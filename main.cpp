@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-    Global mainCalls(100, 45, 100, 45);
+    Global mainCalls(110, 30, 110, 30);
     //! ----- (1) -----
     //* Primera acción inicialización (logo)
     mainCalls.Initializer();
