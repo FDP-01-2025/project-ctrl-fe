@@ -158,7 +158,7 @@ public:
 
     // Convert keyboard input into movement direction
     // Returns a pair (dx, dy)
-    std::pair<int, int> GetInputDirection(char input)
+    std::pair<int, int> GetInputDirection(wchar_t input)
     {
         int dx = 0, dy = 0;
         if (input == 'w')
@@ -256,7 +256,7 @@ private:
     // restoring all fields by reading line by line.
     void loadState()
     {
-        std::ifstream in(filename);
+        std::ifstream in(filename, std::ios::binary);
         if (in.is_open())
         {
             std::string label;
@@ -287,7 +287,7 @@ private:
     // then replaces the original file with the temporary one.
     void saveControlB()
     {
-        std::ifstream in(filename);
+        std::ifstream in(filename, std::ios::binary);
         std::ofstream out("temp.txt");
         std::string line;
 
@@ -312,7 +312,7 @@ private:
     // Similar logic to saveControlB, but updates only the player's X and Y coordinates.
     void savePosition()
     {
-        std::ifstream in(filename);
+        std::ifstream in(filename, std::ios::binary);
         std::ofstream out("temp.txt");
         std::string line;
         while (std::getline(in, line))
@@ -336,7 +336,7 @@ private:
     // preserving all other data by rewriting to a temp file.
     void saveBombs()
     {
-        std::ifstream in(filename);
+        std::ifstream in(filename, std::ios::binary);
         std::ofstream out("temp.txt");
         std::string line;
         while (std::getline(in, line))
@@ -357,7 +357,7 @@ private:
     // Updates player's lives count while preserving the rest of the save file.
     void saveLives()
     {
-        std::ifstream in(filename);
+        std::ifstream in(filename, std::ios::binary);
         std::ofstream out("temp.txt");
         std::string line;
         while (std::getline(in, line))
@@ -379,7 +379,7 @@ private:
     // preserving all other data by rewriting the file.
     void saveDifficulty()
     {
-        std::ifstream in(filename);
+        std::ifstream in(filename, std::ios::binary);
         std::ofstream out("temp.txt");
         std::string line;
         while (std::getline(in, line))

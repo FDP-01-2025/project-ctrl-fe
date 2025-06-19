@@ -1,5 +1,5 @@
-X: 1
-Y: 12
+X: 7
+Y: 11
 Lives: 5
 Bombs: 10
 Difficulty: 0

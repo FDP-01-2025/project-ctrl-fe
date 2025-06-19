@@ -2,12 +2,12 @@
 #define MAPING_H
 
 // Include necessary libraries
-#include <fstream>   // For file handling
+#include <fstream> // For file handling
 #include <iostream>
 #include <string>
-#include <conio.h>   // For functions like _kbhit() and _getch()
-#include <limits>    // For std::numeric_limits
-#ifdef _WIN32        // Only include on Windows systems
+#include <conio.h> // For functions like _kbhit() and _getch()
+#include <limits>  // For std::numeric_limits
+#ifdef _WIN32      // Only include on Windows systems
 #include <windows.h>
 #endif
 
@@ -24,13 +24,13 @@ class Map
 {
 protected:
     //* Initial values
-    // Note: Even though one of the goals was to make this variable (based on console size), 
+    // Note: Even though one of the goals was to make this variable (based on console size),
     // it's not feasible — vectors are required for that
     const int mH = 50; // Fixed internal height
     const int mW = 30; // Fixed internal width
 
     // Character matrix representing the map
-    char grid[MAP_HEIGHT][MAP_WIDTH]{};
+    wchar_t grid[MAP_HEIGHT][MAP_WIDTH]{};
 
     // Dimensions of the loaded map
     int width = 0;
@@ -93,14 +93,13 @@ public:
     // Reads the map from a plain text file
     void ReadMap(std::string key, int mapW, int mapH)
     {
-        std::ifstream file(key); // Open file from `key` path
+        std::ifstream file(key, std::ios::binary); // Open file from `key` path
 
         if (!file.is_open())
         {
             std::cerr << "Error opening file: " << key << " -> " << strerror(errno) << "\n";
             return;
         }
-
         std::string line;
         int y = 0;
         int maxWidth = 0;
@@ -119,7 +118,7 @@ public:
             }
             for (int x = lineLength; x < MAP_WIDTH; ++x)
             {
-                grid[y][x] = ' '; // Fill with spaces if line is short
+                grid[y][x] = L' '; // Fill with spaces if line is short
             }
 
             if (lineLength > maxWidth)
@@ -144,11 +143,11 @@ public:
                 utils.MoveCursor(playerX + x, playerY + y);
                 if (x == playerX && y == playerY)
                 {
-                    std::cout << PINK << "o" << RESET; // Draw player
+                    std::wcout << PINK << L"o" << RESET; // Draw player
                 }
                 else
                 {
-                    std::cout << grid[y][x]; // Draw map tile
+                    std::wcout << grid[y][x]; // Draw map tile
                 }
             }
         }
@@ -157,6 +156,7 @@ public:
     // Draws map and player, with configurable offset
     void DrawWithPlayer(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
     {
+
         for (int y = 0; y < GetHeight(); ++y)
         {
             for (int x = 0; x < GetWidth(); ++x)
@@ -165,39 +165,39 @@ public:
 
                 if (x == playerX && y == playerY)
                 {
-                    std::cout << PINK << "o" << RESET;
+                    std::wcout << PINK << L"o" << RESET;
                 }
                 else
                 {
-                    char tile = grid[y][x];
+                    wchar_t tile = grid[y][x];
                     switch (tile)
                     {
                     case '#':
-                        std::cout << GRAY << "#" << RESET;
+                        std::wcout << GRAY << L"#" << RESET;
                         break;
                     case ']':
-                        std::cout << GRAY << "]" << RESET;
+                        std::wcout << GRAY << L"]" << RESET;
                         break;
                     case 'B':
-                        std::cout << ORANGE << "B" << RESET;
+                        std::wcout << ORANGE << L"B" << RESET;
                         break;
                     case 'A':
-                        std::cout << GREEN << "#" << RESET;
+                        std::wcout << GREEN << L"#" << RESET;
                         break;
                     case 'H':
-                        std::cout << GREEN << "O" << RESET;
+                        std::wcout << GREEN << L"O" << RESET;
                         break;
                     case 'T':
-                        std::cout << BROWN << "W" << RESET;
+                        std::wcout << BROWN << L"W" << RESET;
                         break;
                     case '~':
-                        std::cout << BLUE << "~" << RESET;
+                        std::wcout << BLUE << L"~" << RESET;
                         break;
                     case '*':
-                        std::cout << YELLOW_BRIGHT << "*" << RESET;
+                        std::wcout << YELLOW_BRIGHT << L"*" << RESET;
                         break;
                     default:
-                        std::cout << tile;
+                        std::wcout << tile;
                         break;
                     }
                 }
@@ -206,7 +206,7 @@ public:
     }
 
     // Returns the character at position (x, y)
-    char GetTile(int x, int y) const
+    wchar_t GetTile(int x, int y) const
     {
         if (x >= 0 && x < width && y >= 0 && y < height)
         {
@@ -216,7 +216,7 @@ public:
     }
 
     // Sets the character at position (x, y)
-    void SetTile(int x, int y, char value)
+    void SetTile(int x, int y, wchar_t value)
     {
         if (x >= 0 && x < width && y >= 0 && y < height)
         {

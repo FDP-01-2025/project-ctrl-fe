@@ -4,12 +4,13 @@
 // Include required libraries
 #include <iostream>
 #include <string>
+#include <windows.h>
 
 // Include headers for used classes
 #include "utils/screen/colors.h"
 #include "utils/player/player.h"
 #include "utils/functions/utils.h"
-
+#include "utils/functions/toWstring.h"
 
 // Class to draw the HUD (HUD = info panel) for the Bomberman game
 class HUDBomberman
@@ -34,29 +35,29 @@ public:
         int y = 3; // Y starting position
 
         // Player information
-        std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
-        utils.PrintLine(hudX, y, "Room - " + std::to_string(currentLevel), WHITE_BRIGHT);
+        std::wcout << L"\033[" << y << L";" << hudX << L"H" << std::wstring(25, ' ');
+        utils.PrintLine(hudX, y, L"Room - " + ToWString(currentLevel), WHITE_BRIGHT);
         y++;
 
-        std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
-        utils.PrintLine(hudX, y, "Lives - " + std::to_string(player.GetLives()), RED);
-        std::cout << "\033[" << y << ";" << hudX << "H" << std::string(25, ' ');
-        utils.PrintLine(hudX, y, "B - " + std::to_string(player.GetBombs()), ORANGE);
+        std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');
+        utils.PrintLine(hudX, y, L"Lives - " + ToWString(player.GetLives()), RED);
+        std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');
+        utils.PrintLine(hudX, y, L"B - " + ToWString(player.GetBombs()), ORANGE);
         y++;
 
         // Game objective
-        utils.PrintLine(hudX, y, "[Goal]:", WHITE_BRIGHT);
-        utils.PrintLine(hudX, y, "Find the door");
-        utils.PrintLine(hudX, y, "Destroy % with bombs");
-        utils.PrintLine(hudX, y, "Don't die by fire");
+        utils.PrintLine(hudX, y, L"[Goal]:", WHITE_BRIGHT);
+        utils.PrintLine(hudX, y, L"Find the door");
+        utils.PrintLine(hudX, y, L"Destroy % with bombs");
+        utils.PrintLine(hudX, y, L"Don't die by fire");
         y++;
 
         // Controls
-        utils.PrintLine(hudX, y, "Controls:", WHITE_BRIGHT);
-        utils.PrintLine(hudX, y, "[WASD]: Move");
-        utils.PrintLine(hudX, y, "[B]: Place bomb");
+        utils.PrintLine(hudX, y, L"Controls:", WHITE_BRIGHT);
+        utils.PrintLine(hudX, y, L"[WASD]: Move");
+        utils.PrintLine(hudX, y, L"[B]: Place bomb");
 
-        std::cout << RESET; // Reset text color
+        std::wcout << RESET; // Reset text color
     }
 };
 

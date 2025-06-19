@@ -20,7 +20,7 @@ protected:
     int mapW;
     int mapH;
 
-    char chars[100][100] = {};
+    wchar_t chars[100][100] = {};
     int colors[100][100] = {};
 
     Console consoleSettings;
@@ -103,7 +103,7 @@ public:
             // LOGICA de mostrar el story board
             processThread = ShowStoryBoard() ? STATE_STORYBOARD_SHOWN : STATE_NOT_STARTED;
             if (processThread == STATE_NOT_STARTED)
-                std::cout << "storyBoard no se completo";
+                std::wcout << L"storyBoard no se completo";
             break;
         case STATE_SECOND_INIT:
             // Si ya se mostró, toncs no hacer nada :p y solo poner que ya se mostró
@@ -198,7 +198,7 @@ public:
                 break;
 
             default:
-                std::cout << "Dificultad no válida\n";
+                std::wcout << L"Dificultad no válida\n";
                 break;
             }
         }

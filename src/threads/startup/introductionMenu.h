@@ -4,6 +4,7 @@
 #include <conio.h>
 using namespace std;
 #include "utils/screen/colors.h"
+#include "utils\functions\utils.h"
 
 int GetConsoleWidth()
 {
@@ -13,47 +14,49 @@ int GetConsoleWidth()
     return 80;
 }
 
-string CenterText(const string &text, int width)
+wstring CenterText(const wstring &text, int width)
 {
     int padding = (width - (int)text.length()) / 2;
     if (padding < 0)
         padding = 0;
-    return string(padding, ' ') + text;
+    return wstring(padding, ' ') + text;
 }
 
 int StartMenu()
 {
-    string options[] = {"Jugar", "Continuar", "Salir"};
+    Utils utils;
+    wstring options[] = {L"Jugar", L"Continuar", L"Salir"};
     int currentOption = 0;
     int totalOptions = 3;
 
     while (true)
     {
         system("cls");
+        utils.SetUtf8();
         int width = GetConsoleWidth();
 
-        cout << WHITE_BRIGHT << "\n\n"
-             << CenterText("TORRE DE LEUGIM", width) << "\n";
-        cout << GRAY << CenterText("------------------------", width) << "\n\n";
+        wcout << WHITE_BRIGHT << L"\n\n"
+              << CenterText(L"TORRE DE LEUGIM ☻", width) << L"\n";
+        wcout << GRAY << CenterText(L"------------------------", width) << L"\n\n";
 
         for (int i = 0; i < totalOptions; ++i)
         {
-            string text = options[i];
-            string line;
+            wstring text = options[i];
+            wstring line;
 
             if (i == currentOption)
             {
                 // Flechas a ambos lados
-                line = ">> " + text + " <<";
+                line = L">> " + text + L" <<";
             }
             else
             {
                 // Mismo espacio pero con espacios en lugar de flechas
-                line = "   " + text + "   ";
+                line = L"   " + text + L"   ";
             }
 
             // Centrar toda la línea con flechas o espacios para que no se mueva
-            cout << (i == currentOption ? GREEN : WHITE_BRIGHT) << CenterText(line, width) << RESET << endl;
+            wcout << (i == currentOption ? GREEN : WHITE_BRIGHT) << CenterText(line, width) << RESET << endl;
         }
 
         int key = _getch();
@@ -72,43 +75,44 @@ int StartMenu()
         }
     }
 
-
     return 0;
 }
 
-    // Funcion para salir si el usuario quiere
-    bool ConfirmExitMenu()
+// Funcion para salir si el usuario quiere
+bool ConfirmExitMenu()
+{
+    Utils utils;
+    int option = 0;
+    const wstring choices[] = {L"Sí", L"No"};
+    int totalChoices = 2;
+
+    while (true)
     {
-        int option = 0;
-        const string choices[] = {"Sí", "No"};
-        int totalChoices = 2;
+        system("cls");
+        int width = GetConsoleWidth();
+        utils.SetUtf8();
 
-        while (true)
+        wcout << WHITE_BRIGHT << "\n\n"
+              << CenterText(L"¿Seguro que quieres salir?", width) << "\n\n";
+
+        for (int i = 0; i < totalChoices; ++i)
         {
-            system("cls");
-            int width = GetConsoleWidth();
+            wstring line = (i == option) ? L">> " + choices[i] + L" <<" : L"   " + choices[i] + L"   ";
+            wcout << (i == option ? GREEN : WHITE_BRIGHT) << CenterText(line, width) << RESET << endl;
+        }
 
-            cout << WHITE_BRIGHT << "\n\n"
-                 << CenterText("¿Seguro que quieres salir?", width) << "\n\n";
-
-            for (int i = 0; i < totalChoices; ++i)
-            {
-                string line = (i == option) ? ">> " + choices[i] + " <<" : "   " + choices[i] + "   ";
-                cout << (i == option ? GREEN : WHITE_BRIGHT) << CenterText(line, width) << RESET << endl;
-            }
-
-            int key = _getch();
-            if (key == 224)
-            {
-                key = _getch();
-                if (key == 72) // ↑
-                    option = (option - 1 + totalChoices) % totalChoices;
-                else if (key == 80) // ↓
-                    option = (option + 1) % totalChoices;
-            }
-            else if (key == 13)
-            {
-                return option == 0; // Devuelve true si eligió "Sí"
-            }
+        int key = _getch();
+        if (key == 224)
+        {
+            key = _getch();
+            if (key == 72) // ↑
+                option = (option - 1 + totalChoices) % totalChoices;
+            else if (key == 80) // ↓
+                option = (option + 1) % totalChoices;
+        }
+        else if (key == 13)
+        {
+            return option == 0; // Devuelve true si eligió "Sí"
         }
     }
+}

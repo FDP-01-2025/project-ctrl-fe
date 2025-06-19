@@ -102,7 +102,7 @@ bool MainBomberman::Run()
         if (player.GetLives() <= 0)
         {
             utils.ClearScreen();
-            std::cout << "\nYou have lost all your lives. Game Over!\n";
+            std::wcout << L"\nYou have lost all your lives. Game Over!\n";
             isRunning = false;
             return false;
         }
@@ -142,7 +142,7 @@ void MainBomberman::processInput(char input)
     int newX = player.GetX() + dx;
     int newY = player.GetY() + dy;
 
-    char tile = map.GetTile(newX, newY);
+    wchar_t tile = map.GetTile(newX, newY);
 
     // Allow movement only to walkable tiles
     if (tile == ' ' || tile == 'B' || tile == '/')
@@ -166,11 +166,12 @@ void MainBomberman::processInput(char input)
             // Build the next level map path
             std::string nextMapPath = utils.GetAssetsPath() + "maps\\bomberman\\" + difficultyFolder + "\\level" + std::to_string(nextLevel) + ".txt";
             // Check if the next level file exists
-            std::ifstream file(nextMapPath);
+            std::ifstream file(nextMapPath, std::ios::binary);
+
             if (!file.is_open())
             {
                 utils.ClearScreen();
-                std::cout << "\nCongratulations! You've completed all levels.\n";
+                std::wcout << L"\nCongratulations! You've completed all levels.\n";
                 isRunning = false;
                 return;
             }
@@ -244,7 +245,7 @@ void MainBomberman::handleExplosion(int i)
             if ((dx == 0 || dy == 0) && !(dx != 0 && dy != 0)) // Only cardinal directions
             {
                 int nx = x + dx, ny = y + dy;
-                char tile = map.GetTile(nx, ny);
+                wchar_t tile = map.GetTile(nx, ny);
                 if (tile == '*' || tile == '0')
                     map.SetTile(nx, ny, ' ');
             }
@@ -261,7 +262,7 @@ void MainBomberman::ApplyExplosionAt(int x, int y, int dx, int dy)
     // We calculate the new coordinates based on the current position and direction
     int nx = x + dx;
     int ny = y + dy;
-    char tile = map.GetTile(nx, ny);
+    wchar_t tile = map.GetTile(nx, ny);
 
     // Player hit by explosion
     if (nx == player.GetX() && ny == player.GetY())
@@ -275,7 +276,7 @@ void MainBomberman::ApplyExplosionAt(int x, int y, int dx, int dy)
         {
             switch (player.GetDifficulty())
             {
-            //Probability of spawning bombs based on difficulty
+            // Probability of spawning bombs based on difficulty
             case Player::Difficulty::EASY:
                 map.SetTile(nx, ny, (rand() % 2 == 0) ? 'B' : '*'); // 50% chance to spawn a bomb power-up
                 break;

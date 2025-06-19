@@ -10,7 +10,7 @@ void SetColor(int color)
 }
 
 // Animación con retorno
-bool InitializerThread(char chars[100][100], int colors[100][100], int width = 100, int height = 45, int durationSeconds = 4)
+bool InitializerThread(wchar_t chars[100][100], int colors[100][100], int width = 100, int height = 45, int durationSeconds = 4)
 {
     /*const int delayMs = 50;
     DWORD start = GetTickCount();

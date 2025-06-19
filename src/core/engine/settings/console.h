@@ -7,6 +7,9 @@
 #include <conio.h>   // Para _kbhit, _getch
 #include <wchar.h>   // Para funciones de caracteres anchos
 #include <algorithm> // Para std::max y std::min
+#include <io.h>
+#include <fcntl.h>
+#include "utils\functions\utils.h"
 
 // Comentado: definición de CONSOLE_FONT_INFOEX por si no está disponibleMore actions
 
@@ -32,7 +35,7 @@ class Console
 {
 public:
     // Constructor con valores por defecto para dimensiones de consola, buffer y fuente
-    Console(int w = 100, int h = 40, int fw = 8, int fh = 16)
+    Console(int w = 100, int h = 40, int fw = 10, int fh = 16)
         : consoleW(w), consoleH(h), fontW(fw), fontH(fh)
     {
         // Buffer igual al tamaño de ventana por defecto
@@ -43,6 +46,7 @@ public:
     // Configura la consola: crea una nueva consola, redirige entradas/salidas y aplica ajustes
     void ConfigConsole()
     {
+        Utils utils;
         FreeConsole(); // Libera la consola actual (si existe)More actions
 
         if (AllocConsole()) // Asigna una nueva consola
@@ -54,6 +58,8 @@ public:
                 std::cerr << "Error al redirigir stdin.\n";
             if (!freopen("CONOUT$", "w", stderr))
                 std::cerr << "Error al redirigir stderr.\n";
+
+            utils.SetUtf8();
 
             // Obtiene los handles de entrada y salida de la consola
             hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -119,6 +125,11 @@ public:
     // Aplica tamaño del buffer y la ventana de la consola
     void ApllySettings()
     {
+        // Paso 1: Reducir temporalmente la ventana (antes de cambiar el buffer)
+        SMALL_RECT tmp = {0, 0, 1, 1};
+        SetConsoleWindowInfo(hConsoleOUT, TRUE, &tmp);
+
+        // Paso 2: Cambiar el tamaño del buffer
         bufferSize = {static_cast<SHORT>(consoleW), static_cast<SHORT>(consoleH)};
         if (!SetConsoleScreenBufferSize(hConsoleOUT, bufferSize))
         {
@@ -126,19 +137,45 @@ public:
             return;
         }
 
-        // Paso 1: Reducir temporalmente
-        SMALL_RECT tmp = {0, 0, 1, 1};
-        SetConsoleWindowInfo(hConsoleOUT, TRUE, &tmp);
-
-        // Paso 2: Establecer tamaño final
+        // Paso 3: Establecer tamaño final de la ventana
         windowSize = {0, 0, static_cast<SHORT>(consoleW - 1), static_cast<SHORT>(consoleH - 1)};
         if (!SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize))
         {
             std::cerr << "Error ajustando ventana: " << GetLastError() << "\n";
-            // Si falla, intentar con tamaño máximo permitido
+            // Intentar con tamaño máximo
             windowSize = {0, 0, static_cast<SHORT>(csbi.dwMaximumWindowSize.X - 1),
                           static_cast<SHORT>(csbi.dwMaximumWindowSize.Y - 1)};
             SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize);
+        }
+    }
+
+    void SetConsoleFont()
+    {
+        HMODULE hKernel = GetModuleHandleA("kernel32.dll");
+        if (!hKernel)
+        {
+            std::cerr << "No se pudo obtener kernel32.dll\n";
+            return;
+        }
+
+        PFN_SetCurrentConsoleFontEx pSetFont = (PFN_SetCurrentConsoleFontEx)GetProcAddress(hKernel, "SetCurrentConsoleFontEx");
+        if (!pSetFont)
+        {
+            std::cerr << "SetCurrentConsoleFontEx no disponible en esta versión de Windows\n";
+            return;
+        }
+
+        CONSOLE_FONT_INFOEX cfi = {0};
+        cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+        cfi.dwFontSize.X = static_cast<SHORT>(fontW);
+        cfi.dwFontSize.Y = static_cast<SHORT>(fontH);
+        cfi.FontFamily = FF_DONTCARE;
+        cfi.FontWeight = FW_NORMAL;
+        lstrcpyW(cfi.FaceName, L"Lucida Console");
+
+        if (!pSetFont(hConsoleOUT, FALSE, &cfi))
+        {
+            std::cerr << "Error cambiando fuente\n";
         }
     }
 
@@ -157,36 +194,6 @@ public:
         int posY = workArea.top + (workArea.bottom - workArea.top - (rect.bottom - rect.top)) / 2;
 
         SetWindowPos(hwnd, HWND_TOP, posX, posY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-    }
-    // Cambia la fuente de la consola
-    void SetConsoleFont()
-    {
-        HMODULE hKernel = GetModuleHandleA("kernel32.dll");
-        if (!hKernel)
-        {
-            std::cerr << "No se pudo obtener kernel32.dll\n";
-        }
-
-        PFN_SetCurrentConsoleFontEx pSetFont = (PFN_SetCurrentConsoleFontEx)GetProcAddress(hKernel, "SetCurrentConsoleFontEx");
-
-        if (!pSetFont)
-        {
-            std::cerr << "SetCurrentConsoleFontEx no disponible en esta version de Windows\n";
-        }
-
-        // Configura los parámetros de fuente
-        CONSOLE_FONT_INFOEX cfi = {0};
-        cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
-        cfi.dwFontSize.X = fontW;
-        cfi.dwFontSize.Y = fontH;
-        cfi.FontFamily = FF_DONTCARE;
-        cfi.FontWeight = FW_NORMAL;
-        lstrcpyW(cfi.FaceName, L"Consolas"); // Fuente preferida
-
-        if (!pSetFont(hConsoleOUT, FALSE, &cfi))
-        {
-            std::cerr << "Error cambiando fuente\n";
-        }
     }
 
     // Cambia el título de la ventana de consola

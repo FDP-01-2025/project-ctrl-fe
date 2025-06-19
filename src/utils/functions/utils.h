@@ -11,6 +11,12 @@
 #include <windows.h> // For Windows-specific console functions
 #endif
 
+#include "utils\screen\colors.h"
+
+#ifndef _O_U8TEXT
+#define _O_U8TEXT 0x40000
+#endif
+
 class Utils
 {
 public:
@@ -22,7 +28,7 @@ public:
                 COORD coord = {0, 0};
                 SetConsoleCursorPosition(hConsole, coord);
 #else
-                std::cout << "\033[H"; // ANSI escape code to move cursor to top-left
+                std::wcout << L"\033[H"; // ANSI escape code to move cursor to top-left
 #endif
         }
 
@@ -46,7 +52,7 @@ public:
                 // Move the cursor to the top-left corner
                 SetConsoleCursorPosition(hConsole, {0, 0});
 #else
-                std::cout << "\033[2J\033[H"; // ANSI codes to clear screen and move cursor home
+                std::wcout << L"\033[2J\033[H"; // ANSI codes to clear screen and move cursor home
 #endif
         }
 
@@ -64,18 +70,20 @@ public:
                 COORD pos = {(SHORT)x, (SHORT)y};
                 SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 #else
-                std::cout << "\033[" << y << ";" << x << "H"; // ANSI escape code for cursor positioning
+                std::wcout << L"\033[" << y << L";" << x << L"H"; // ANSI escape code for cursor positioning
 #endif
         }
 
         // Reads the entire content of a text file and returns it as a std::string
         std::string ReadFile(const std::string &path)
         {
-                std::ifstream file(path);
+                std::ifstream file(path, std::ios::binary);
                 if (!file)
                         return "";
 
-                std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+                // Leer contenido completo
+                std::string content((std::istreambuf_iterator<char>(file)),
+                                    std::istreambuf_iterator<char>());
                 return content;
         }
 
@@ -98,13 +106,23 @@ public:
                 return exeDir + "\\..\\assets\\";
         }
 
+                void SetUtf8()
+        {
+                SetConsoleOutputCP(CP_UTF8);
+                SetConsoleCP(CP_UTF8);
+                _setmode(_fileno(stdout), _O_U8TEXT);
+        }
+
         // Function use to prints a single line of text at a specific position in the HUD.
         // Automatically moves the cursor to the next line (y++).
-        void PrintLine(int x, int &y, const std::string &text, const std::string &color = GRAY_BRIGHT) const
+        void PrintLine(int x, int &y, const std::wstring &text, const std::wstring &color = GRAY_BRIGHT) const
         {
-                std::cout << "\033[" << y << ";" << x << "H" << color << text << RESET;
+                
+                std::wcout << L"\033[" << y << L";" << x << L"H" << color << text << RESET;
                 y++;
         }
+
+
 };
 
 #endif
