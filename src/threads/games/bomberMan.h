@@ -203,6 +203,19 @@ void MainBomberman::LoadLevel(int level)
     map.ReadMap(currentMapName, map.GetWidth(), map.GetHeight());
     bombCount = 0;                                        // Reset bombs
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY()); // Set spawn point
+
+    // Centrar horizontalmente el mapa
+    int consoleWidth = utils.GetConsoleWidth();
+    offsetX = (consoleWidth - map.GetWidth()) / 4;
+    if (offsetX < 0)
+        offsetX = 0;
+
+    hud.SetCenteredOffset(offsetX);
+
+    int consoleHeight = utils.GetConsoleHeight();
+    offsetY = (consoleHeight - map.GetHeight()) / 2;
+    if (offsetY < 0)
+        offsetY = 0;
 }
 
 // Handle the explosion effects of a bomb

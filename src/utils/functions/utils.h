@@ -106,7 +106,7 @@ public:
                 return exeDir + "\\..\\assets\\";
         }
 
-                void SetUtf8()
+        void SetUtf8()
         {
                 SetConsoleOutputCP(CP_UTF8);
                 SetConsoleCP(CP_UTF8);
@@ -117,12 +117,36 @@ public:
         // Automatically moves the cursor to the next line (y++).
         void PrintLine(int x, int &y, const std::wstring &text, const std::wstring &color = GRAY_BRIGHT) const
         {
-                
+
                 std::wcout << L"\033[" << y << L";" << x << L"H" << color << text << RESET;
                 y++;
         }
 
+        int GetConsoleWidth()
+        {
+#ifdef _WIN32
+                CONSOLE_SCREEN_BUFFER_INFO csbi;
+                int columns = 80;
+                if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+                        columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+                return columns;
+#else
+                return 80; // En otros sistemas podrías usar ioctl()
+#endif
+        }
 
+        int GetConsoleHeight()
+        {
+#ifdef _WIN32
+                CONSOLE_SCREEN_BUFFER_INFO csbi;
+                int rows = 25;
+                if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+                        rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+                return rows;
+#else
+                return 25; // Valor por defecto en otros sistemas
+#endif
+        }
 };
 
 #endif

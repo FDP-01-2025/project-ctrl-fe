@@ -16,23 +16,26 @@
 class HUDBomberman
 {
 public:
-
     Utils utils; // Instance of Utils class for utility functions
-    
+    void SetCenteredOffset(int x) { hudOffsetX = x; }
     // Get the width of the HUD
     // 'override' means this replaces a method from the base class
-    int GetWidth() const 
+    int GetWidth() const
     {
         return 25;
     }
 
     // Function to draw the HUD on the screen
     // Takes the player, current level, and optional map width
-    void Draw(Player player, int currentLevel, int mapWidth = 0) 
+    void Draw(Player player, int currentLevel, int mapWidth = 0)
     {
-        utils.ClearScreen(); // Clear the screen before drawing the HUD
-        int hudX = mapWidth + 3; // X position of the HUD
-        int y = 3; // Y starting position
+        utils.ClearScreen();                  // Clear the screen before drawing the HUD
+        int hudX = hudOffsetX + mapWidth + 3; // X position of the HUD
+        int totalLines = 10;
+        int consoleHeight = utils.GetConsoleHeight();
+        int y = ((consoleHeight - totalLines) / 3) + 1;
+        if (y < 0)
+            y = 0;
 
         // Player information
         std::wcout << L"\033[" << y << L";" << hudX << L"H" << std::wstring(25, ' ');
@@ -59,6 +62,9 @@ public:
 
         std::wcout << RESET; // Reset text color
     }
+
+private:
+    int hudOffsetX = 0; // Offset for centering the HUD horizontally
 };
 
-#endif 
+#endif
