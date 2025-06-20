@@ -93,14 +93,15 @@ public:
     // Reads the map from a plain text file
     void ReadMap(std::string key, int mapW, int mapH)
     {
-        std::ifstream file(key, std::ios::binary); // Open file from `key` path
+        std::wifstream file(key, std::ios::binary); // Wide input stream
+        file.imbue(std::locale(""));
 
         if (!file.is_open())
         {
             std::cerr << "Error opening file: " << key << " -> " << strerror(errno) << "\n";
             return;
         }
-        std::string line;
+        std::wstring line;
         int y = 0;
         int maxWidth = 0;
 
@@ -147,7 +148,9 @@ public:
                 }
                 else
                 {
-                    std::wcout << grid[y][x]; // Draw map tile
+                    std::wstring txt = L"";
+                    txt += grid[y][x];
+                    std::wcout << txt; // Draw map tile
                 }
             }
         }
@@ -165,7 +168,7 @@ public:
 
                 if (x == playerX && y == playerY)
                 {
-                    std::wcout << PINK << L"o" << RESET;
+                    std::wcout << PINK << L"இ" << RESET;
                 }
                 else
                 {
@@ -179,22 +182,16 @@ public:
                         std::wcout << GRAY << L"]" << RESET;
                         break;
                     case 'B':
-                        std::wcout << ORANGE << L"B" << RESET;
+                        std::wcout << ORANGE << L"¤" << RESET;
                         break;
                     case 'A':
-                        std::wcout << GREEN << L"#" << RESET;
-                        break;
-                    case 'H':
-                        std::wcout << GREEN << L"O" << RESET;
-                        break;
-                    case 'T':
-                        std::wcout << BROWN << L"W" << RESET;
+                        std::wcout << GREEN << L"♣" << RESET;
                         break;
                     case '~':
-                        std::wcout << BLUE << L"~" << RESET;
+                        std::wcout << BLUE << L"≈" << RESET;
                         break;
                     case '*':
-                        std::wcout << YELLOW_BRIGHT << L"*" << RESET;
+                        std::wcout << YELLOW_BRIGHT << L"✹" << RESET;
                         break;
                     default:
                         std::wcout << tile;

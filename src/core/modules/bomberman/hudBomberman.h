@@ -40,9 +40,9 @@ public:
         y++;
 
         std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');
-        utils.PrintLine(hudX, y, L"Lives - " + ToWString(player.GetLives()), RED);
+        utils.PrintLine(hudX, y, L"♥ - " + ToWString(player.GetLives()), RED);
         std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');
-        utils.PrintLine(hudX, y, L"B - " + ToWString(player.GetBombs()), ORANGE);
+        utils.PrintLine(hudX, y, L"¤ - " + ToWString(player.GetBombs()), ORANGE);
         y++;
 
         // Game objective
@@ -55,7 +55,7 @@ public:
         // Controls
         utils.PrintLine(hudX, y, L"Controls:", WHITE_BRIGHT);
         utils.PrintLine(hudX, y, L"[WASD]: Move");
-        utils.PrintLine(hudX, y, L"[B]: Place bomb");
+        utils.PrintLine(hudX, y, L"[B]: Place bomb ¤");
 
         std::wcout << RESET; // Reset text color
     }
