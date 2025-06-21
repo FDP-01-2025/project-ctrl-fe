@@ -184,6 +184,40 @@ public:
         saveState();
     }
 
+    // Increment lives by a specific count and save
+    void IncrementLives(int count)
+    {
+        lives += count;
+        saveLives(); // save only lives field
+    }
+
+    // Decrement lives by a specific count and save
+    void DecrementLives(int count)
+    {
+        lives -= count;
+        if (lives < 0)
+            lives = 1; // Prevent negative lives
+        saveLives(); // save only lives field
+    }
+
+    //Increment bombs by a specific count and save
+    void IncrementBombs(int count)
+    {
+        bombsAvailable += count;
+        if (bombsAvailable > maxBombs)
+            bombsAvailable = maxBombs; // Prevent exceeding max bombs
+        saveBombs(); // save only bombs field
+    }
+
+    // Decrement bombs by a specific count and save
+    void DecrementBombs(int count)
+    {
+        bombsAvailable -= count;
+        if (bombsAvailable < 0)
+            bombsAvailable = 0; // Prevent negative bombs
+        saveBombs(); // save only bombs field
+    }
+
     // Convert keyboard input into movement direction
     // Returns a pair (dx, dy)
     std::pair<int, int> GetInputDirection(wchar_t input)

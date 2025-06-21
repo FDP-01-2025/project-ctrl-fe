@@ -10,6 +10,7 @@
 #include "./src/threads/startup/storyBoard.h"
 #include "./src/threads/games/bomberman.h"
 #include "./src/threads/games/maze.h"
+#include "./src/threads/events/geniousLamp.h"
 #include "./src/utils/screen/multiColors.h"
 
 class Global
@@ -29,6 +30,7 @@ protected:
     Player player;
     MainBomberman bomberman;
     MainMaze maze;
+    MainGenious geniusLamp;
     Utils utils;
 
     enum ProcessState
@@ -183,21 +185,24 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                maze.Run();
+                //maze.Run();
                 // bomberman.Run();
+                geniusLamp.Run();
                 break;
 
             case 2:
                 player.removeStatusFile();
                 player.ResetState(Player::NORMAL);
-                bomberman.Run();
+                //bomberman.Run();
+                geniusLamp.Run();
                 break;
 
             case 3:
                 // Iniciar modo difícil
                 player.removeStatusFile();
                 player.ResetState(Player::HARD);
-                bomberman.Run();
+                //bomberman.Run();
+                geniusLamp.Run();
                 break;
 
             default:

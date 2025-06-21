@@ -220,6 +220,115 @@ public:
             grid[y][x] = value;
         }
     }
+
+    // Draw the map of the genius
+    //  Draws map and player, with configurable offset
+    void DrawWithPlayerLamp(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
+    {
+
+        for (int y = 0; y < GetHeight(); ++y)
+        {
+            for (int x = 0; x < GetWidth(); ++x)
+            {
+                utils.MoveCursor(offsetX + x, offsetY + y);
+
+                if (x == playerX && y == playerY)
+                {
+                    std::wcout << PINK << L"இ" << RESET;
+                }
+                else
+                {
+                    wchar_t tile = grid[y][x];
+                    switch (tile)
+                    {
+                    case '#':
+                        std::wcout << GRAY << L"#" << RESET;
+                        break;
+                    case ']':
+                        std::wcout << GRAY << L"]" << RESET;
+                        break;
+                    case 'A':
+                        std::wcout << GREEN << L"♣" << RESET;
+                        break;
+                    case '|':
+                        std::wcout << YELLOW_BRIGHT << L"|" << RESET;
+                        break;
+                    case '-':
+                        std::wcout << YELLOW_BRIGHT << L"-" << RESET;
+                        break;
+                    case '\\':
+                        std::wcout << YELLOW_BRIGHT << L"\\" << RESET;
+                        break;
+                    case '.':
+                        std::wcout << YELLOW_BRIGHT << L"." << RESET;
+                        break;
+                    case 'g':
+                        std::wcout << YELLOW_BRIGHT << L"/" << RESET;
+                        break;
+                    default:
+                        std::wcout << tile;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Draw the map of the genius
+    //   Draws map and player, with configurable offset
+    void DrawWithPlayerGenius(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
+    {
+
+        for (int y = 0; y < GetHeight(); ++y)
+        {
+            for (int x = 0; x < GetWidth(); ++x)
+            {
+                utils.MoveCursor(offsetX + x, offsetY + y);
+
+                if (x == playerX && y == playerY)
+                {
+                    std::wcout << PINK << L"இ" << RESET;
+                }
+                else
+                {
+                    wchar_t tile = grid[y][x];
+                    switch (tile)
+                    {
+                    case '#':
+                        std::wcout << GRAY << L"#" << RESET;
+                        break;
+                    case ']':
+                        std::wcout << GRAY << L"]" << RESET;
+                        break;
+                    case 'A':
+                        std::wcout << GREEN << L"♣" << RESET;
+                        break;
+                    case '|':
+                        std::wcout << BLUE << L"|" << RESET;
+                        break;
+                    case '-':
+                        std::wcout << BLUE << L"-" << RESET;
+                        break;
+                    case '_':
+                        std::wcout << BLUE << L"_" << RESET;
+                        break;
+                    case '(':
+                        std::wcout << BLUE << L"(" << RESET;
+                        break;
+                    case ')':
+                        std::wcout << BLUE << L")" << RESET;
+                        break;
+                    case 'g':
+                        std::wcout << BLUE << L"/" << RESET;
+                        break;
+                    default:
+                        std::wcout << tile;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 };
 
 #endif
