@@ -9,6 +9,7 @@
 #include "./src/threads/startup/splashScreen.h"
 #include "./src/threads/startup/storyBoard.h"
 #include "./src/threads/games/bomberman.h"
+#include "./src/threads/games/maze.h"
 #include "./src/utils/screen/multiColors.h"
 
 class Global
@@ -27,6 +28,7 @@ protected:
     Map mapSettings;
     Player player;
     MainBomberman bomberman;
+    MainMaze maze;
     Utils utils;
 
     enum ProcessState
@@ -181,13 +183,14 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                bomberman.Run();
+                maze.Run();
+                // bomberman.Run();
                 break;
 
             case 2:
                 player.removeStatusFile();
-                player.ResetState(Player::NORMAL); 
-                bomberman.Run(); 
+                player.ResetState(Player::NORMAL);
+                bomberman.Run();
                 break;
 
             case 3:
