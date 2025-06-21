@@ -30,9 +30,12 @@ void BombRenderer::Draw(Bomb bombs[], int count, int offsetX, int offsetY)
     {
         int x = bombs[i].GetX(); // Get the bomb's X position
         int y = bombs[i].GetY(); // Get the bomb's Y position
-        utils.MoveCursor(offsetX + x, offsetY + y); // Move cursor to where the bomb should appear
-        std::wcout << ORANGE << L"¤" << RESET; // Print bomb as '0' in orange, then reset color
+        if (x >= 0 && y >= 0)    // Check if the bomb's position is valid (not negative)
+        {
+            utils.MoveCursor(offsetX + x, offsetY + y); // Move cursor to where the bomb should appear
+            std::wcout << ORANGE << L"¤" << RESET;      // Print bomb as '0' in orange, then reset color
+        }
     }
 }
 
-#endif 
+#endif

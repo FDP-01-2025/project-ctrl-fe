@@ -39,7 +39,9 @@ public:
 
         // Player information
         std::wcout << L"\033[" << y << L";" << hudX << L"H" << std::wstring(25, ' ');
-        utils.PrintLine(hudX, y, L"Room - " + ToWString(currentLevel), WHITE_BRIGHT);
+        utils.PrintLine(hudX, y, L"Room - " + ToWString(player.GetRoom()), WHITE_BRIGHT);
+        std::wcout << L"\033[" << y << L";" << hudX << L"H" << std::wstring(25, ' ');
+        utils.PrintLine(hudX, y, L"Subroom - " + ToWString(currentLevel), GRAY);
         y++;
 
         std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');

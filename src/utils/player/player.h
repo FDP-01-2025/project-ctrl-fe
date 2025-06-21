@@ -63,6 +63,20 @@ public:
         return difficulty;
     }
 
+    // Get the current event or state of the player
+    int GetRoom()
+    {
+        loadState();
+        return room;
+    }
+
+    // Get the current event or state of the player
+    int GetEvent()
+    {
+        loadState();
+        return event;
+    }
+
     // Check whether control B (bomb placement) is active
     bool IsControlBActive()
     {
@@ -91,6 +105,20 @@ public:
     {
         lives = newLives;
         saveLives(); // save only lives field
+    }
+
+    // Set the player's room or level and save it
+    void SetRoom(int newRoom)
+    {
+        room = newRoom;
+        saveRoom();
+    }
+
+    // Set the current event or state of the player and save it
+    void SetEvent(int newEvent)
+    {
+        event = newEvent;
+        saveEvent();
     }
 
     // Set how many bombs the player has (up to a max) and save them
@@ -181,6 +209,7 @@ public:
         x = 1;
         y = 1;
         controlB = false;
+        room = 0; // Reset room or level
 
         // Setup based on difficulty
         switch (difficulty)
@@ -188,14 +217,17 @@ public:
         case EASY:
             lives = 5;
             bombsAvailable = 10;
+            room = 1; // Start at room 1
             break;
         case NORMAL:
             lives = 3;
             bombsAvailable = 5;
+            room = 1; // Start at room 1
             break;
         case HARD:
             lives = 1;
             bombsAvailable = 3;
+            room = 1; // Start at room 1
             break;
         }
 
@@ -218,6 +250,8 @@ private:
     // Player data
     int x = 0, y = 0;
     int lives = 3;
+    int room = 0; // Current room or level
+    int event = 0; // Current event or state
     int bombsAvailable = 1;
     int maxBombs = 25;
     Difficulty difficulty = EASY;
@@ -247,6 +281,11 @@ private:
             out << "Difficulty: " << (int)difficulty << "\n";
             // Write whether the controlB is active (1) or not (0)
             out << "ControlB: " << (controlB ? 1 : 0) << "\n";
+            // Write the current room or level
+            out << "Room: " << room << "\n";
+            // Write the current event or state
+            out << "Event: " << event << "\n";
+            // Close the file after writing
             out.close();
         }
     }
@@ -268,7 +307,9 @@ private:
                 in >> label >> lives &&
                 in >> label >> bombsAvailable &&
                 in >> label >> diff &&
-                in >> label >> ctrlB)
+                in >> label >> ctrlB &&
+                in >> label >> room &&
+                in >> label >> event)
             {
                 // Convert integer read back to enum type for difficulty
                 difficulty = (Difficulty)diff;
@@ -386,6 +427,46 @@ private:
         {
             if (line.rfind("Difficulty:", 0) == 0)
                 out << "Difficulty: " << (int)difficulty << "\n"; // Update difficulty
+            else
+                out << line << "\n"; // Copy other lines unchanged
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp.txt", filename.c_str());
+    }
+
+    // Save only the room or level number
+    void saveRoom()
+    {
+        std::ifstream in(filename, std::ios::binary);
+        std::ofstream out("temp.txt");
+        std::string line;
+        while (std::getline(in, line))
+        {
+            if (line.rfind("Room:", 0) == 0)
+                out << "Room: " << room << "\n"; // Update room
+            else
+                out << line << "\n"; // Copy other lines unchanged
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp.txt", filename.c_str());
+    }
+
+    // Save event that the player is currently in
+    void saveEvent()
+    {
+        std::ifstream in(filename, std::ios::binary);
+        std::ofstream out("temp.txt");
+        std::string line;
+        while (std::getline(in, line))
+        {
+            if (line.rfind("Event:", 0) == 0)
+                out << "Event: " << event << "\n"; // Update event
             else
                 out << line << "\n"; // Copy other lines unchanged
         }

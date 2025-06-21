@@ -73,7 +73,7 @@ bool MainBomberman::Run()
 
         // Render map, bombs, player, and HUD
         map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
-        bombRenderer.Draw(bombs, bombCount, 1, 1);
+        bombRenderer.Draw(bombs, bombCount, offsetX, offsetY);
         hud.Draw(player, currentLevel, map.GetWidth());
 
         // Check bombs that should explode
@@ -124,7 +124,7 @@ void MainBomberman::processInput(char input)
         {
             // Place a bomb at player's current position
             bombs[bombCount++] = Bomb(player.GetX(), player.GetY(), player.GetDifficulty());
-            map.SetTile(player.GetX(), player.GetY(), '0'); // Mark bomb on map
+            map.SetTile(player.GetX(), player.GetY(), L'¤'); // Mark bomb on map
             // Save player state after placing a bomb
             player.PlaceBomb();
         }
@@ -243,7 +243,7 @@ void MainBomberman::handleExplosion(int i)
     utils.ClearScreen();
     hud.Draw(player, currentLevel, map.GetWidth());
     map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
-    bombRenderer.Draw(bombs, bombCount, 1, 1);
+    bombRenderer.Draw(bombs, bombCount, offsetX, offsetY);
     utils.Sleep(30);
 
     // Clean up explosion fire tiles, we use a 3x3 area around the bomb
