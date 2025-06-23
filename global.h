@@ -174,9 +174,9 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                // maze.Run();
-                //  bomberman.Run();
-                geniusLamp.Run();
+                maze.Run();
+                //bomberman.Run();
+               // geniusLamp.Run();
                 break;
 
             case 2:

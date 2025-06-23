@@ -1,5 +1,5 @@
-#ifndef MAIN_MAZE_H
-#define MAIN_MAZE_H
+#ifndef HUD_MAZE_H
+#define HUD_MAZE_H
 
 
 // Include required libraries
@@ -23,7 +23,7 @@ public:
     // 'override' means this replaces a method from the base class
     int GetWidth() const
     {
-        return E25;
+        return 25;
     }
 
     // Function to draw the HUD on the screen

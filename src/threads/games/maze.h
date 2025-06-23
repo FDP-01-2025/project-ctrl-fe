@@ -25,7 +25,7 @@ public:
 private:
     Map map;
     Player player;
-    // HUDMaze hud;
+    HUDMaze hud;
     Utils utils;
     std::string difficultyFolder;
 
@@ -44,15 +44,15 @@ MainMaze::MainMaze() {}
 bool MainMaze::Run()
 {
     utils.ClearScreen();
-    player.ActivateControlB(true); // Enable 'B' control for placing bombs
     DetermineDifficultyFolder();   // Set level folder based on difficulty
     LoadLevel();
 
     while (isRunning)
     {
         utils.ClearScreen();
+        hud.Draw(player, hasKey, map.GetWidth());
         map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
-        // hud.DrawMaze(player, hasKey);
+        
 
         if (_kbhit())
             processInput(_getch());
@@ -134,7 +134,7 @@ void MainMaze::LoadLevel()
     if (offsetY < 0)
         offsetY = 0;
 
-    // hud.SetCenteredOffset(offsetX);
+    hud.SetCenteredOffset(offsetX);
 }
 
 // Set difficulty folder string based on selected difficulty
