@@ -107,6 +107,11 @@ inline bool MainGenious::Run()
             utils.MoveCursor(msgX, offsetY - 2);
             std::wcout << L"Do you want to rub the lamp? Press [i] to interact";
         }
+        else{
+            int msgX = std::max(0, offsetX + map.GetWidth() / 2 - 20);
+            utils.MoveCursor(msgX, offsetY - 2);
+            std::wcout << L"                                                   ";
+        }
 
         map.DrawWithPlayerLamp(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
         hud.SetCenteredOffset(offsetX); // Centra basado en el offset del mapa
@@ -134,7 +139,6 @@ inline bool MainGenious::Run()
     {
         ActiveMapGenius();
         map.ReadMap(mapGeniusArchive, 60, 50);
-        player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
 
         bool interacting = true;
         while (interacting)
@@ -242,7 +246,6 @@ inline bool MainGenious::Run()
     // Final phase: empty room, exit through the door
     mapGeniusArchive = utils.GetAssetsPath() + "maps\\geniuos-lamp\\emptyRoom.txt";
     map.ReadMap(mapGeniusArchive, 60, 50);
-    player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
 
     while (isRunning)
     {
