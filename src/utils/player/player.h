@@ -139,12 +139,9 @@ public:
     // Valid tiles are: space (' '), path ('/'), or bonus bomb ('B')
     void Move(int dx, int dy, char nextTile)
     {
-        if (nextTile == ' ' || nextTile == '/' || nextTile == 'B')
-        {
-            x += dx;
-            y += dy;
-            saveState(); // full state save after movement
-        }
+        x += dx;
+        y += dy;
+        saveState(); // full state save after movement
     }
 
     // Check if the player can place at least one bomb
@@ -197,16 +194,16 @@ public:
         lives -= count;
         if (lives < 0)
             lives = 1; // Prevent negative lives
-        saveLives(); // save only lives field
+        saveLives();   // save only lives field
     }
 
-    //Increment bombs by a specific count and save
+    // Increment bombs by a specific count and save
     void IncrementBombs(int count)
     {
         bombsAvailable += count;
         if (bombsAvailable > maxBombs)
             bombsAvailable = maxBombs; // Prevent exceeding max bombs
-        saveBombs(); // save only bombs field
+        saveBombs();                   // save only bombs field
     }
 
     // Decrement bombs by a specific count and save
@@ -215,7 +212,7 @@ public:
         bombsAvailable -= count;
         if (bombsAvailable < 0)
             bombsAvailable = 0; // Prevent negative bombs
-        saveBombs(); // save only bombs field
+        saveBombs();            // save only bombs field
     }
 
     // Convert keyboard input into movement direction
@@ -284,7 +281,7 @@ private:
     // Player data
     int x = 0, y = 0;
     int lives = 3;
-    int room = 0; // Current room or level
+    int room = 0;  // Current room or level
     int event = 0; // Current event or state
     int bombsAvailable = 1;
     int maxBombs = 25;
