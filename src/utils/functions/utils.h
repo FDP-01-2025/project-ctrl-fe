@@ -147,6 +147,34 @@ public:
                 return 25; // Valor por defecto en otros sistemas
 #endif
         }
+
+#include <iostream>
+#include <string>
+#include <windows.h>
+
+        // verticalRatio: de 0.0 (arriba) a 1.0 (abajo) -> 0.5 es centro vertical
+        // horizontalRatio: de 0.0 (izquierda) a 1.0 (derecha) -> 0.5 es centro horizontal
+        void PrintCentered(const std::wstring text, float verticalRatio = 0.5f, float horizontalRatio = 0.5f)
+        {
+                CONSOLE_SCREEN_BUFFER_INFO csbi;
+                int consoleWidth = 80, consoleHeight = 25;
+
+                if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+                {
+                        consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+                        consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+                }
+
+                // Calcular coordenadas de impresión
+                int x = static_cast<int>((consoleWidth - text.length()) * horizontalRatio);
+                int y = static_cast<int>(consoleHeight * verticalRatio);
+
+                // Mover el cursor a la posición deseada
+                COORD coord = {static_cast<SHORT>(x), static_cast<SHORT>(y)};
+                SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+
+                std::wcout << text;
+        }
 };
 
 #endif

@@ -36,13 +36,12 @@ class Console
 public:
     // Constructor con valores por defecto para dimensiones de consola, buffer y fuente
     Console(int w = 100, int h = 45, int fw = 10, int fh = 16)
-        : consoleW(w), consoleH(h), fontW(fw), fontH(fh)
+        : consoleW(w), consoleH(h), fontW(fw), fontH(fh),
+          originalW(w), originalH(h), originalFW(fw), originalFH(fh) // Guardar valores originales
     {
-        // Buffer igual al tamaño de ventana por defecto
         bufferW = w;
         bufferH = h;
     }
-
     // Configura la consola: crea una nueva consola, redirige entradas/salidas y aplica ajustes
     void ConfigConsole()
     {
@@ -111,17 +110,6 @@ public:
             std::cerr << "Error obteniendo info consola\n";
             return false;
         }
-        /*
-                maxSize = csbi.dwMaximumWindowSize;
-
-                // Ajustar a máximos permitidos
-                consoleW = std::min(consoleW, static_cast<int>(maxSize.X));
-                consoleH = std::min(consoleH, static_cast<int>(maxSize.Y));
-
-                // Buffer DEBE ser igual al tamaño de ventana
-                bufferW = consoleW;
-                bufferH = consoleH;*/
-
         return true;
     }
 
@@ -152,34 +140,31 @@ public:
         }
     }
 
+    // Función pública sin parámetros que usa valores por defecto de la clase
     void SetConsoleFont()
     {
-        HMODULE hKernel = GetModuleHandleA("kernel32.dll");
-        if (!hKernel)
-        {
-            std::cerr << "No se pudo obtener kernel32.dll\n";
-            return;
-        }
+        SetConsoleFontImpl(originalFW, originalFH, L"Lucida console");
+        ResetConsoleSize();
+    }
 
-        PFN_SetCurrentConsoleFontEx pSetFont = (PFN_SetCurrentConsoleFontEx)GetProcAddress(hKernel, "SetCurrentConsoleFontEx");
-        if (!pSetFont)
-        {
-            std::cerr << "SetCurrentConsoleFontEx no disponible en esta versión de Windows\n";
-            return;
-        }
+    void SetConsoleFont(int width, int height, const wchar_t *faceName)
+    {
+        // Guardar las dimensiones físicas actuales
+        RECT rect;
+        GetWindowRect(hwnd, &rect);
+        int currentWidth = rect.right - rect.left;
+        int currentHeight = rect.bottom - rect.top;
 
-        CONSOLE_FONT_INFOEX cfi = {0};
-        cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
-        cfi.dwFontSize.X = static_cast<SHORT>(fontW);
-        cfi.dwFontSize.Y = static_cast<SHORT>(fontH);
-        cfi.FontFamily = FF_DONTCARE;
-        cfi.FontWeight = FW_NORMAL;
-        lstrcpyW(cfi.FaceName, L"Lucida Console");
+        // Calcular nuevas dimensiones en caracteres
+        int newConsoleW = currentWidth / width;
+        int newConsoleH = currentHeight / height;
 
-        if (!pSetFont(hConsoleOUT, FALSE, &cfi))
-        {
-            std::cerr << "Error cambiando fuente\n";
-        }
+        consoleW = newConsoleW;
+        consoleH = newConsoleH;
+
+        // Aplicar cambios
+        SetConsoleFontImpl(width, height, faceName);
+        ApllySettings();
     }
 
     // Centra la ventana de la consola en la pantalla
@@ -225,6 +210,7 @@ public:
         cursorInfo.bVisible = FALSE;
         SetConsoleCursorInfo(hConsoleOUT, &cursorInfo);
     }
+
     void StylizeWindow()
     {
         // Quitar estilos de borde y redimensionamiento
@@ -264,6 +250,46 @@ public:
                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 } */
 
+private:
+    void SetConsoleFontImpl(int width, int height, const wchar_t *faceName)
+    {
+        HMODULE hKernel = GetModuleHandleA("kernel32.dll");
+        if (!hKernel)
+        {
+            std::cerr << "No se pudo obtener kernel32.dll\n";
+            return;
+        }
+
+        PFN_SetCurrentConsoleFontEx pSetFont = (PFN_SetCurrentConsoleFontEx)GetProcAddress(hKernel, "SetCurrentConsoleFontEx");
+        if (!pSetFont)
+        {
+            std::cerr << "SetCurrentConsoleFontEx no disponible en esta versión de Windows\n";
+            return;
+        }
+
+        CONSOLE_FONT_INFOEX cfi = {0};
+        cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+        cfi.dwFontSize.X = static_cast<SHORT>(width);
+        cfi.dwFontSize.Y = static_cast<SHORT>(height);
+        cfi.FontFamily = FF_DONTCARE;
+        cfi.FontWeight = FW_NORMAL;
+        lstrcpyW(cfi.FaceName, faceName);
+
+        if (!pSetFont(hConsoleOUT, FALSE, &cfi))
+        {
+            std::cerr << "Error cambiando fuente\n";
+        }
+    }
+
+    void ResetConsoleSize()
+    {
+        consoleW = originalW;
+        consoleH = originalH;
+        fontW = originalFW;
+        fontH = originalFH;
+        ApllySettings();
+    }
+
 protected:
     // Parámetros de configuración
     int consoleW; // Ancho de la ventana
@@ -272,6 +298,10 @@ protected:
     int bufferH;  // Alto del buffer
     int fontW;    // Ancho de fuente
     int fontH;    // Alto de fuente
+    int originalW;
+    int originalH;
+    int originalFW;
+    int originalFH;
 
     // Handles de entrada y salida
     HANDLE hConsoleOUT;

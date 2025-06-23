@@ -22,9 +22,6 @@ protected:
     int mapW;
     int mapH;
 
-    wchar_t chars[100][100] = {};
-    int colors[100][100] = {};
-
     Console consoleSettings;
     Map mapSettings;
     Player player;
@@ -47,7 +44,7 @@ protected:
     };
 
     ProcessState processThread = STATE_NOT_STARTED;
-    // Esta es una variable que representa el proceso de ejecucion del jeugo, representa el estado del hilo principal
+    // Esta es una variable que representa el proceso de ejecucion del juego, representa el estado del hilo principal
 
 public:
     //* Valores iniciales
@@ -60,20 +57,12 @@ public:
         if (processThread == STATE_NOT_STARTED)
         {
             consoleSettings.ConfigConsole();
-            consoleSettings.SetTitle(L"Dungeon of leguim"); // Título
+            consoleSettings.SetTitle(L"Dungeon of leguim"); // Title
 
-            Sleep(500);
-
-            /*char chars[100][100] = {};
-            int colors[100][100] = {};
-            srand((unsigned)time(0)); // Semilla única, una vez al inicio
-
-            processThread = InitializerThread(chars, colors, 100, 45, 4) ? STATE_INITIALIZED : STATE_NOT_STARTED;
+            processThread = InitializerThread(consoleW, consoleH, consoleSettings, utils) ? STATE_INITIALIZED : STATE_NOT_STARTED;
 
             if (processThread == STATE_NOT_STARTED)
-                std::cout << "Initializer no se completo";*/
-
-            processThread = STATE_INITIALIZED;
+                std::cout << "Initializer no se completo";
         }
     }
     // TODO ----- PROCESO (2) ----
@@ -185,15 +174,15 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                //maze.Run();
-                // bomberman.Run();
+                // maze.Run();
+                //  bomberman.Run();
                 geniusLamp.Run();
                 break;
 
             case 2:
                 player.removeStatusFile();
                 player.ResetState(Player::NORMAL);
-                //bomberman.Run();
+                // bomberman.Run();
                 geniusLamp.Run();
                 break;
 
@@ -201,7 +190,7 @@ public:
                 // Iniciar modo difícil
                 player.removeStatusFile();
                 player.ResetState(Player::HARD);
-                //bomberman.Run();
+                // bomberman.Run();
                 geniusLamp.Run();
                 break;
 

@@ -1,6 +1,5 @@
 #include <windows.h>
 #include "./global.h"
-using namespace std;
 
 // TODO_________________________________________ MAIN _______________________________________TODO
 //* Objetivo: Estructura del orden de ejecución.
@@ -27,12 +26,9 @@ int main()
     //! ----- (5) -----
     //*Quinta accion: Mostrar meu de niveles
     // mainCalls.ShowSecondMenu();
-
+    
     //! ----- (6) -----
     //* Sexta acción, iniciar el hilo de juegos
     mainCalls.StartGame();
-
-    //* El juego iniciará el thread correspondiente al estado del usuario
-    std::cin.get(); // Espera a que el usuario presione Enter
     return 0;
 };

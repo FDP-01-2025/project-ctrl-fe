@@ -1,6 +1,4 @@
 #pragma once
-#include <cstdlib>
-#include <ctime>
 
 void GenerateColor(char chars[100][100], int colors[100][100], int width, int height)
 {

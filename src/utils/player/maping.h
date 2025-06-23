@@ -19,6 +19,8 @@
 const int MAP_HEIGHT = 95;
 const int MAP_WIDTH = 60;
 
+int windowViewW = 40;
+
 //*Purpose: Logic to draw maps; you just need to specify which map to draw and it will render
 class Map
 {
@@ -329,6 +331,32 @@ public:
             }
         }
     }
+
+    /*void DrawWithWindowView(int playerX, int playerY, int windowViewH, int mapW)
+    {
+        system("cls");
+        char mainMapa = DrawMap();
+
+        int startX = playerX - windowViewW / 2;
+
+        if (startX < 0)
+            startX = 0;
+        if (startX + windowViewW > windowViewH)
+            startX = mapW - windowViewW;
+
+        for (int y = 0; y < windowViewH; y++)
+        {
+            for (int x = 0; x < windowViewW; x++)
+            {
+                int mapX = startX + x;
+                if (mapX == playerX && y == playerY)
+                    std::cout << "/o";
+                else
+                    std::cout << mainMapa[y][mapX];
+            }
+            std::cout << "\n";
+        }
+    }*/
 };
 
 #endif

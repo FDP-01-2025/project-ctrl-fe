@@ -1,39 +1,27 @@
 #pragma once
-#include <iostream>
 #include <windows.h>
+#include <iostream>
 #include <thread>
-#include "utils/screen/multiColors.h"
+#include <chrono>
+#include "../../utils/screen/multiColors.h"
+#include "../../utils/functions/utils.h"
+#include "../../core/engine/settings/console.h"
 
-void SetColor(int color)
+bool InitializerThread(int width, int height, Console consoleSettings, Utils utils)
 {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
-}
-
-// Animación con retorno
-bool InitializerThread(wchar_t chars[100][100], int colors[100][100], int width = 100, int height = 45, int durationSeconds = 4)
-{
-    /*const int delayMs = 50;
-    DWORD start = GetTickCount();
-
-    while ((GetTickCount() - start) < durationSeconds * 1000)
-    {
-        GenerateColor(chars, colors, width, height); // Generar nuevo frame
-
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                SetColor(colors[y][x]);
-                std::cout << chars[y][x];
-            }
-            std::cout << "\n";
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
-        system("cls");
-    }
-
-    SetColor(7); // Restaurar blanco
-    system("cls");*/
+    /*consoleSettings.SetConsoleFont(12, 18, L"Lucida console");
+    consoleSettings.SetColor(FOREGROUND_BLUE       );
+    utils.PrintCentered(L"Bienvenido a..");
+    Sleep(1000);
+    system("cls");
+    consoleSettings.SetConsoleFont(20, 26, L"Lucida console");
+    utils.PrintCentered(L"LA TORRE DE LEGUIM");
+    Sleep(1000);
+    consoleSettings.SetConsoleFont();*/
     return true;
 }
+
+/*
+SetConsoleTextAttribute es una función de la API de Windows que cambia el color del texto y el fondo en la consola.
+Se le pasa el handle de la salida de la consola y el color
+*/
