@@ -1,8 +1,8 @@
-X: 45
-Y: 18
-Lives: 5
-Bombs: 10
-Difficulty: 0
-ControlB: 0
-Room: 1
-Event: 0
+X: 1
+Y: 1
+Lives: 5
+Bombs: 10
+Difficulty: 0
+ControlB: 0
+Room: 1
+Event: 0

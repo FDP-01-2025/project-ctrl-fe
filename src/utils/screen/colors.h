@@ -15,3 +15,6 @@
 #define PINK L"\033[38;5;205m"
 // Anaranjado aproximado (código 208)
 #define ORANGE L"\033[38;5;208m"
+#define YELLOW L"\033[33m"
+#define CYAN L"\033[36m"
+#define GREEN_BRIGHT L"\033[92m"

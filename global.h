@@ -11,6 +11,7 @@
 #include "./src/threads/games/bomberman.h"
 #include "./src/threads/games/maze.h"
 #include "./src/threads/events/geniousLamp.h"
+#include "./src/threads/bosses/bossFightMario.h"
 #include "./src/utils/screen/multiColors.h"
 
 class Global
@@ -29,6 +30,7 @@ protected:
     MainMaze maze;
     MainGenious geniusLamp;
     Utils utils;
+    MainBossFight bossFightMario;
 
     enum ProcessState
     {
@@ -174,16 +176,17 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                maze.Run();
-                //bomberman.Run();
-               // geniusLamp.Run();
+                // maze.Run();
+                // bomberman.Run();
+                // geniusLamp.Run();
+                bossFightMario.Run();
                 break;
 
             case 2:
                 player.removeStatusFile();
                 player.ResetState(Player::NORMAL);
                 // bomberman.Run();
-                geniusLamp.Run();
+                // geniusLamp.Run();
                 break;
 
             case 3:
@@ -191,7 +194,7 @@ public:
                 player.removeStatusFile();
                 player.ResetState(Player::HARD);
                 // bomberman.Run();
-                geniusLamp.Run();
+                // geniusLamp.Run();
                 break;
 
             default:
