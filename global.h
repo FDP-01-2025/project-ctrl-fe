@@ -187,6 +187,7 @@ public:
                 player.ResetState(Player::NORMAL);
                 // bomberman.Run();
                 // geniusLamp.Run();
+                bossFightMario.Run();
                 break;
 
             case 3:
@@ -195,6 +196,7 @@ public:
                 player.ResetState(Player::HARD);
                 // bomberman.Run();
                 // geniusLamp.Run();
+                bossFightMario.Run();
                 break;
 
             default:

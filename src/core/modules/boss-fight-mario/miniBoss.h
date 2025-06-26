@@ -2,25 +2,47 @@
 #define MINI_BOSS_H
 
 #include "utils/functions/utils.h"
+#include "utils/player/player.h"
 
 class MiniBoss
 {
+
 public:
-    int x = 40, y = 19;
+    int x = 30, y = 13;
     int previousX = 40, previousY = 19;
     int health = 50;
     bool isAlive = true;
     bool movingRight = true;
+    int speed = 6; // menor es más rápido
+    int speedCounter = 0;
+
+    void Init(Player::Difficulty dif)
+    {
+        switch (dif)
+        {
+        case Player::EASY:
+            health = 25;
+            speed = 8; // más lento
+            break;
+        case Player::NORMAL:
+            health = 30;
+            speed = 6;
+            break;
+        case Player::HARD:
+            health = 60;
+            speed = 3; // más rápido
+            break;
+        }
+    }
 
     void Move(int minX, int maxX)
     {
         if (!isAlive)
             return;
 
-        static int moveCooldown = 0;
-        if (moveCooldown++ < 6)
+        if (speedCounter++ < speed)
             return;
-        moveCooldown = 0;
+        speedCounter = 0;
 
         previousX = x;
         previousY = y;
@@ -41,14 +63,22 @@ public:
         }
     }
 
-    void Draw(Utils utils)
+    void Draw(Utils &utils, int offsetX, int offsetY)
     {
-        if (!isAlive)
-            return;
-        utils.MoveCursor(previousX, previousY);
-        std::wcout << L" ";
-        utils.MoveCursor(x, y);
-        std::wcout << RED << L"M" << RESET;
+        if (previousX != x || previousY != y)
+        {
+            utils.MoveCursor(offsetX + previousX, offsetY + previousY);
+            std::wcout << L" ";
+        }
+
+        if (isAlive)
+        {
+            utils.MoveCursor(offsetX + x, offsetY + y);
+            std::wcout << RED << L"♛" << RESET;
+        }
+
+        previousX = x;
+        previousY = y;
     }
 
     void TakeHit()
@@ -60,4 +90,5 @@ public:
         }
     }
 };
-#endif // MINI_BOSS_H
+
+#endif

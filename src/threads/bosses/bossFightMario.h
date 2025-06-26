@@ -11,33 +11,51 @@
 #include "core/modules/boss-fight-mario/miniBoss.h"
 #include "core/modules/boss-fight-mario/bullet.h"
 #include "core/modules/boss-fight-mario/playerMario.h"
+#include "core/modules/boss-fight-mario/hudFightMario.h"
 
 class MainBossFight
 {
 private:
     Utils utils;
     PlayerMario player;
+    HUDFightMario hudfFight;
     MiniBoss boss;
     Bullet bullet;
     bool isRunning = true;
+    int offsetX = 0, offsetY = 0;
+    bool showDoor = false;
+    int doorX = 38, doorY = 13; // Posición de la puerta dentro del mapa (ajústala si gustas)
 
 public:
     void Run()
     {
         utils.SetUtf8();
         utils.ClearScreenComplety();
+        CalculateOffsets();
+        boss.Init(player.playerBase.GetDifficulty());
 
         while (isRunning)
         {
             utils.ClearScreen();
 
             DrawArena();
-            boss.Move(2, 77);
-            boss.Draw(utils);
-            bullet.Move();
-            bullet.Draw(utils);
+            boss.Move(2, 38);
 
-            // Movimiento más fluido con GetAsyncKeyState (requiere <windows.h>)
+            boss.Draw(utils, offsetX, offsetY);
+            bullet.Move(utils, offsetX, offsetY);
+            bullet.Draw(utils, offsetX, offsetY);
+            hudfFight.SetCenteredOffset(offsetX);
+
+            if (!showDoor)
+            {
+                hudfFight.Draw(player.playerBase, 40);
+            }
+
+            if (showDoor)
+            {
+                hudfFight.DrawExit(player.playerBase, 40);
+            }
+
             if (GetAsyncKeyState('A') & 0x8000)
                 player.MoveLeft();
             if (GetAsyncKeyState('D') & 0x8000)
@@ -56,22 +74,33 @@ public:
 
             CheckCollision();
             DrawHUD();
+            player.Draw(utils, offsetX, offsetY);
 
             if (!player.IsAlive())
             {
-                utils.MoveCursor(30, 10);
+                utils.MoveCursor(offsetX + 30, offsetY + 10);
                 std::wcout << RED << L"Game Over! The boss defeated you." << RESET;
                 isRunning = false;
             }
 
-            if (!boss.isAlive)
+            if (!boss.isAlive && !showDoor)
             {
-                utils.MoveCursor(25, 10);
-                std::wcout << GREEN_BRIGHT << L"Congratulations! You defeated the Mini Boss." << RESET;
-                isRunning = false;
+                showDoor = true; // Activar la puerta
             }
-            utils.ClearScreen(); 
-            player.Draw(utils);
+
+            if (showDoor)
+            {
+                utils.MoveCursor(offsetX + doorX, offsetY + doorY);
+                std::wcout << L"/"; // Representación de la puerta
+
+                // Si el jugador está tocando la puerta
+                if (player.x == doorX && player.y == doorY)
+                {
+                    utils.MoveCursor(offsetX + 25, offsetY + 10);
+                    std::wcout << GREEN_BRIGHT << L"You entered the next room!" << RESET;
+                    isRunning = false;
+                }
+            }
 
             utils.Sleep(100);
         }
@@ -79,33 +108,40 @@ public:
         utils.MoveCursor(0, 25);
     }
 
+    void CalculateOffsets()
+    {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        int screenWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int screenHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        int totalWidth = 40 + 3 + hudfFight.GetWidth(); // mapa + espacio + HUD
+        offsetX = (screenWidth - totalWidth) / 2;
+        offsetY = (screenHeight - 15) / 2;
+    }
+
     void DrawArena()
     {
-        for (int i = 0; i < 80; i++)
+        for (int i = 0; i < 40; i++)
         {
-            utils.MoveCursor(i, 20);
+            utils.MoveCursor(offsetX + i, offsetY + 14); // piso
             std::wcout << L"=";
         }
-        for (int i = 0; i <= 20; i++)
+
+        for (int i = 0; i <= 14; i++)
         {
-            utils.MoveCursor(0, i);
+            utils.MoveCursor(offsetX + 0, offsetY + i);
             std::wcout << L"#";
-            utils.MoveCursor(79, i);
+            utils.MoveCursor(offsetX + 39, offsetY + i);
             std::wcout << L"#";
-        }
-        for (int i = 0; i < 80; i++)
-        {
-            utils.MoveCursor(i, 0);
-            std::wcout << L"=";
         }
     }
 
     void DrawHUD()
     {
-        utils.MoveCursor(2, 0);
-        std::wcout << YELLOW << L"Lives: " << player.lives << RESET;
-        utils.MoveCursor(65, 0);
-        std::wcout << CYAN << L"Boss: " << boss.health << RESET;
+        utils.MoveCursor(offsetX + 2, offsetY + 0);
+        std::wcout << CYAN << L"Boss life:     "<< RESET;
+        utils.MoveCursor(offsetX + 2, offsetY + 0);
+        std::wcout << CYAN << L"Boss life: " << boss.health << RESET;
     }
 
     void CheckCollision()
@@ -113,7 +149,6 @@ public:
         if (!boss.isAlive)
             return;
 
-        // Daño por bala
         if (bullet.isActive && bullet.x == boss.x && bullet.y == boss.y)
         {
             boss.TakeHit();
@@ -121,24 +156,14 @@ public:
             return;
         }
 
-        // Colisión cuerpo a cuerpo (jefe toca a Mario)
         bool isTouching = false;
-
-        // Colisión exacta
         if (player.x == boss.x && player.y == boss.y)
-        {
             isTouching = true;
-        }
-        // Colisión por contacto lateral (más ajustado a sprites ASCII de 1 ancho)
         else if ((player.x == boss.x - 1 || player.x == boss.x + 1) && player.y == boss.y)
-        {
             isTouching = true;
-        }
 
         if (isTouching)
-        {
             player.LoseLife();
-        }
     }
 };
 

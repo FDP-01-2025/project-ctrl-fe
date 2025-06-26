@@ -6,6 +6,7 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <windows.h>
 
 #ifdef _WIN32
 #include <windows.h> // For Windows-specific console functions
@@ -148,9 +149,14 @@ public:
 #endif
         }
 
-#include <iostream>
-#include <string>
-#include <windows.h>
+        wchar_t ReadCharAt(int x, int y)
+        {
+                wchar_t buffer[2];
+                COORD coord = {(SHORT)x, (SHORT)y};
+                DWORD charsRead;
+                ReadConsoleOutputCharacterW(GetStdHandle(STD_OUTPUT_HANDLE), buffer, 1, coord, &charsRead);
+                return buffer[0];
+        }
 
         // verticalRatio: de 0.0 (arriba) a 1.0 (abajo) -> 0.5 es centro vertical
         // horizontalRatio: de 0.0 (izquierda) a 1.0 (derecha) -> 0.5 es centro horizontal

@@ -2,14 +2,17 @@
 #define BULLET_H
 #include "utils/functions/utils.h"
 
-class Bullet {
+class Bullet
+{
 public:
     int x, y;
     bool isActive = false;
     int direction = 1; // 1 = derecha, -1 = izquierda
 
-    void Shoot(int startX, int startY, int dir) {
-        if (!isActive) {
+    void Shoot(int startX, int startY, int dir)
+    {
+        if (!isActive)
+        {
             direction = dir;
             x = startX + dir;
             y = startY;
@@ -17,23 +20,47 @@ public:
         }
     }
 
-    void Move() {
-        if (!isActive) return;
+    void Move(Utils utils, int offsetX, int offsetY)
+    {
+        if (!isActive)
+            return;
+
+        // Limpia posición anterior
+        utils.MoveCursor(x + offsetX, y + offsetY);
+        std::wcout << L" ";
+
+        // Avanza
         x += direction;
-        if (x <= 1 || x >= 78) {
+
+        // Lee el carácter en la nueva posición
+        wchar_t currentChar = utils.ReadCharAt(x + offsetX, y+ offsetY);
+
+        // Si es muro, desactivar
+        if (currentChar == L'#' || currentChar == L'=')
+        {
+            isActive = false;
+            return;
+        }
+
+        // Si se sale del mapa
+        if (x <= 1 || x >= 78)
+        {
             isActive = false;
         }
     }
 
-    void Draw(Utils &utils) {
-        if (!isActive) return;
-        utils.MoveCursor(x - direction, y);  // Borrar anterior
+    void Draw(Utils utils, int offsetX, int offsetY)
+    {
+        if (!isActive)
+            return;
+        utils.MoveCursor(x - direction, y); // Borrar anterior
         std::wcout << L" ";
-        utils.MoveCursor(x, y);
+        utils.MoveCursor(offsetX + x, offsetY + y);
         std::wcout << GREEN_BRIGHT << (direction == 1 ? L">" : L"<") << RESET;
     }
 
-    void Deactivate() {
+    void Deactivate()
+    {
         isActive = false;
     }
 };
