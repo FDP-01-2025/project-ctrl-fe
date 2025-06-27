@@ -13,6 +13,7 @@
 #include "./src/threads/events/geniousLamp.h"
 #include "./src/threads/bosses/bossFightMario.h"
 #include "./src/utils/screen/multiColors.h"
+#include "./src/threads/startup/mainRoad.h"
 
 class Global
 {
@@ -31,6 +32,7 @@ protected:
     MainGenious geniusLamp;
     Utils utils;
     MainBossFight bossFightMario;
+    MainRoadGame mainRoad;
 
     enum ProcessState
     {
@@ -47,11 +49,13 @@ protected:
 
     ProcessState processThread = STATE_NOT_STARTED;
     // Esta es una variable que representa el proceso de ejecucion del juego, representa el estado del hilo principal
+    // Tamaño horizontal de la vista
+    int sizeViewW = 40;
 
 public:
     //* Valores iniciales
     Global(int w = 100, int h = 45, int mW = 70, int mH = 20)
-        : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH) {}
+        : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH){}
 
     // TODO ----- PROCESO (1) ----
     void Initializer()
@@ -179,7 +183,7 @@ public:
                 // maze.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
-                bossFightMario.Run();
+                // bossFightMario.Run();
                 break;
 
             case 2:
@@ -187,7 +191,7 @@ public:
                 player.ResetState(Player::NORMAL);
                 // bomberman.Run();
                 // geniusLamp.Run();
-                bossFightMario.Run();
+                // bossFightMario.Run();
                 break;
 
             case 3:
@@ -196,13 +200,16 @@ public:
                 player.ResetState(Player::HARD);
                 // bomberman.Run();
                 // geniusLamp.Run();
-                bossFightMario.Run();
+                // bossFightMario.Run();
                 break;
 
             default:
                 std::wcout << L"Dificultad no válida\n";
                 break;
             }
+
+            // Se inicializa el mapa principal
+            mainRoad.Run();
         }
     }
 };

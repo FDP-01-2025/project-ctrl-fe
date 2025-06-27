@@ -135,7 +135,7 @@ public:
     }
 
     // Draws the map on screen, optionally with player
-    void DrawMap(std::string key, int mapW, int mapH, int playerX = 1, int playerY = 1)
+    /*void DrawMap(std::string key, int mapW, int mapH, int playerX = 1, int playerY = 1)
     {
         ReadMap(key, mapW, mapH); // Load the map
 
@@ -156,7 +156,7 @@ public:
                 }
             }
         }
-    }
+    }*/
 
     // Draws map and player, with configurable offset
     void DrawWithPlayer(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
@@ -332,31 +332,57 @@ public:
         }
     }
 
-    /*void DrawWithWindowView(int playerX, int playerY, int windowViewH, int mapW)
+    void DrawWithWindowView(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0)
     {
-        system("cls");
-        char mainMapa = DrawMap();
-
-        int startX = playerX - windowViewW / 2;
+        int startX = playerX - viewWidth / 2;
 
         if (startX < 0)
             startX = 0;
-        if (startX + windowViewW > windowViewH)
-            startX = mapW - windowViewW;
+        if (startX + viewWidth > width)
+            startX = width - viewWidth;
 
-        for (int y = 0; y < windowViewH; y++)
+        for (int y = 0; y < MAP_HEIGHT && y < height; ++y)
         {
-            for (int x = 0; x < windowViewW; x++)
+            for (int x = 0; x < viewWidth; ++x)
             {
                 int mapX = startX + x;
+                utils.MoveCursor(offsetX + x, offsetY + y);
+
                 if (mapX == playerX && y == playerY)
-                    std::cout << "/o";
+                {
+                    std::wcout << PINK << L"இ" << RESET;
+                }
                 else
-                    std::cout << mainMapa[y][mapX];
+                {
+                    wchar_t tile = GetTile(mapX, y);
+                    switch (tile)
+                    {
+                    case '#':
+                        std::wcout << GRAY << L"#" << RESET;
+                        break;
+                    case ']':
+                        std::wcout << GRAY << L"]" << RESET;
+                        break;
+                    case 'B':
+                        std::wcout << ORANGE << L"¤" << RESET;
+                        break;
+                    case 'A':
+                        std::wcout << GREEN << L"♣" << RESET;
+                        break;
+                    case '~':
+                        std::wcout << BLUE << L"≈" << RESET;
+                        break;
+                    case '*':
+                        std::wcout << YELLOW_BRIGHT << L"✹" << RESET;
+                        break;
+                    default:
+                        std::wcout << tile;
+                        break;
+                    }
+                }
             }
-            std::cout << "\n";
         }
-    }*/
+    }
 };
 
 #endif
