@@ -230,7 +230,6 @@ public:
             dx = 1;
         return {dx, dy};
     }
-
     // Reset the player's full state depending on difficulty
     // Called at game start or when restarting from menu
     void ResetState(Difficulty dif)

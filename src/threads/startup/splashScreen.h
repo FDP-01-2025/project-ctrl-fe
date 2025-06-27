@@ -9,15 +9,19 @@
 
 bool InitializerThread(int width, int height, Console consoleSettings, Utils utils)
 {
-    /*consoleSettings.SetConsoleFont(12, 18, L"Lucida console");
+    consoleSettings.SetConsoleFont(12, 18, L"Lucida console");
     consoleSettings.SetColor(FOREGROUND_BLUE       );
     utils.PrintCentered(L"Bienvenido a..");
     Sleep(1000);
     system("cls");
     consoleSettings.SetConsoleFont(20, 26, L"Lucida console");
+    Sleep(500);
     utils.PrintCentered(L"LA TORRE DE LEGUIM");
     Sleep(1000);
-    consoleSettings.SetConsoleFont();*/
+    system("cls");
+    Sleep(500);
+    consoleSettings.SetConsoleFont();
+    Sleep(500);
     return true;
 }
 

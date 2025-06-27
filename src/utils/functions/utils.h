@@ -171,14 +171,20 @@ public:
                         consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
                 }
 
-                // Calcular coordenadas de impresión
+                // Calcular coordenadas
                 int x = static_cast<int>((consoleWidth - text.length()) * horizontalRatio);
                 int y = static_cast<int>(consoleHeight * verticalRatio);
 
-                // Mover el cursor a la posición deseada
+                // Mover cursor
                 COORD coord = {static_cast<SHORT>(x), static_cast<SHORT>(y)};
                 SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 
+                // Limpiar línea antes de imprimir (sobrescribe con espacios)
+                DWORD written;
+                FillConsoleOutputCharacter(GetStdHandle(STD_OUTPUT_HANDLE), L' ', consoleWidth, {0, (SHORT)y}, &written);
+                SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+
+                // Imprimir nuevo texto
                 std::wcout << text;
         }
 };

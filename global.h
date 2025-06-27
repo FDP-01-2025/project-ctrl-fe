@@ -55,7 +55,7 @@ protected:
 public:
     //* Valores iniciales
     Global(int w = 100, int h = 45, int mW = 70, int mH = 20)
-        : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH){}
+        : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH) {}
 
     // TODO ----- PROCESO (1) ----
     void Initializer()
@@ -172,6 +172,7 @@ public:
     void StartGame()
     {
         // En este punto ya habiramos: Mostrado el logo, Leer el estado del usuario, mostrar la historia y mostrar ambos menus
+        //Ahora pongan el .Run de prueba despues del mainRoad.Run
         if (processThread == STATE_GAME_STARTED)
         {
             utils.ClearScreenComplety(); // Limpia la pantalla antes de iniciar el juego
@@ -209,7 +210,12 @@ public:
             }
 
             // Se inicializa el mapa principal
-            mainRoad.Run();
+            if (mainRoad.Run(consoleSettings))
+            {
+                // Aqui lógica de randoms yavoy ya voy, paciencia
+                Sleep(100);
+                bossFightMario.Run();
+            }
         }
     }
 };

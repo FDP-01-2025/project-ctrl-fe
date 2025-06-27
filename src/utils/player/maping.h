@@ -17,9 +17,7 @@
 
 // Global constants for the maximum map size
 const int MAP_HEIGHT = 95;
-const int MAP_WIDTH = 60;
-
-int windowViewW = 40;
+const int MAP_WIDTH = 150;
 
 //*Purpose: Logic to draw maps; you just need to specify which map to draw and it will render
 class Map
@@ -334,12 +332,16 @@ public:
 
     void DrawWithWindowView(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0)
     {
-        int startX = playerX - viewWidth / 2;
+        if (viewWidth > width)
+            viewWidth = width;
 
+        int startX = playerX - viewWidth / 2;
         if (startX < 0)
             startX = 0;
         if (startX + viewWidth > width)
             startX = width - viewWidth;
+        if (startX < 0)
+            startX = 0;
 
         for (int y = 0; y < MAP_HEIGHT && y < height; ++y)
         {
@@ -366,8 +368,8 @@ public:
                     case 'B':
                         std::wcout << ORANGE << L"¤" << RESET;
                         break;
-                    case 'A':
-                        std::wcout << GREEN << L"♣" << RESET;
+                    case '-':
+                        std::wcout << GREEN << L"║" << RESET;
                         break;
                     case '~':
                         std::wcout << BLUE << L"≈" << RESET;
