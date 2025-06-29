@@ -172,7 +172,7 @@ public:
     void StartGame()
     {
         // En este punto ya habiramos: Mostrado el logo, Leer el estado del usuario, mostrar la historia y mostrar ambos menus
-        //Ahora pongan el .Run de prueba despues del mainRoad.Run
+        // Ahora pongan el .Run de prueba despues del mainRoad.Run
         if (processThread == STATE_GAME_STARTED)
         {
             utils.ClearScreenComplety(); // Limpia la pantalla antes de iniciar el juego
@@ -181,7 +181,7 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                // maze.Run();
+                maze.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
                 // bossFightMario.Run();
@@ -190,6 +190,7 @@ public:
             case 2:
                 player.removeStatusFile();
                 player.ResetState(Player::NORMAL);
+                maze.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
                 // bossFightMario.Run();
@@ -199,6 +200,7 @@ public:
                 // Iniciar modo difícil
                 player.removeStatusFile();
                 player.ResetState(Player::HARD);
+                maze.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
                 // bossFightMario.Run();
@@ -210,12 +212,12 @@ public:
             }
 
             // Se inicializa el mapa principal
-            if (mainRoad.Run(consoleSettings))
+            /*if (mainRoad.Run(consoleSettings))
             {
                 // Aqui lógica de randoms yavoy ya voy, paciencia
                 Sleep(100);
                 bossFightMario.Run();
-            }
+            }*/
         }
     }
 };

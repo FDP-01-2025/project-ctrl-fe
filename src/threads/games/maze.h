@@ -32,32 +32,37 @@ private:
     bool hasKey = false;
     bool isRunning = true;
 
-    int offsetX = 1, offsetY = 1;
+    int offsetX = 2, offsetY = 1;
     std::string currentMapPath;
+
+    int VIEW_WIDTH = 30;
+    int VIEW_HEIGHT = 20;
 
     void processInput(char input);
     void LoadLevel();
-    void DetermineDifficultyFolder(); // Set folder based on difficulty
+    void DetermineDifficultyFolder();
 };
+
 MainMaze::MainMaze() {}
 
 bool MainMaze::Run()
 {
     utils.ClearScreen();
-    DetermineDifficultyFolder();   // Set level folder based on difficulty
+    DetermineDifficultyFolder();
     LoadLevel();
 
     while (isRunning)
     {
         utils.ClearScreen();
-        hud.Draw(player, hasKey, map.GetWidth());
-        map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), player.GetX(), player.GetY(), offsetX, offsetY);
-        
+        hud.Draw(player, hasKey, VIEW_WIDTH);
+        map.DrawViewportAroundPlayerMaze(
+            player.GetX(), player.GetY(),
+            VIEW_WIDTH, VIEW_HEIGHT,
+            offsetX, offsetY);
 
         if (_kbhit())
             processInput(_getch());
 
-        // If player has no more lives, end game
         if (player.GetLives() <= 0)
         {
             utils.ClearScreen();
@@ -65,6 +70,7 @@ bool MainMaze::Run()
             isRunning = false;
             return false;
         }
+
         utils.Sleep(15);
     }
 
@@ -85,7 +91,7 @@ void MainMaze::processInput(char input)
 
     wchar_t tile = map.GetTile(newX, newY);
 
-    if (tile == ' ' || tile == 'K' || tile == '/')
+    if (tile == ' ' || tile == 'K' || tile == '/' || tile == ']')
     {
         if (tile == 'K')
         {
@@ -115,41 +121,35 @@ void MainMaze::processInput(char input)
 
 void MainMaze::LoadLevel()
 {
-    // Call the function to set the difficulty folder based on player state
     DetermineDifficultyFolder();
 
-    currentMapPath = utils.GetAssetsPath() + "maps\\maze\\" + "maze.txt";
+    currentMapPath = utils.GetAssetsPath() + "maps\\maze\\" + difficultyFolder;
 
     utils.ClearScreenComplety();
     map.ReadMap(currentMapPath, map.GetWidth(), map.GetHeight());
-    player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
-
-    int consoleWidth = utils.GetConsoleWidth();
-    offsetX = (consoleWidth - map.GetWidth()) / 4;
-    if (offsetX < 0)
-        offsetX = 0;
-
-    int consoleHeight = utils.GetConsoleHeight();
-    offsetY = (consoleHeight - map.GetHeight()) / 2;
-    if (offsetY < 0)
-        offsetY = 0;
+    player.SetPosition(1, 3);
 
     hud.SetCenteredOffset(offsetX);
 }
 
-// Set difficulty folder string based on selected difficulty
 void MainMaze::DetermineDifficultyFolder()
 {
     switch (player.GetDifficulty())
     {
     case Player::Difficulty::EASY:
-        difficultyFolder = "easy-levels";
+        VIEW_WIDTH = 30;
+        VIEW_HEIGHT = 20;
+        difficultyFolder = "maze1.txt";
         break;
     case Player::Difficulty::NORMAL:
-        difficultyFolder = "medium-levels";
+        VIEW_WIDTH = 30;
+        VIEW_HEIGHT = 16;
+        difficultyFolder = "maze2.txt";
         break;
     case Player::Difficulty::HARD:
-        difficultyFolder = "hard-levels";
+        VIEW_WIDTH = 30;
+        VIEW_HEIGHT = 20;
+        difficultyFolder = "maze.txt";
         break;
     }
 }

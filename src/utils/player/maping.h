@@ -329,6 +329,72 @@ public:
             }
         }
     }
+    void DrawViewportAroundPlayerMaze(int playerX, int playerY, int viewWidth, int viewHeight, int offsetX = 0, int offsetY = 0)
+    {
+        // Calcular el inicio de la ventana centrada en el jugador
+        int startX = playerX - viewWidth / 2;
+        int startY = playerY - viewHeight / 2;
+
+        // no salir de los bordes del mapa
+        if (startX < 0)
+            startX = 0;
+        if (startY < 0)
+            startY = 0;
+        if (startX + viewWidth > width)
+            startX = width - viewWidth;
+        if (startY + viewHeight > height)
+            startY = height - viewHeight;
+        if (startX < 0)
+            startX = 0;
+        if (startY < 0)
+            startY = 0;
+
+        for (int y = 0; y < viewHeight; ++y)
+        {
+            for (int x = 0; x < viewWidth; ++x)
+            {
+                int mapX = startX + x;
+                int mapY = startY + y;
+                utils.MoveCursor(offsetX + x, offsetY + y);
+
+                if (mapX == playerX && mapY == playerY)
+                {
+                    std::wcout << PINK << L"இ" << RESET;
+                }
+                else
+                {
+                    wchar_t tile = GetTile(mapX, mapY);
+                    switch (tile)
+                    {
+                    case '#':
+                        std::wcout << GRAY << L"#" << RESET;
+                        break;
+                    case ']':
+                        std::wcout << GRAY << L"]" << RESET;
+                        break;
+                    case '|':
+                        std::wcout << YELLOW_BRIGHT << L"|" << RESET;
+                        break;
+                    case '-':
+                        std::wcout << YELLOW_BRIGHT << L"-" << RESET;
+                        break;
+                    case 'A':
+                        std::wcout << GREEN << L"♣" << RESET;
+                        break;
+                    case '~':
+                        std::wcout << BLUE << L"≈" << RESET;
+                        break;
+                    case '*':
+                        std::wcout << YELLOW_BRIGHT << L"✹" << RESET;
+                        break;
+                    default:
+                        std::wcout << tile;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     void DrawWithWindowView(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0)
     {
@@ -357,29 +423,21 @@ public:
                 else
                 {
                     wchar_t tile = GetTile(mapX, y);
+                    utils.MoveCursor(offsetX + x * 2, offsetY + y);
+
                     switch (tile)
                     {
                     case '#':
-                        std::wcout << GRAY << L"#" << RESET;
+                        std::wcout << GRAY << L"██" << RESET;
                         break;
                     case ']':
-                        std::wcout << GRAY << L"]" << RESET;
+                        std::wcout << GRAY << L"▐▌" << RESET;
                         break;
-                    case 'B':
-                        std::wcout << ORANGE << L"¤" << RESET;
-                        break;
-                    case '-':
-                        std::wcout << GREEN << L"║" << RESET;
-                        break;
-                    case '~':
-                        std::wcout << BLUE << L"≈" << RESET;
-                        break;
-                    case '*':
-                        std::wcout << YELLOW_BRIGHT << L"✹" << RESET;
+                    case ' ':
+                        std::wcout << L"  "; // Espacio doble
                         break;
                     default:
-                        std::wcout << tile;
-                        break;
+                        std::wcout << tile << tile;
                     }
                 }
             }
