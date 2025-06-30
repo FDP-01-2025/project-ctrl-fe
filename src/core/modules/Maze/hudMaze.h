@@ -31,7 +31,7 @@ public:
     void Draw(Player player, int currentLevel, int mapWidth = 0)
     {
         utils.ClearScreen();                  // Clear the screen before drawing the HUD
-        int hudX = hudOffsetX + mapWidth + 3; // X position of the HUD
+        int hudX = hudOffsetX + mapWidth + 10; // X position of the HUD
         int totalLines = 10;
         int consoleHeight = utils.GetConsoleHeight();
         int y = ((consoleHeight - totalLines) / 3) + 1;

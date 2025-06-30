@@ -129,6 +129,21 @@ void MainMaze::LoadLevel()
     map.ReadMap(currentMapPath, map.GetWidth(), map.GetHeight());
     player.SetPosition(1, 3);
 
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    int consoleWidth = 80;
+    int consoleHeight = 25;
+
+#ifdef _WIN32
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+    {
+        consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    }
+#endif
+
+    offsetX = std::max(0, (consoleWidth - VIEW_WIDTH) / 2 - 10);
+    offsetY = std::max(0, (consoleHeight - VIEW_HEIGHT) / 2);
+
     hud.SetCenteredOffset(offsetX);
 }
 
