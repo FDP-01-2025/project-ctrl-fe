@@ -5,6 +5,7 @@
 //Blanco fuerte
 #define WHITE_BRIGHT L"\033[97m"
 #define RED L"\033[31m"
+#define RED_BRIGHT L"\033[91m"
 #define GREEN L"\033[32m"
 // Cafe
 #define BROWN L"\033[38;5;94m" 

@@ -10,7 +10,7 @@ class MiniBoss
 public:
     int x = 30, y = 13;
     int previousX = 40, previousY = 19;
-    int health = 50;
+    int health = 50, maxHealth = 50;
     bool isAlive = true;
     bool movingRight = true;
     int speed = 6; // menor es más rápido
@@ -22,14 +22,17 @@ public:
         {
         case Player::EASY:
             health = 25;
+            maxHealth = 25;
             speed = 8; // más lento
             break;
         case Player::NORMAL:
             health = 30;
+            maxHealth = 30;
             speed = 6;
             break;
         case Player::HARD:
             health = 60;
+            maxHealth = 60;
             speed = 3; // más rápido
             break;
         }

@@ -12,6 +12,7 @@
 #include "./src/threads/games/maze.h"
 #include "./src/threads/events/geniousLamp.h"
 #include "./src/threads/bosses/bossFightMario.h"
+#include "./src/threads/bosses/bossFightZelda.h"
 #include "./src/utils/screen/multiColors.h"
 #include "./src/threads/startup/mainRoad.h"
 
@@ -33,6 +34,7 @@ protected:
     Utils utils;
     MainBossFight bossFightMario;
     MainRoadGame mainRoad;
+    MainBossFightZelda bossFightZelda;
 
     enum ProcessState
     {
@@ -181,29 +183,32 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                maze.Run();
+                //maze.Run();
+                //bossFightZelda.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
-                // bossFightMario.Run();
+                bossFightMario.Run();
                 break;
 
             case 2:
                 player.removeStatusFile();
                 player.ResetState(Player::NORMAL);
-                maze.Run();
+                //bossFightZelda.Run();
+                //maze.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
-                // bossFightMario.Run();
+                bossFightMario.Run();
                 break;
 
             case 3:
                 // Iniciar modo difícil
                 player.removeStatusFile();
                 player.ResetState(Player::HARD);
-                maze.Run();
+                //bossFightZelda.Run();
                 // bomberman.Run();
+                //maze.Run();
                 // geniusLamp.Run();
-                // bossFightMario.Run();
+                bossFightMario.Run();
                 break;
 
             default:

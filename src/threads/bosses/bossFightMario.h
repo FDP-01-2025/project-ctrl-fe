@@ -5,6 +5,7 @@
 #include <conio.h>
 #include <windows.h>
 #include <chrono>
+#include <iomanip>
 #include <thread>
 #include "utils/functions/utils.h"
 #include "utils/screen/colors.h"
@@ -138,10 +139,42 @@ public:
 
     void DrawHUD()
     {
-        utils.MoveCursor(offsetX + 2, offsetY + 0);
-        std::wcout << CYAN << L"Boss life:     "<< RESET;
-        utils.MoveCursor(offsetX + 2, offsetY + 0);
-        std::wcout << CYAN << L"Boss life: " << boss.health << RESET;
+        int hudX = offsetX + 2;
+        int hudY = offsetY + 0;
+        
+        utils.MoveCursor(hudX, hudY);
+        std::wcout << L"                                  "; // Limpiar pantalla antes de dibujar el HUD
+
+        // Etiqueta
+        utils.MoveCursor(hudX, hudY);
+        std::wcout << CYAN << L"Boss: " << RESET;
+
+        // Cálculo
+        const int barWidth = 10;
+        float ratio = (float)boss.health / boss.maxHealth;
+        int filled = (int)(ratio * barWidth);
+        int percent = (int)(ratio * 100);
+
+        // Color
+        std::wstring color;
+        if (ratio > 0.6f)
+            color = GREEN_BRIGHT;
+        else if (ratio > 0.3f)
+            color = YELLOW_BRIGHT;
+        else
+            color = RED_BRIGHT;
+
+        // Barra visual
+        std::wcout << L"[";
+        std::wcout << color;
+        for (int i = 0; i < filled; ++i)
+            std::wcout << L"█";
+        for (int i = filled; i < barWidth; ++i)
+            std::wcout << L" ";
+        std::wcout << RESET << L"] ";
+
+        // Porcentaje// Borra 4 espacios antes (3 para número + 1 para %)
+        std::wcout << percent << L"%";
     }
 
     void CheckCollision()
