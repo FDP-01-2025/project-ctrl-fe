@@ -51,63 +51,65 @@ private:
     void DrawPrompt(const std::wstring &message, int delay = 0);
 };
 
-inline ChestEvent::ChestEvent() {}
+inline ChestEvent::ChestEvent() {};
 
 inline void ChestEvent::WaitKey()
 {
-    int msgX = std::max(0, offsetX + map.GetWidth() / 2 - 20);
-    utils.MoveCursor(msgX, offsetY + 15);
+    int msgX = std::max(0, map.GetWidth() / 2 - 20);
+    utils.MoveCursor(msgX, offsetY + 11);
     std::wcout << L"Press any key to continue...";
+    Sleep(2000);
     _getch();
+    utils.MoveCursor(msgX, offsetY + 11);
+    std::wcout << L"                            "; // for cleaning
 }
 
-inline void ChestEvent::DrawPrompt(const std::wstring &message, int delay)
+inline void ChestEvent::ChestInteraction() // asking the player to open the chest
 {
-    utils.ClearScreen();
-    DrawDialogue(message);
-    if (delay > 0)
-    {
-#ifdef _WIN32
-        Sleep(delay * 1000);
-#else
-        std::this_thread::sleep_for(std::chrono::seconds(delay));
-#endif
-    }
-}
-
-inline void ChestEvent::ChestInteraction()
-{
-    int msgX = std::max(0, offsetX + map.GetWidth() / 2 - 20);
+    int msgX = std::max(0, (map.GetWidth() / 2) + 3); // horizontal position
+    utils.MoveCursor(msgX, offsetY - 3);
+    std::wcout << L"Do you want to open the chest?";
     utils.MoveCursor(msgX, offsetY - 2);
-    std::wcout << L"Do you want to open the chest? (y/n)";
+    std::wcout << L"(Press 'Y' to open it)";
 
     char answer;
-    do
-    {
-        answer = tolower(_getch());
-    } while (answer != 'y' && answer != 'n');
 
+    answer = tolower(_getch());
     if (answer == 'y')
     {
         chestOpened = true;
-        // to clear the chest location
+
+        int msgX = std::max(0, (map.GetWidth() / 2) + 3);
+        utils.MoveCursor(msgX, offsetY - 3);
+        std::wcout << L"You opened the chest and gained an extra life!!";
+        utils.MoveCursor(msgX, offsetY - 2);
+        std::wcout << L"                      ";
+        DrawDialogue(L"1+ life", 13, 2);
+        Sleep(2000);
+
+        WaitKey(); // this is for waiting
+
+        // for cleaning the chest area after it's opened
         for (int i = 0; i < 2; i++)
             for (int j = 0; j < 5; j++)
                 map.SetTile(chestX[j], chestY[i], ' ');
 
-        DrawPrompt(L"You opened the chest! You found a treasure!", 3);
+        utils.MoveCursor(msgX, offsetY - 2); // cleaning the messages
+
+        utils.MoveCursor(msgX, offsetY + 2);
+        std::wcout << L"                                                   ";
     }
     else
     {
-        DrawPrompt(L"You didn't open the chest...", 2);
+        utils.MoveCursor(msgX, offsetY - 3);
+        std::wcout << L"                              ";
+        utils.MoveCursor(msgX, offsetY - 2);
+        std::wcout << L"                      ";
     }
-
-    WaitKey();
 }
 
 inline void ChestEvent::ProcessInput(char input)
 {
-
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first;
     int dy = dir.second;
@@ -120,9 +122,9 @@ inline void ChestEvent::ProcessInput(char input)
 
     wchar_t tile = map.GetTile(newX, newY);
 
-    if (tile == ' ' || tile == '/' || tile == '-')
+    if (tile == ' ' || tile == '/' || tile == '-' || chestLockX || chestLockY)
     {
-        if (tile == '/')
+        if (tile == '/') // to leave the room
         {
             utils.ClearScreen();
             isRunning = false;
@@ -131,6 +133,11 @@ inline void ChestEvent::ProcessInput(char input)
         {
             player.Move(dx, dy, tile);
         }
+    }
+    // if the player is front the chest
+    if (!chestOpened && player.GetX() == chestLockX && player.GetY() == chestLockY)
+    {
+        ChestInteraction();
     }
 }
 
@@ -159,22 +166,23 @@ inline bool ChestEvent::Run()
     {
         utils.ClearScreen();
 
+        // if the player is front the chest
+        if (!chestOpened && player.GetX() == chestLockX && player.GetY() == chestLockY)
+        {
+            ChestInteraction();
+        }
+
         map.DrawWithPlayer(mapWidth, mapHeight, player.GetX(), player.GetY(), offsetX, offsetY); // for the map
 
         if (_kbhit())
         {
             input = _getch();
-            ProcessInput(input);
-
-            // if the player is front the chest
-            if (!chestOpened && player.GetX() == chestLockX && player.GetY() == chestLockY)
-            {
-                ChestInteraction();
-            }
+            ProcessInput(input); // the movement
 
             if (input == 27) // ESC para salir
                 isRunning = false;
         }
+
 
         // #ifdef _WIN32
         Sleep(20);

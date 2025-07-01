@@ -87,7 +87,7 @@ public:
 
         // Game objective
         utils.PrintLine(hudX, y, L"[Goal]:", WHITE_BRIGHT);
-        utils.PrintLine(hudX, y, L"Go to the exit" );
+        utils.PrintLine(hudX, y, L"Go to the exit");
         utils.PrintLine(hudX, y, L"Be careful with the shots");
         y++;
 
@@ -99,7 +99,21 @@ public:
         std::wcout << RESET; // Reset text color
     }
 
-    private:
+    // Function to clear the HUD area on the console
+    void ClearHUDArea(int mapWidth, int consoleHeight)
+    {
+        int hudX = hudOffsetX + mapWidth ;
+        int totalLines = 16;
+        int y = ((consoleHeight - totalLines) / 3) + 4;
+
+        for (int i = 0; i < totalLines; ++i)
+        {
+            utils.MoveCursor(hudX, y + i);
+            std::wcout << std::wstring(35, L' ');
+        }
+    }
+
+private:
     int hudOffsetX = 0; // Offset for centering the HUD horizontally
 };
 
