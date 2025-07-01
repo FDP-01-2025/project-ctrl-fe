@@ -102,7 +102,6 @@ bool MainBomberman::Run()
         if (player.GetLives() <= 0)
         {
             utils.ClearScreen();
-            std::wcout << L"\nYou have lost all your lives. Game Over!\n";
             isRunning = false;
             return false;
         }
@@ -171,7 +170,6 @@ void MainBomberman::processInput(char input)
             if (!file.is_open())
             {
                 utils.ClearScreen();
-                std::wcout << L"\nCongratulations! You've completed all levels.\n";
                 isRunning = false;
                 return;
             }
