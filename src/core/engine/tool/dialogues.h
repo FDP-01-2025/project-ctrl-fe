@@ -2,33 +2,26 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include "utils/functions/utils.h" // for the cursor funtion
 
-const int widht = 35; // estas medidas son del mapa
-const int height = 10;
+Utils utils;
 
-void MoveCursor(int x, int y) // para el cursor
+void DrawDialogue(std::wstring text, int startX, int startY) // offsetY is to indicate where it begins
 {
-    COORD pos = {(SHORT)x, (SHORT)y};
+    int widthDialogue = text.length() + 4; // text lenght
 
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
-}
+    utils.MoveCursor(startX, startY);
+    std::wcout << L"+"; // left-up corner   
+    for (int i = 0; i < widthDialogue - 2; i++) //the 2 is by the cornenrs
+        std::wcout << L"-"; // up line
+    std::wcout << L"+";     // righ-up corner
 
-void DrawDialogue(const std::wstring &text, int offsetY = 1) // offsetY para indicar donde inicia
-{
-    int widthDialogue = text.length() + 4; // la longitud del texto
-    int startX = (widht - widthDialogue) / 2;
-    int startY = offsetY;
+    utils.MoveCursor(startX, startY + 1);
+    std::wcout << L"| " << text << L" |"; // Where the text goes
 
-    MoveCursor(startX, startY);
-    std::wcout << wchar_t(201);
+    utils.MoveCursor(startX, startY + 2);
+    std::wcout << L"+"; // left-down corner
     for (int i = 0; i < widthDialogue - 2; i++)
-        std::wcout << wchar_t(205);
-    std::wcout << wchar_t(187);
-    MoveCursor(startX, startY + 1);
-    std::wcout << wchar_t(186) << L" " << text << L" " << wchar_t(186);
-    MoveCursor(startX, startY + 2);
-    std::wcout << wchar_t(200);
-    for (int i = 0; i < widthDialogue - 2; i++)
-        std::wcout << wchar_t(205);
-    std::wcout << wchar_t(188);
+        std::wcout << L"-"; // down line
+    std::wcout << L"+";     // right down corner;
 }
