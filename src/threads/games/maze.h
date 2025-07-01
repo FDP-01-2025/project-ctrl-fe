@@ -1,21 +1,24 @@
 #ifndef MAIN_MAZE_H
 #define MAIN_MAZE_H
 
-#include <vector>
 #include "utils/functions/utils.h"
 #include "utils/player/maping.h"
 #include "utils/player/player.h"
 #include "core/modules/Maze/hudMaze.h"
-
+#include "utils/screen/colors.h"
 #include <fstream>
 #include <iostream>
 #include <conio.h>
 #include <limits>
 #include <tuple>
+#include <cstdlib>
+#include <ctime>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
+#define MAX_POSITIONS 1000
 
 class MainMaze
 {
@@ -39,6 +42,8 @@ private:
 
     int VIEW_WIDTH = 30;
     int VIEW_HEIGHT = 20;
+
+    std::pair<int, int> keyBoxPosition = {-1, -1};
 
     void processInput(char input);
     void LoadLevel();
@@ -81,16 +86,16 @@ bool MainMaze::Run()
 
 void MainMaze::processInput(char input)
 {
-    // ✅ Apertura de cofre con tecla Q
     if (input == 'q' || input == 'Q')
     {
         wchar_t tile = map.GetTile(player.GetX(), player.GetY());
 
-        if (tile == ']' || tile == '#') // Cofre cerrado
+        if (tile == L'█')
         {
-            map.SetTile(player.GetX(), player.GetY(), '/'); // '/' = cofre abierto
-            openedBoxes++;                                  // ← cuenta la caja abierta
-            if (tile == '#')
+            map.SetTile(player.GetX(), player.GetY(), L'░');
+            openedBoxes++;
+
+            if (player.GetX() == keyBoxPosition.first && player.GetY() == keyBoxPosition.second)
             {
                 hasKey = true;
                 std::wcout << L"¡Has encontrado la llave dentro del cofre!\n";
@@ -99,20 +104,18 @@ void MainMaze::processInput(char input)
             {
                 std::wcout << L"El cofre estaba vacío.\n";
             }
+
             utils.Sleep(600);
             return;
         }
-
         else
         {
             std::wcout << L"No estás sobre un cofre.\n";
+            utils.Sleep(600);
+            return;
         }
-
-        utils.Sleep(600);
-        return;
     }
 
-    // Movimiento
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first;
     int dy = dir.second;
@@ -125,9 +128,9 @@ void MainMaze::processInput(char input)
 
     wchar_t tile = map.GetTile(newX, newY);
 
-    if (tile == ' ' || tile == 'K' || tile == '/' || tile == ']' || tile == '#')
+    if (tile == ' ' || tile == 'K' || tile == L'░' || tile == ']' || tile == L'█')
     {
-        if (tile == 'K') // En caso sigas usando 'K'
+        if (tile == 'K')
         {
             hasKey = true;
             map.SetTile(newX, newY, ' ');
@@ -180,33 +183,142 @@ void MainMaze::LoadLevel()
 
     hud.SetCenteredOffset(offsetX);
 
-    // ✅ Insertar cofres aleatorios
-    int totalCofres = 5; // Cambia este número según la cantidad que quieras
-    std::vector<std::pair<int, int>> position;
+    // ✅ Cofres aleatorios
+    int totalCofres = 5;
+    int validCount = 0;
+    int posX[MAX_POSITIONS];
+    int posY[MAX_POSITIONS];
 
     for (int y = 0; y < map.GetHeight(); ++y)
     {
         for (int x = 0; x < map.GetWidth(); ++x)
         {
-            if (map.GetTile(x, y) == ' ') // Solo lugares vacíos
-                position.emplace_back(x, y);
+            if (map.GetTile(x, y) == ' ' && validCount < MAX_POSITIONS)
+            {
+                posX[validCount] = x;
+                posY[validCount] = y;
+                ++validCount;
+            }
         }
     }
 
-    std::random_shuffle(position.begin(), position.end());
+    bool used[MAX_POSITIONS] = {false};
+    int selectedCount = 0;
+    int cofreX[totalCofres];
+    int cofreY[totalCofres];
 
-    for (int i = 0; i < totalCofres && i < position.size(); ++i)
+    srand(time(nullptr));
+
+    while (selectedCount < totalCofres && selectedCount < validCount)
     {
-        int x = position[i].first;
-        int y = position[i].second;
-        map.SetTile(x, y, ']'); // ']': caja cerrada
+        int index = rand() % validCount;
+        if (!used[index])
+        {
+            used[index] = true;
+            int x = posX[index];
+            int y = posY[index];
+            map.SetTile(x, y, L'█');
+
+            cofreX[selectedCount] = x;
+            cofreY[selectedCount] = y;
+            ++selectedCount;
+        }
     }
 
-    if (!position.empty())
+    if (selectedCount > 0)
     {
-        int keyX = position[0].first;
-        int keyY = position[0].second;
-        map.SetTile(keyX, keyY, '#'); // '#' = caja cerrada con llave
+        // Intentar hasta 10 veces encontrar un cofre cerrado para la llave,
+        // o seleccionar uno aleatorio si no hay 5 cofres cerrados disponibles.
+        const int MIN_CLOSED_CHEKED = 5; // al menos 5 cofres para revisar
+        int attempts = 0;
+        int keyIndex = -1;
+
+        while (attempts < 10)
+        {
+            int randomIndex = rand() % selectedCount;
+            int x = cofreX[randomIndex];
+            int y = cofreY[randomIndex];
+            wchar_t tile = map.GetTile(x, y);
+
+            if (tile == L'█') // cofre cerrado
+            {
+                keyIndex = randomIndex;
+                break;
+            }
+            attempts++;
+        }
+
+        // Si no encontró cofre cerrado tras intentos, asignar cualquiera (puede estar abierto)
+        if (keyIndex == -1)
+            keyIndex = rand() % selectedCount;
+
+        keyBoxPosition = std::make_pair(cofreX[keyIndex], cofreY[keyIndex]);
+    }
+
+    // 🌿 Área verde (esquina inferior derecha)
+    for (int y = map.GetHeight() - 4; y < map.GetHeight() - 1; ++y)
+    {
+        for (int x = map.GetWidth() - 6; x < map.GetWidth() - 2; ++x)
+        {
+            if (map.GetTile(x, y) == ' ')
+                map.SetTile(x, y, L'♣');
+        }
+    }
+
+    // 🍽️ Mesas decorativas (T)
+    int mesaX[] = {3, map.GetWidth() - 4, 3, map.GetWidth() - 4};
+    int mesaY[] = {2, 2, map.GetHeight() - 3, map.GetHeight() - 3};
+
+    for (int i = 0; i < 4; ++i)
+    {
+        if (map.GetTile(mesaX[i], mesaY[i]) == ' ')
+            map.SetTile(mesaX[i], mesaY[i], L'T');
+    }
+
+    // 🔥 Antorchas (solo si hay espacio a los lados)
+    for (int x = 2; x < map.GetWidth() - 2; x += 10)
+    {
+        for (int y = 2; y < map.GetHeight() - 2; y += 5)
+        {
+            // Verificar que haya espacio a los lados para evitar solapamientos
+            if (map.GetTile(x, y) == ' ' &&
+                map.GetTile(x - 1, y) == ' ' &&
+                map.GetTile(x + 1, y) == ' ' &&
+                map.GetTile(x, y - 1) == ' ' &&
+                map.GetTile(x, y + 1) == ' ')
+            {
+                map.SetTile(x, y, L'*');
+            }
+        }
+    }
+
+    // 🌊 Laguito decorativo (solo sobre zonas vacías y alejadas de muros)
+    int lakeX = map.GetWidth() / 4;
+    int lakeY = map.GetHeight() / 2;
+
+    bool canPlaceLake = true;
+    for (int y = lakeY; y < lakeY + 3 && canPlaceLake; ++y)
+    {
+        for (int x = lakeX; x < lakeX + 6; ++x)
+        {
+            wchar_t tile = map.GetTile(x, y);
+            if (tile != ' ')
+            {
+                canPlaceLake = false;
+                break;
+            }
+        }
+    }
+
+    if (canPlaceLake)
+    {
+        for (int y = lakeY; y < lakeY + 3; ++y)
+        {
+            for (int x = lakeX; x < lakeX + 6; ++x)
+            {
+                map.SetTile(x, y, L'~');
+            }
+        }
     }
 }
 
