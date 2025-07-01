@@ -61,8 +61,8 @@ public:
         utils.PrintLine(hudX, y, L"[Q]: Open the boxes");
         y++;
         // Información de cajas y llave
-        utils.PrintLine(hudX, y, L"Cajas abiertas: " + ToWString(openedBoxes), CYAN);
-        utils.PrintLine(hudX, y, L"Tienes llave: " + std::wstring(hasKey ? L"Sí" : L"No"), hasKey ? GREEN : RED);
+        utils.PrintLine(hudX, y, L"Open boxex: " + ToWString(openedBoxes), CYAN);
+        utils.PrintLine(hudX, y, L"Key: " + std::wstring(hasKey ? L"Yes" : L"No"), hasKey ? GREEN : RED);
         y++;
 
         std::wcout << RESET; // Reset text color
