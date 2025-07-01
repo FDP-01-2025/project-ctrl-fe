@@ -49,9 +49,9 @@ private:
     std::string currentMapName;   // Current map file name
 
     // Internal helper methods
-    void processInput(char input);                       // Handle player input
+    void ProcessInput(char input);                       // Handle player input
     void LoadLevel(int level);                           // Load level from file
-    void handleExplosion(int i);                         // Handle explosion logic for bomb i
+    void HandleExplosion(int i);                         // Handle explosion logic for bomb i
     void ApplyExplosionAt(int x, int y, int dx, int dy); // Apply explosion at direction
     void DetermineDifficultyFolder();                    // Set folder based on difficulty
 };
@@ -81,7 +81,7 @@ bool MainBomberman::Run()
         {
             if (bombs[i].HasExploded())
             {
-                handleExplosion(i); // Apply explosion effects
+                HandleExplosion(i); // Apply explosion effects
 
                 // Shift bombs to remove exploded one
                 for (int j = i; j < bombCount - 1; ++j)
@@ -96,7 +96,7 @@ bool MainBomberman::Run()
 
         // Read user input if available
         if (_kbhit())
-            processInput(_getch());
+            ProcessInput(_getch());
 
         // If player has no more lives, end game
         if (player.GetLives() <= 0)
@@ -113,7 +113,7 @@ bool MainBomberman::Run()
 }
 
 // Handle player key input
-void MainBomberman::processInput(char input)
+void MainBomberman::ProcessInput(char input)
 {
     // Place a bomb if 'b' is pressed and allowed
     if (input == 'b' && player.IsControlBActive())
@@ -217,7 +217,7 @@ void MainBomberman::LoadLevel(int level)
 }
 
 // Handle the explosion effects of a bomb
-void MainBomberman::handleExplosion(int i)
+void MainBomberman::HandleExplosion(int i)
 {
     // We declare the coordinates of the bomb
     int x = bombs[i].GetX();
