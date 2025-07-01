@@ -76,6 +76,19 @@ public:
         loadState();
         return event;
     }
+    // Obtener cuántos cofres ha abierto el jugador
+    int GetOpenedChests()
+    {
+        loadState();
+        return openedChests;
+    }
+
+    // Incrementar la cantidad de cofres abiertos en 1
+    void IncrementOpenedChests()
+    {
+        openedChests++;
+        saveOpenedChests();
+    }
 
     // Check whether control B (bomb placement) is active
     bool IsControlBActive()
@@ -142,6 +155,10 @@ public:
         x += dx;
         y += dy;
         saveState(); // full state save after movement
+    }
+    bool IsOpenChestKey(wchar_t input)
+    {
+        return input == 'q' || input == 'Q';
     }
 
     // Check if the player can place at least one bomb
@@ -235,6 +252,7 @@ public:
     void ResetState(Difficulty dif)
     {
         removeStatusFile(); // delete any old save
+        openedChests = 0;
         difficulty = dif;
         x = 1;
         y = 1;
@@ -287,6 +305,7 @@ private:
     Difficulty difficulty = EASY;
     bool controlB = false;
     Utils utils;
+    int openedChests = 0; // Contador de cofres abiertos
 
     // Save file path: something like assets/data/playerState.txt
     const std::string filename = utils.GetAssetsPath() + "data\\playerState.txt";
@@ -315,6 +334,9 @@ private:
             out << "Room: " << room << "\n";
             // Write the current event or state
             out << "Event: " << event << "\n";
+
+            out << "OpenedChests: " << openedChests << "\n";
+
             // Close the file after writing
             out.close();
         }
@@ -332,14 +354,7 @@ private:
             int diff = 0, ctrlB = 0;
             // Attempt to read each labeled field from the file.
             // The order must match exactly how saveState writes the data.
-            if (in >> label >> x &&
-                in >> label >> y &&
-                in >> label >> lives &&
-                in >> label >> bombsAvailable &&
-                in >> label >> diff &&
-                in >> label >> ctrlB &&
-                in >> label >> room &&
-                in >> label >> event)
+            if (in >> label >> x &&in >> label >> y &&in >> label >> lives &&in >> label >> bombsAvailable &&in >> label >> diff &&in >> label >> ctrlB &&in >> label >> room &&in >> label >> event &&in >> label >> openedChests)
             {
                 // Convert integer read back to enum type for difficulty
                 difficulty = (Difficulty)diff;
@@ -437,6 +452,24 @@ private:
                 out << "Lives: " << lives << "\n"; // Update lives count
             else
                 out << line << "\n"; // Copy other lines unchanged
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp.txt", filename.c_str());
+    }
+    void saveOpenedChests()
+    {
+        std::ifstream in(filename, std::ios::binary);
+        std::ofstream out("temp.txt");
+        std::string line;
+        while (std::getline(in, line))
+        {
+            if (line.rfind("OpenedChests:", 0) == 0)
+                out << "OpenedChests: " << openedChests << "\n"; // Actualiza cofres
+            else
+                out << line << "\n"; // Mantén el resto igual
         }
 
         in.close();

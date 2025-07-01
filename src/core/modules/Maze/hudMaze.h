@@ -1,7 +1,6 @@
 #ifndef HUD_MAZE_H
 #define HUD_MAZE_H
 
-
 // Include required libraries
 #include <iostream>
 #include <string>
@@ -28,9 +27,9 @@ public:
 
     // Function to draw the HUD on the screen
     // Takes the player, current level, and optional map width
-    void Draw(Player player, int currentLevel, int mapWidth = 0)
+    void Draw(Player player, bool hasKey, int openedBoxes, int mapWidth = 0)
     {
-        utils.ClearScreen();                  // Clear the screen before drawing the HUD
+        utils.ClearScreen();                   // Clear the screen before drawing the HUD
         int hudX = hudOffsetX + mapWidth + 10; // X position of the HUD
         int totalLines = 10;
         int consoleHeight = utils.GetConsoleHeight();
@@ -42,26 +41,29 @@ public:
         std::wcout << L"\033[" << y << L";" << hudX << L"H" << std::wstring(25, ' ');
         utils.PrintLine(hudX, y, L"Room - " + ToWString(player.GetRoom()), WHITE_BRIGHT);
         std::wcout << L"\033[" << y << L";" << hudX << L"H" << std::wstring(25, ' ');
-        utils.PrintLine(hudX, y, L"Subroom - " + ToWString(currentLevel), GRAY);
         y++;
 
         std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');
         utils.PrintLine(hudX, y, L"♥ - " + ToWString(player.GetLives()), RED);
         std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');
-        utils.PrintLine(hudX, y, L"¤ - " + ToWString(player.GetBombs()), ORANGE);
         y++;
 
         // Game objective
         utils.PrintLine(hudX, y, L"[Goal]:", WHITE_BRIGHT);
         utils.PrintLine(hudX, y, L"Find the door");
-        utils.PrintLine(hudX, y, L"Destroy % with bombs");
-        utils.PrintLine(hudX, y, L"Don't die by fire");
+        utils.PrintLine(hudX, y, L"Find the key");
+        utils.PrintLine(hudX, y, L"You can check all the boxes");
         y++;
 
         // Controls
         utils.PrintLine(hudX, y, L"Controls:", WHITE_BRIGHT);
         utils.PrintLine(hudX, y, L"[WASD]: Move");
-        utils.PrintLine(hudX, y, L"[B]: Place bomb ¤");
+        utils.PrintLine(hudX, y, L"[Q]: Open the boxes");
+        y++;
+        // Información de cajas y llave
+        utils.PrintLine(hudX, y, L"Cajas abiertas: " + ToWString(openedBoxes), CYAN);
+        utils.PrintLine(hudX, y, L"Tienes llave: " + std::wstring(hasKey ? L"Sí" : L"No"), hasKey ? GREEN : RED);
+        y++;
 
         std::wcout << RESET; // Reset text color
     }

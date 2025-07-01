@@ -183,21 +183,21 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                //maze.Run();
+                maze.Run();
                 //bossFightZelda.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
-                bossFightMario.Run();
+                //bossFightMario.Run();
                 break;
 
             case 2:
                 player.removeStatusFile();
                 player.ResetState(Player::NORMAL);
                 //bossFightZelda.Run();
-                //maze.Run();
+                maze.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
-                bossFightMario.Run();
+                //bossFightMario.Run();
                 break;
 
             case 3:
@@ -206,9 +206,9 @@ public:
                 player.ResetState(Player::HARD);
                 //bossFightZelda.Run();
                 // bomberman.Run();
-                //maze.Run();
+                maze.Run();
                 // geniusLamp.Run();
-                bossFightMario.Run();
+                //bossFightMario.Run();
                 break;
 
             default:

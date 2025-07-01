@@ -1,6 +1,7 @@
 #ifndef MAIN_MAZE_H
 #define MAIN_MAZE_H
 
+#include <vector>
 #include "utils/functions/utils.h"
 #include "utils/player/maping.h"
 #include "utils/player/player.h"
@@ -34,6 +35,7 @@ private:
 
     int offsetX = 2, offsetY = 1;
     std::string currentMapPath;
+    int openedBoxes = 0;
 
     int VIEW_WIDTH = 30;
     int VIEW_HEIGHT = 20;
@@ -54,7 +56,7 @@ bool MainMaze::Run()
     while (isRunning)
     {
         utils.ClearScreen();
-        hud.Draw(player, hasKey, VIEW_WIDTH);
+        hud.Draw(player, hasKey, openedBoxes, VIEW_WIDTH);
         map.DrawViewportAroundPlayerMaze(
             player.GetX(), player.GetY(),
             VIEW_WIDTH, VIEW_HEIGHT,
@@ -79,6 +81,38 @@ bool MainMaze::Run()
 
 void MainMaze::processInput(char input)
 {
+    // ✅ Apertura de cofre con tecla Q
+    if (input == 'q' || input == 'Q')
+    {
+        wchar_t tile = map.GetTile(player.GetX(), player.GetY());
+
+        if (tile == ']' || tile == '#') // Cofre cerrado
+        {
+            map.SetTile(player.GetX(), player.GetY(), '/'); // '/' = cofre abierto
+            openedBoxes++;                                  // ← cuenta la caja abierta
+            if (tile == '#')
+            {
+                hasKey = true;
+                std::wcout << L"¡Has encontrado la llave dentro del cofre!\n";
+            }
+            else
+            {
+                std::wcout << L"El cofre estaba vacío.\n";
+            }
+            utils.Sleep(600);
+            return;
+        }
+
+        else
+        {
+            std::wcout << L"No estás sobre un cofre.\n";
+        }
+
+        utils.Sleep(600);
+        return;
+    }
+
+    // Movimiento
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first;
     int dy = dir.second;
@@ -91,9 +125,9 @@ void MainMaze::processInput(char input)
 
     wchar_t tile = map.GetTile(newX, newY);
 
-    if (tile == ' ' || tile == 'K' || tile == '/' || tile == ']')
+    if (tile == ' ' || tile == 'K' || tile == '/' || tile == ']' || tile == '#')
     {
-        if (tile == 'K')
+        if (tile == 'K') // En caso sigas usando 'K'
         {
             hasKey = true;
             map.SetTile(newX, newY, ' ');
@@ -145,6 +179,35 @@ void MainMaze::LoadLevel()
     offsetY = std::max(0, (consoleHeight - VIEW_HEIGHT) / 2);
 
     hud.SetCenteredOffset(offsetX);
+
+    // ✅ Insertar cofres aleatorios
+    int totalCofres = 5; // Cambia este número según la cantidad que quieras
+    std::vector<std::pair<int, int>> position;
+
+    for (int y = 0; y < map.GetHeight(); ++y)
+    {
+        for (int x = 0; x < map.GetWidth(); ++x)
+        {
+            if (map.GetTile(x, y) == ' ') // Solo lugares vacíos
+                position.emplace_back(x, y);
+        }
+    }
+
+    std::random_shuffle(position.begin(), position.end());
+
+    for (int i = 0; i < totalCofres && i < position.size(); ++i)
+    {
+        int x = position[i].first;
+        int y = position[i].second;
+        map.SetTile(x, y, ']'); // ']': caja cerrada
+    }
+
+    if (!position.empty())
+    {
+        int keyX = position[0].first;
+        int keyY = position[0].second;
+        map.SetTile(keyX, keyY, '#'); // '#' = caja cerrada con llave
+    }
 }
 
 void MainMaze::DetermineDifficultyFolder()
