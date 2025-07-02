@@ -63,7 +63,6 @@ Worm::Worm() : isRunning(true)
     {
         worm.push_back(L'@');
     }
-    lives = player.GetLives();
 }
 
 bool Worm::Run(Console consoleSettings)
@@ -71,6 +70,8 @@ bool Worm::Run(Console consoleSettings)
     SetGoodStyle(consoleSettings);
     std::string key = utils.GetAssetsPath() + "maps\\worm\\easy-levels\\level1.txt";
     LoadLevel(key);
+
+    lives = player.GetLives();
 
     int animationFrame = 0;
 

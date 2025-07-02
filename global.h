@@ -187,11 +187,12 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                // maze.Run();
-                //  bossFightZelda.Run();
-                //   bomberman.Run();
-                //   geniusLamp.Run();
-                //  bossFightMario.Run();
+                //worm.Run(consoleSettings);
+                maze.Run();
+                //bossFightZelda.Run();
+                //bomberman.Run();
+                //geniusLamp.Run();
+                //bossFightMario.Run();
                 break;
 
             case 2:
@@ -210,7 +211,7 @@ public:
                 player.ResetState(Player::HARD);
                 // bossFightZelda.Run();
                 //  bomberman.Run();
-                // maze.Run();
+                maze.Run();
                 // geniusLamp.Run();
                 // bossFightMario.Run();
                 break;
@@ -221,13 +222,13 @@ public:
             }
 
             // Se inicializa el mapa principal
-            /*if (mainRoad.Run(consoleSettings))
-            {
-                // Aqui lógica de randoms yavoy ya voy, paciencia
-                Sleep(100);
-                bossFightMario.Run();
-            }*/
-            elevator.Run(consoleSettings);
+            // if (mainRoad.Run(consoleSettings))
+            // {
+            //     // Aqui lógica de randoms yavoy ya voy, paciencia
+            //     Sleep(100);
+            //     bossFightMario.Run();
+            // }
+            // bomberman.Run();
         }
     }
 };
