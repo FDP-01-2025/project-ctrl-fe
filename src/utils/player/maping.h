@@ -329,77 +329,82 @@ public:
             }
         }
     }
-void DrawViewportAroundPlayerMaze(int playerX, int playerY, int viewWidth, int viewHeight, int offsetX = 0, int offsetY = 0)
-{
-    int startX = playerX - viewWidth / 2;
-    int startY = playerY - viewHeight / 2;
-
-    if (startX < 0) startX = 0;
-    if (startY < 0) startY = 0;
-    if (startX + viewWidth > width) startX = width - viewWidth;
-    if (startY + viewHeight > height) startY = height - viewHeight;
-    if (startX < 0) startX = 0;
-    if (startY < 0) startY = 0;
-
-    for (int y = 0; y < viewHeight; ++y)
+    void DrawViewportAroundPlayerMaze(int playerX, int playerY, int viewWidth, int viewHeight, int offsetX = 0, int offsetY = 0)
     {
-        for (int x = 0; x < viewWidth; ++x)
-        {
-            int mapX = startX + x;
-            int mapY = startY + y;
-            utils.MoveCursor(offsetX + x, offsetY + y);
+        int startX = playerX - viewWidth / 2;
+        int startY = playerY - viewHeight / 2;
 
-            if (mapX == playerX && mapY == playerY)
+        if (startX < 0)
+            startX = 0;
+        if (startY < 0)
+            startY = 0;
+        if (startX + viewWidth > width)
+            startX = width - viewWidth;
+        if (startY + viewHeight > height)
+            startY = height - viewHeight;
+        if (startX < 0)
+            startX = 0;
+        if (startY < 0)
+            startY = 0;
+
+        for (int y = 0; y < viewHeight; ++y)
+        {
+            for (int x = 0; x < viewWidth; ++x)
             {
-                std::wcout << PINK << L"இ" << RESET;
-            }
-            else
-            {
-                wchar_t tile = GetTile(mapX, mapY);
-                switch (tile)
+                int mapX = startX + x;
+                int mapY = startY + y;
+                utils.MoveCursor(offsetX + x, offsetY + y);
+
+                if (mapX == playerX && mapY == playerY)
                 {
-                case '#':
-                case ']':
-                    std::wcout << GRAY << tile << RESET;
-                    break;
-                case '|':
-                case '-':
-                    std::wcout << RESET << tile << RESET;
-                    break;
-                case 'A':
-                case L'♣':
-                    std::wcout << GREEN_BRIGHT << L"♣" << RESET;
-                    break;
-                case '~':
-                    std::wcout << BLUE << L"≈" << RESET;
-                    break;
-                case '*':
-                    std::wcout << YELLOW_BRIGHT << L"✹" << RESET;
-                    break;
-                case L'T':
-                    std::wcout << BROWN << L"T" << RESET;
-                    break;
-                case L'█':
-                    std::wcout << ORANGE << L"█" << RESET;
-                    break;
-                case L'░':
-                    std::wcout << GRAY_BRIGHT << L"░" << RESET;
-                    break;
-                case L'K':
-                    std::wcout << YELLOW << L"K" << RESET;
-                    break;
-                case L'/':
-                    std::wcout << CYAN << L"/" << RESET;
-                    break;
-                default:
-                    std::wcout << tile;
-                    break;
+                    std::wcout << PINK << L"இ" << RESET;
+                }
+                else
+                {
+                    wchar_t tile = GetTile(mapX, mapY);
+                    switch (tile)
+                    {
+                    case '#':
+                    case ']':
+                        std::wcout << GRAY << tile << RESET;
+                        break;
+                    case '|':
+                    case '-':
+                        std::wcout << RESET << tile << RESET;
+                        break;
+                    case 'A':
+                    case L'♣':
+                        std::wcout << GREEN_BRIGHT << L"♣" << RESET;
+                        break;
+                    case '~':
+                        std::wcout << BLUE << L"≈" << RESET;
+                        break;
+                    case '*':
+                        std::wcout << YELLOW_BRIGHT << L"✹" << RESET;
+                        break;
+                    case L'T':
+                        std::wcout << BROWN << L"T" << RESET;
+                        break;
+                    case L'█':
+                        std::wcout << ORANGE << L"█" << RESET;
+                        break;
+                    case L'░':
+                        std::wcout << GRAY_BRIGHT << L"░" << RESET;
+                        break;
+                    case L'K':
+                        std::wcout << YELLOW << L"K" << RESET;
+                        break;
+                    case L'/':
+                        std::wcout << CYAN << L"/" << RESET;
+                        break;
+                    default:
+                        std::wcout << tile;
+                        break;
+                    }
                 }
             }
         }
     }
-}
-
 
     void DrawWithWindowView(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0)
     {
@@ -428,21 +433,17 @@ void DrawViewportAroundPlayerMaze(int playerX, int playerY, int viewWidth, int v
                 else
                 {
                     wchar_t tile = GetTile(mapX, y);
-                    utils.MoveCursor(offsetX + x * 2, offsetY + y);
-
                     switch (tile)
                     {
                     case '#':
-                        std::wcout << GRAY << L"██" << RESET;
+                        std::wcout << GRAY << L"#" << RESET;
                         break;
-                    case ']':
-                        std::wcout << GRAY << L"▐▌" << RESET;
-                        break;
-                    case ' ':
-                        std::wcout << L"  "; // Espacio doble
+                    case '-':
+                        std::wcout << GREEN << L"║" << RESET;
                         break;
                     default:
-                        std::wcout << tile << tile;
+                        std::wcout << tile;
+                        break;
                     }
                 }
             }
