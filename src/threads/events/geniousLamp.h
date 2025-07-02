@@ -114,7 +114,7 @@ inline bool MainGenious::Run()
         }
 
         map.DrawWithPlayerLamp(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
-        hud.SetCenteredOffset(offsetX); // Centra basado en el offset del mapa
+        hud.SetCenteredOffset(offsetX); // Center based on the map offset
         hud.DrawLampEvent(player, player.GetRoom(), map.GetWidth());
 
         if (_kbhit())
@@ -145,7 +145,7 @@ inline bool MainGenious::Run()
         {
             utils.ClearScreen();
             map.DrawWithPlayerGenius(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
-            hud.SetCenteredOffset(offsetX); // Centra basado en el offset del mapa
+            hud.SetCenteredOffset(offsetX); // Central based on the map offset
             hud.DrawGeniusEvent(player, player.GetRoom(), map.GetWidth());
 
             int msgX = std::max(0, offsetX + map.GetWidth() / 2 - 20);
@@ -162,7 +162,7 @@ inline bool MainGenious::Run()
                 {
                     utils.ClearScreen();
                     map.DrawWithPlayerGenius(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
-                    hud.SetCenteredOffset(offsetX); // Centra basado en el offset del mapa
+                    hud.SetCenteredOffset(offsetX);
                     hud.DrawGeniusEvent(player, player.GetRoom(), map.GetWidth());
 
                     std::wstring options[] = {
@@ -171,6 +171,8 @@ inline bool MainGenious::Run()
                         L"3. Gain 3 extra bombs"};
 
                     int wishY = offsetY + map.GetHeight() + 2;
+                    // Loop through each element in the 'options' container using a range-based for loop
+                    // Process each 'opt' element here
                     for (const auto &opt : options)
                         utils.MoveCursor(offsetX, wishY++), std::wcout << opt;
 

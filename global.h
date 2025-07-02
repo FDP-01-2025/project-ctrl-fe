@@ -15,6 +15,8 @@
 #include "./src/threads/bosses/bossFightZelda.h"
 #include "./src/utils/screen/multiColors.h"
 #include "./src/threads/startup/mainRoad.h"
+#include "./src/threads/games/worm.h"
+#include "./src/threads/events/elevator.h"
 
 class Global
 {
@@ -35,6 +37,8 @@ protected:
     MainBossFight bossFightMario;
     MainRoadGame mainRoad;
     MainBossFightZelda bossFightZelda;
+    Worm worm;
+    Elevator elevator;
 
     enum ProcessState
     {
@@ -183,32 +187,33 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
+                //worm.Run(consoleSettings);
                 maze.Run();
                 //bossFightZelda.Run();
-                // bomberman.Run();
-                // geniusLamp.Run();
+                //bomberman.Run();
+                //geniusLamp.Run();
                 //bossFightMario.Run();
                 break;
 
             case 2:
                 player.removeStatusFile();
                 player.ResetState(Player::NORMAL);
-                //bossFightZelda.Run();
-                maze.Run();
+                // bossFightZelda.Run();
+                // maze.Run();
                 // bomberman.Run();
                 // geniusLamp.Run();
-                //bossFightMario.Run();
+                // bossFightMario.Run();
                 break;
 
             case 3:
                 // Iniciar modo difícil
                 player.removeStatusFile();
                 player.ResetState(Player::HARD);
-                //bossFightZelda.Run();
-                // bomberman.Run();
+                // bossFightZelda.Run();
+                //  bomberman.Run();
                 maze.Run();
                 // geniusLamp.Run();
-                //bossFightMario.Run();
+                // bossFightMario.Run();
                 break;
 
             default:
@@ -217,12 +222,13 @@ public:
             }
 
             // Se inicializa el mapa principal
-            /*if (mainRoad.Run(consoleSettings))
-            {
-                // Aqui lógica de randoms yavoy ya voy, paciencia
-                Sleep(100);
-                bossFightMario.Run();
-            }*/
+            // if (mainRoad.Run(consoleSettings))
+            // {
+            //     // Aqui lógica de randoms yavoy ya voy, paciencia
+            //     Sleep(100);
+            //     bossFightMario.Run();
+            // }
+            // bomberman.Run();
         }
     }
 };

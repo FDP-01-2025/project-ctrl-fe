@@ -315,7 +315,7 @@ private:
     // overwriting any previous content.
     void saveState()
     {
-        std::ofstream out(filename);
+        std::ofstream out(filename, std::ios::trunc);
         if (out.is_open())
         {
             // Write the player's X coordinate
@@ -354,7 +354,7 @@ private:
             int diff = 0, ctrlB = 0;
             // Attempt to read each labeled field from the file.
             // The order must match exactly how saveState writes the data.
-            if (in >> label >> x &&in >> label >> y &&in >> label >> lives &&in >> label >> bombsAvailable &&in >> label >> diff &&in >> label >> ctrlB &&in >> label >> room &&in >> label >> event &&in >> label >> openedChests)
+            if (in >> label >> x && in >> label >> y && in >> label >> lives && in >> label >> bombsAvailable && in >> label >> diff && in >> label >> ctrlB && in >> label >> room && in >> label >> event && in >> label >> openedChests)
             {
                 // Convert integer read back to enum type for difficulty
                 difficulty = (Difficulty)diff;
@@ -379,6 +379,8 @@ private:
 
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             // Check if the line starts with "ControlB:"
             if (line.rfind("ControlB:", 0) == 0)
                 out << "ControlB: " << (controlB ? 1 : 0) << "\n"; // Write updated value
@@ -403,6 +405,8 @@ private:
         std::string line;
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             if (line.rfind("X:", 0) == 0)
                 out << "X: " << x << "\n"; // Update X position
             else if (line.rfind("Y:", 0) == 0)
@@ -427,6 +431,8 @@ private:
         std::string line;
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             if (line.rfind("Bombs:", 0) == 0)
                 out << "Bombs: " << bombsAvailable << "\n"; // Update bombs count
             else
@@ -448,6 +454,8 @@ private:
         std::string line;
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             if (line.rfind("Lives:", 0) == 0)
                 out << "Lives: " << lives << "\n"; // Update lives count
             else
@@ -466,6 +474,8 @@ private:
         std::string line;
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             if (line.rfind("OpenedChests:", 0) == 0)
                 out << "OpenedChests: " << openedChests << "\n"; // Actualiza cofres
             else
@@ -488,6 +498,8 @@ private:
         std::string line;
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             if (line.rfind("Difficulty:", 0) == 0)
                 out << "Difficulty: " << (int)difficulty << "\n"; // Update difficulty
             else
@@ -508,6 +520,8 @@ private:
         std::string line;
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             if (line.rfind("Room:", 0) == 0)
                 out << "Room: " << room << "\n"; // Update room
             else
@@ -528,6 +542,8 @@ private:
         std::string line;
         while (std::getline(in, line))
         {
+            if (line.empty())
+                continue;
             if (line.rfind("Event:", 0) == 0)
                 out << "Event: " << event << "\n"; // Update event
             else
