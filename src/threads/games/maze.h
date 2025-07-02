@@ -1,21 +1,24 @@
 #ifndef MAIN_MAZE_H
 #define MAIN_MAZE_H
 
-#include <vector>
 #include "utils/functions/utils.h"
 #include "utils/player/maping.h"
 #include "utils/player/player.h"
 #include "core/modules/Maze/hudMaze.h"
-
+#include "utils/screen/colors.h"
 #include <fstream>
 #include <iostream>
 #include <conio.h>
 #include <limits>
 #include <tuple>
+#include <cstdlib>
+#include <ctime>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
+#define MAX_POSITIONS 5000
 
 class MainMaze
 {
@@ -39,6 +42,10 @@ private:
 
     int VIEW_WIDTH = 30;
     int VIEW_HEIGHT = 20;
+
+    int totalCofres = 10; // default
+
+    std::pair<int, int> keyBoxPosition = {-1, -1};
 
     void processInput(char input);
     void LoadLevel();
@@ -81,38 +88,56 @@ bool MainMaze::Run()
 
 void MainMaze::processInput(char input)
 {
-    // ✅ Apertura de cofre con tecla Q
     if (input == 'q' || input == 'Q')
     {
         wchar_t tile = map.GetTile(player.GetX(), player.GetY());
 
-        if (tile == ']' || tile == '#') // Cofre cerrado
+        int messageRow = offsetY + VIEW_HEIGHT + 1; // Justo debajo de la ventana visible
+
+        if (tile == L'█')
         {
-            map.SetTile(player.GetX(), player.GetY(), '/'); // '/' = cofre abierto
-            openedBoxes++;                                  // ← cuenta la caja abierta
-            if (tile == '#')
+            map.SetTile(player.GetX(), player.GetY(), L'░');
+            openedBoxes++;
+
+            std::wstring message;
+            if (player.GetX() == keyBoxPosition.first && player.GetY() == keyBoxPosition.second)
             {
                 hasKey = true;
-                std::wcout << L"¡Has encontrado la llave dentro del cofre!\n";
+                message = L"You found the key!";
             }
             else
             {
-                std::wcout << L"El cofre estaba vacío.\n";
+                message = L"The box is empty.";
             }
+
+            // Limpiar línea antes de imprimir mensaje
+            utils.MoveCursor(offsetX, messageRow);
+            std::wcout << std::wstring(VIEW_WIDTH, L' ');
+
+            // Imprimir mensaje centrado
+            int msgStartCol = offsetX + (VIEW_WIDTH - (int)message.size()) / 2;
+            utils.MoveCursor(msgStartCol, messageRow);
+            std::wcout << message << std::flush;
+
             utils.Sleep(600);
             return;
         }
-
         else
         {
-            std::wcout << L"No estás sobre un cofre.\n";
-        }
+            std::wstring message = L"You are not on a box.";
 
-        utils.Sleep(600);
-        return;
+            utils.MoveCursor(offsetX, messageRow);
+            std::wcout << std::wstring(VIEW_WIDTH, L' ');
+
+            int msgStartCol = offsetX + (VIEW_WIDTH - (int)message.size()) / 2;
+            utils.MoveCursor(msgStartCol, messageRow);
+            std::wcout << message << std::flush;
+
+            utils.Sleep(600);
+            return;
+        }
     }
 
-    // Movimiento
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first;
     int dy = dir.second;
@@ -125,27 +150,43 @@ void MainMaze::processInput(char input)
 
     wchar_t tile = map.GetTile(newX, newY);
 
-    if (tile == ' ' || tile == 'K' || tile == '/' || tile == ']' || tile == '#')
+    if (tile == ' ' || tile == 'K' || tile == L'░' || tile == ']' || tile == L'█' || tile == 'E')
     {
-        if (tile == 'K') // En caso sigas usando 'K'
+        if (tile == 'K')
         {
             hasKey = true;
             map.SetTile(newX, newY, ' ');
             utils.MoveCursor(offsetX + newX, offsetY + newY);
         }
-        else if (tile == '/')
+        else if (tile == 'E')
         {
+            int messageRow = offsetY + VIEW_HEIGHT + 1; // igual que antes
+
             if (hasKey)
             {
                 utils.ClearScreen();
-                std::wcout << L"\n¡Felicidades! Encontraste la llave y saliste del laberinto.\n";
+                std::wstring message = L"Congratulations! You escaped the maze!";
+
+                int msgStartCol = offsetX + (VIEW_WIDTH - (int)message.size()) / 2;
+                utils.MoveCursor(msgStartCol, messageRow);
+                std::wcout << message << std::flush;
+
+                utils.Sleep(1500);
                 isRunning = false;
                 return;
             }
             else
             {
-                std::wcout << L"\n¡Necesitas la llave para salir!\n";
-                utils.Sleep(500);
+                std::wstring message = L"You need the key to escape!";
+
+                utils.MoveCursor(offsetX, messageRow);
+                std::wcout << std::wstring(VIEW_WIDTH, L' ');
+
+                int msgStartCol = offsetX + (VIEW_WIDTH - (int)message.size()) / 2;
+                utils.MoveCursor(msgStartCol, messageRow);
+                std::wcout << message << std::flush;
+
+                utils.Sleep(800);
             }
         }
 
@@ -180,34 +221,145 @@ void MainMaze::LoadLevel()
 
     hud.SetCenteredOffset(offsetX);
 
-    // ✅ Insertar cofres aleatorios
-    int totalCofres = 5; // Cambia este número según la cantidad que quieras
-    std::vector<std::pair<int, int>> position;
+    // ✅ Cofres garantizados en franjas
+    int zones = 3;
+    int cofresPorZona = totalCofres / zones;
 
-    for (int y = 0; y < map.GetHeight(); ++y)
+    int selectedCount = 0;
+    int cofreX[MAX_POSITIONS];
+    int cofreY[MAX_POSITIONS];
+
+    for (int z = 0; z < zones; ++z)
     {
-        for (int x = 0; x < map.GetWidth(); ++x)
+        int zoneHeight = map.GetHeight() / zones;
+        int yStart = z * zoneHeight;
+        int yEnd = (z == zones - 1) ? map.GetHeight() : yStart + zoneHeight;
+
+        int validX[MAX_POSITIONS], validY[MAX_POSITIONS], validCount = 0;
+
+        for (int y = yStart + 1; y < yEnd - 1; ++y)
         {
-            if (map.GetTile(x, y) == ' ') // Solo lugares vacíos
-                position.emplace_back(x, y);
+            for (int x = 1; x < map.GetWidth() - 1; ++x)
+            {
+                if (map.GetTile(x, y) == ' ')
+                {
+                    validX[validCount] = x;
+                    validY[validCount] = y;
+                    ++validCount;
+                }
+            }
+        }
+
+        for (int i = validCount - 1; i > 0; --i)
+        {
+            int j = rand() % (i + 1);
+            std::swap(validX[i], validX[j]);
+            std::swap(validY[i], validY[j]);
+        }
+
+        int n = std::min(cofresPorZona, validCount);
+        for (int i = 0; i < n && selectedCount < totalCofres; ++i)
+        {
+            map.SetTile(validX[i], validY[i], L'█');
+            cofreX[selectedCount] = validX[i];
+            cofreY[selectedCount] = validY[i];
+            ++selectedCount;
         }
     }
 
-    std::random_shuffle(position.begin(), position.end());
-
-    for (int i = 0; i < totalCofres && i < position.size(); ++i)
+    // Rellenar si faltan
+    if (selectedCount < totalCofres)
     {
-        int x = position[i].first;
-        int y = position[i].second;
-        map.SetTile(x, y, ']'); // ']': caja cerrada
+        int allX[MAX_POSITIONS], allY[MAX_POSITIONS], allCount = 0;
+        for (int y = 1; y < map.GetHeight() - 1; ++y)
+        {
+            for (int x = 1; x < map.GetWidth() - 1; ++x)
+            {
+                if (map.GetTile(x, y) == ' ')
+                {
+                    allX[allCount] = x;
+                    allY[allCount] = y;
+                    ++allCount;
+                }
+            }
+        }
+        for (int i = 0; i < allCount && selectedCount < totalCofres; ++i)
+        {
+            map.SetTile(allX[i], allY[i], L'█');
+            cofreX[selectedCount] = allX[i];
+            cofreY[selectedCount] = allY[i];
+            ++selectedCount;
+        }
     }
 
-    if (!position.empty())
+    if (selectedCount > 0)
     {
-        int keyX = position[0].first;
-        int keyY = position[0].second;
-        map.SetTile(keyX, keyY, '#'); // '#' = caja cerrada con llave
+        int keyIndex = 0;
+
+        if (player.GetDifficulty() == Player::Difficulty::EASY)
+        {
+            // En fácil: totalmente aleatorio.
+            keyIndex = rand() % selectedCount;
+        }
+        else
+        {
+            // En normal y difícil: favorece cofres de la mitad o zona baja.
+            int biasAttempts = 10; // Más intentos para encontrar uno abajo
+            for (int attempt = 0; attempt < biasAttempts; ++attempt)
+            {
+                int idx = rand() % selectedCount;
+                int y = cofreY[idx];
+
+                // Checa si está en la mitad baja
+                if (y > map.GetHeight() / 2)
+                {
+                    keyIndex = idx;
+                    break;
+                }
+            }
+
+            // Si no encontró, elige cualquiera (fallback)
+            if (keyIndex == 0)
+            {
+                keyIndex = rand() % selectedCount;
+            }
+        }
+
+        keyBoxPosition = std::make_pair(cofreX[keyIndex], cofreY[keyIndex]);
     }
+
+    // 🎋 Área verde, mesas, antorchas, laguito igual que antes
+    for (int y = map.GetHeight() - 4; y < map.GetHeight() - 1; ++y)
+        for (int x = map.GetWidth() - 6; x < map.GetWidth() - 2; ++x)
+            if (map.GetTile(x, y) == ' ')
+                map.SetTile(x, y, L'♣');
+
+    int mesaX[] = {3, map.GetWidth() - 4, 3, map.GetWidth() - 4};
+    int mesaY[] = {2, 2, map.GetHeight() - 3, map.GetHeight() - 3};
+    for (int i = 0; i < 4; ++i)
+        if (map.GetTile(mesaX[i], mesaY[i]) == ' ')
+            map.SetTile(mesaX[i], mesaY[i], L'T');
+
+    for (int x = 2; x < map.GetWidth() - 2; x += 10)
+        for (int y = 2; y < map.GetHeight() - 2; y += 5)
+            if (map.GetTile(x, y) == ' ' &&
+                map.GetTile(x - 1, y) == ' ' &&
+                map.GetTile(x + 1, y) == ' ' &&
+                map.GetTile(x, y - 1) == ' ' &&
+                map.GetTile(x, y + 1) == ' ')
+                map.SetTile(x, y, L'*');
+
+    int lakeX = map.GetWidth() / 4;
+    int lakeY = map.GetHeight() / 2;
+    bool canPlaceLake = true;
+    for (int y = lakeY; y < lakeY + 3 && canPlaceLake; ++y)
+        for (int x = lakeX; x < lakeX + 6; ++x)
+            if (map.GetTile(x, y) != ' ')
+                canPlaceLake = false;
+    if (canPlaceLake)
+        for (int y = lakeY; y < lakeY + 3; ++y)
+            for (int x = lakeX; x < lakeX + 6; ++x)
+                map.SetTile(x, y, L'~');
 }
 
 void MainMaze::DetermineDifficultyFolder()
@@ -218,16 +370,19 @@ void MainMaze::DetermineDifficultyFolder()
         VIEW_WIDTH = 30;
         VIEW_HEIGHT = 20;
         difficultyFolder = "maze1.txt";
+        totalCofres = 10;
         break;
     case Player::Difficulty::NORMAL:
         VIEW_WIDTH = 30;
         VIEW_HEIGHT = 16;
         difficultyFolder = "maze2.txt";
+        totalCofres = 20;
         break;
     case Player::Difficulty::HARD:
         VIEW_WIDTH = 30;
         VIEW_HEIGHT = 20;
         difficultyFolder = "maze.txt";
+        totalCofres = 30;
         break;
     }
 }
