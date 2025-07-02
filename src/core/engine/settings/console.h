@@ -150,7 +150,6 @@ public:
     void SetConsoleFont(int width, int height, const wchar_t *faceName)
     {
         // Guardar las dimensiones físicas actuales
-        RECT rect;
         GetWindowRect(hwnd, &rect);
         int currentWidth = rect.right - rect.left;
         int currentHeight = rect.bottom - rect.top;
@@ -309,6 +308,7 @@ protected:
 
     // Información del estado de la consola
     SMALL_RECT windowSize;
+    RECT rect;
     COORD bufferSize;
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     COORD maxSize;

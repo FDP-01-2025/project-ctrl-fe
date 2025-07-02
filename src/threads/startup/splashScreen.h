@@ -10,7 +10,7 @@
 bool InitializerThread(int width, int height, Console consoleSettings, Utils utils)
 {
     consoleSettings.SetConsoleFont(12, 18, L"Lucida console");
-    consoleSettings.SetColor(FOREGROUND_BLUE       );
+    consoleSettings.SetColor(FOREGROUND_BLUE);
     utils.PrintCentered(L"Bienvenido a..");
     Sleep(1000);
     system("cls");

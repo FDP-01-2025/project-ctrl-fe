@@ -187,6 +187,15 @@ public:
                 // Imprimir nuevo texto
                 std::wcout << text;
         }
+
+        void PrintAtPosition(int x, int y, std::wstring text, const std::wstring &color = GRAY_BRIGHT) const
+        {
+                HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+                COORD coord = {static_cast<SHORT>(x), static_cast<SHORT>(y)};
+                SetConsoleCursorPosition(hConsole, coord);
+
+                std::wcout << color << text << RESET;
+        }
 };
 
 #endif
