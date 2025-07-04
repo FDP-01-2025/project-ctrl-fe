@@ -217,7 +217,7 @@ inline bool MainGenious::Run()
                     {
                         utils.ClearScreen();
                         map.DrawWithPlayerGenius(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
-                        hud.SetCenteredOffset(offsetX); // Centra basado en el offset del mapa
+                        hud.SetCenteredOffset(offsetX); 
                         hud.DrawGeniusEvent(player, player.GetRoom(), map.GetWidth());
 
                         int msgY = offsetY + map.GetHeight() + 2;
@@ -258,7 +258,7 @@ inline bool MainGenious::Run()
 
         utils.ClearScreen();
         map.DrawWithPlayer(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
-        hud.SetCenteredOffset(offsetX); // Centra basado en el offset del mapa
+        hud.SetCenteredOffset(offsetX); 
         hud.DrawRoomEmptyEvent(player, player.GetRoom(), map.GetWidth());
 
         if (_kbhit())
