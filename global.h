@@ -17,6 +17,7 @@
 #include "./src/threads/startup/mainRoad.h"
 #include "./src/threads/games/worm.h"
 #include "./src/threads/events/elevator.h"
+#include "./src/threads/events/sphinx.h"
 
 class Global
 {
@@ -32,6 +33,7 @@ protected:
     Player player;
     MainBomberman bomberman;
     MainMaze maze;
+    SphinxGame sphinx;
     MainGenious geniusLamp;
     Utils utils;
     MainBossFight bossFightMario;
@@ -187,12 +189,13 @@ public:
             case 1:
                 player.removeStatusFile();
                 player.ResetState(Player::EASY);
-                //worm.Run(consoleSettings);
-                maze.Run();
-                //bossFightZelda.Run();
-                //bomberman.Run();
-                //geniusLamp.Run();
-                //bossFightMario.Run();
+                 //elevator.Run(consoleSettings);
+                // maze.Run();
+                // bossFightZelda.Run();
+                // bomberman.Run();
+                // geniusLamp.Run();
+                // bossFightMario.Run();
+                sphinx.Run(consoleSettings);
                 break;
 
             case 2:
@@ -203,6 +206,8 @@ public:
                 // bomberman.Run();
                 // geniusLamp.Run();
                 // bossFightMario.Run();
+                sphinx.Run(consoleSettings);
+
                 break;
 
             case 3:
@@ -211,9 +216,11 @@ public:
                 player.ResetState(Player::HARD);
                 // bossFightZelda.Run();
                 //  bomberman.Run();
-                maze.Run();
+                // maze.Run();
                 // geniusLamp.Run();
                 // bossFightMario.Run();
+                //sphinx.Run(consoleSettings);
+
                 break;
 
             default:

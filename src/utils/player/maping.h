@@ -202,6 +202,43 @@ public:
         }
     }
 
+     void DrawWithPlayerSphinx(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
+    {
+
+        for (int y = 0; y < GetHeight(); ++y)
+        {
+            for (int x = 0; x < GetWidth(); ++x)
+            {
+                utils.MoveCursor(offsetX + x, offsetY + y);
+
+                if (x == playerX && y == playerY)
+                {
+                    std::wcout << PINK << L"இ" << RESET;
+                }
+                else
+                {
+                    wchar_t tile = grid[y][x];
+                    switch (tile)
+                    {
+
+                    case '#':
+                        std::wcout << GRAY << L"#" << RESET;
+                        break;
+                    case 'A':
+                        std::wcout << GREEN << L"║" << RESET;
+                        break;
+                    case 'B':
+                        std::wcout << GREEN << L"═" << RESET;
+                        break;
+                    default:
+                        std::wcout << tile;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     // Returns the character at position (x, y)
     wchar_t GetTile(int x, int y) const
     {
@@ -440,6 +477,59 @@ public:
                         break;
                     case '-':
                         std::wcout << GREEN << L"║" << RESET;
+                        break;
+                    default:
+                        std::wcout << tile;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    void DrawWithSphinx(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0)
+    {
+        if (viewWidth > width)
+            viewWidth = width;
+
+        int startX = playerX - viewWidth / 2;
+        if (startX < 0)
+        {
+            startX = 0;
+        }
+        if (startX + viewWidth > width)
+        {
+            startX = width - viewWidth;
+        }
+        if (startX < 0)
+        {
+            startX = 0;
+        }
+
+        for (int y = 0; y < MAP_HEIGHT && y < height; ++y)
+        {
+            for (int x = 0; x < viewWidth; ++x)
+            {
+                int mapX = startX + x;
+                utils.MoveCursor(offsetX + x, offsetY + y);
+
+                if (mapX == playerX && y == playerY)
+                {
+                    std::wcout << PINK << L"இ" << RESET;
+                }
+                else
+                {
+                    wchar_t tile = GetTile(mapX, y);
+                    switch (tile)
+                    {
+                    case '#':
+                        std::wcout << GRAY << L"#" << RESET;
+                        break;
+                    case 'A':
+                        std::wcout << GREEN << L"║" << RESET;
+                        break;
+                    case 'B':
+                        std::wcout << GREEN << L"═" << RESET;
                         break;
                     default:
                         std::wcout << tile;
