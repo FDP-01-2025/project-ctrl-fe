@@ -202,7 +202,7 @@ public:
         }
     }
 
-     void DrawWithPlayerSphinx(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
+    void DrawWithPlayerSphinx(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
     {
 
         for (int y = 0; y < GetHeight(); ++y)
@@ -443,7 +443,7 @@ public:
         }
     }
 
-    void DrawWithWindowView(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0)
+    void DrawWithWindowView(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0, MapId mapId = MapId::FrstWay)
     {
         if (viewWidth > width)
             viewWidth = width;
@@ -470,17 +470,89 @@ public:
                 else
                 {
                     wchar_t tile = GetTile(mapX, y);
-                    switch (tile)
+                    bool drawn = false;
+
+                    switch (mapId)
                     {
-                    case '#':
-                        std::wcout << GRAY << L"#" << RESET;
+                    case FrstWay:
+                        switch (tile)
+                        {
+                        case 'b':
+                            std::wcout << BROWN << L"║" << RESET;
+                            drawn = true;
+                            break;
+                        case 'a':
+                            std::wcout << BROWN << L"═" << RESET;
+                            drawn = true;
+                            break;
+                        case 'D':
+                            std::wcout << GREEN << L"◇" << RESET;
+                            drawn = true;
+                            break;
+                        case 'P':
+                            std::wcout << GREEN << L" " << RESET;
+                            drawn = true;
+                            break;
+                        }
                         break;
-                    case '-':
-                        std::wcout << GREEN << L"║" << RESET;
+
+                    case MainRoom:
+                        switch (tile)
+                        {
+                        case '1':
+                        case '2':
+                        case '3':
+                            std::wcout << GREEN << L"║" << RESET;
+                            drawn = true;
+                            break;
+                        case 'A':
+                            std::wcout << BROWN << L"┬" << RESET;
+                            drawn = true;
+                            break;
+                        case 'B':
+                            std::wcout << BROWN << L"│" << RESET;
+                            drawn = true;
+                            break;
+                        case 'C':
+                            std::wcout << BROWN << L"┴" << RESET;
+                            drawn = true;
+                            break;
+                        case 'F':
+                            std::wcout << RED << L"→" << RESET;
+                            drawn = true;
+                            break;
+                        case 'l':
+                            std::wcout << RED << L"─" << RESET;
+                            drawn = true;
+                            break;
+                        case 'O':
+                            std::wcout << RED << L"─" << RESET;
+                            drawn = true;
+                            break;
+                        }
                         break;
+
                     default:
-                        std::wcout << tile;
                         break;
+                    }
+
+                    if (!drawn)
+                    {
+                        switch (tile)
+                        {
+                        case '#':
+                            std::wcout << GRAY << L" " << RESET;
+                            break;
+                        case '|':
+                        case '_':
+                        case 'W':
+                            std::wcout << GRAY << L"░" << RESET;
+                            drawn = true;
+                            break;
+                        default:
+                            std::wcout << tile;
+                            break;
+                        }
                     }
                 }
             }

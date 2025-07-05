@@ -14,10 +14,13 @@
 #include "./src/threads/bosses/bossFightMario.h"
 #include "./src/threads/bosses/bossFightZelda.h"
 #include "./src/utils/screen/multiColors.h"
-#include "./src/threads/startup/mainRoad.h"
+#include "./src/threads/startup/mainRoom.h"
 #include "./src/threads/games/worm.h"
 #include "./src/threads/events/elevator.h"
 #include "./src/threads/events/sphinx.h"
+#include "./src/threads/startup/way1.h"
+#include "./src/threads/startup/bossSalaPrev.h"
+#include <set>
 
 class Global
 {
@@ -37,10 +40,19 @@ protected:
     MainGenious geniusLamp;
     Utils utils;
     MainBossFight bossFightMario;
-    MainRoadGame mainRoad;
+    MainRoomGame mainRoom;
     MainBossFightZelda bossFightZelda;
     Worm worm;
     Elevator elevator;
+
+    MapId currentMap;
+    Way1 frstWay;
+    BossSalaPrev bossSalaPrev;
+    MapId selected;
+    MapId opcionesGames[3];
+    MapId opcionesBoses[2];
+
+    int showMapsLot, showBoossLot;
 
     enum ProcessState
     {
@@ -59,11 +71,15 @@ protected:
     // Esta es una variable que representa el proceso de ejecucion del juego, representa el estado del hilo principal
     // Tamaño horizontal de la vista
     int sizeViewW = 40;
+    const std::string filename = utils.GetAssetsPath() + "data\\GamesCounter.txt", filenameBoss = utils.GetAssetsPath() + "data\\BossesCounter.txt";
 
 public:
     //* Valores iniciales
     Global(int w = 100, int h = 45, int mW = 70, int mH = 20)
-        : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH) {}
+        : consoleW(w), consoleH(h), consoleSettings(w, h), mapW(mW), mapH(mH)
+    {
+        currentMap = MapId::FrstWay;
+    }
 
     // TODO ----- PROCESO (1) ----
     void Initializer()
@@ -177,65 +193,203 @@ public:
         }
     }
     // TODO ----- PROCESO (6) ----
+    // TODO ----- PROCESO (6) ----
     void StartGame()
     {
         // En este punto ya habiramos: Mostrado el logo, Leer el estado del usuario, mostrar la historia y mostrar ambos menus
         // Ahora pongan el .Run de prueba despues del mainRoad.Run
         if (processThread == STATE_GAME_STARTED)
         {
+            player.removeStatusFile();
             utils.ClearScreenComplety(); // Limpia la pantalla antes de iniciar el juego
+
+            Player::Difficulty currentDificulti;
+
             switch (selectedDifficulty)
             {
             case 1:
-                player.removeStatusFile();
-                player.ResetState(Player::EASY);
-                 //elevator.Run(consoleSettings);
-                // maze.Run();
-                // bossFightZelda.Run();
-                // bomberman.Run();
-                // geniusLamp.Run();
-                // bossFightMario.Run();
-                sphinx.Run(consoleSettings);
+                currentDificulti = Player::EASY;
+                showMapsLot = 3;
+                showBoossLot = 1;
                 break;
-
             case 2:
-                player.removeStatusFile();
-                player.ResetState(Player::NORMAL);
-                // bossFightZelda.Run();
-                // maze.Run();
-                // bomberman.Run();
-                // geniusLamp.Run();
-                // bossFightMario.Run();
-                sphinx.Run(consoleSettings);
-
+                currentDificulti = Player::NORMAL;
+                showMapsLot = 5;
+                showBoossLot = 1;
                 break;
-
             case 3:
                 // Iniciar modo difícil
-                player.removeStatusFile();
-                player.ResetState(Player::HARD);
-                // bossFightZelda.Run();
-                //  bomberman.Run();
-                // maze.Run();
-                // geniusLamp.Run();
-                // bossFightMario.Run();
-                //sphinx.Run(consoleSettings);
-
+                currentDificulti = Player::HARD;
+                showMapsLot = 6;
+                showBoossLot = 2;
                 break;
-
             default:
                 std::wcout << L"Dificultad no válida\n";
                 break;
             }
+            player.ResetState(currentDificulti);
 
-            // Se inicializa el mapa principal
-            // if (mainRoad.Run(consoleSettings))
-            // {
-            //     // Aqui lógica de randoms yavoy ya voy, paciencia
-            //     Sleep(100);
-            //     bossFightMario.Run();
-            // }
-            // bomberman.Run();
+            MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
+            const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
+
+            int counterMaps = 0;
+
+            wofstream gamesCompleted(filename, std::ios::app);
+            wifstream gamesLecture(filename);
+
+            std::set<int> gamesAlreadyPlayed;
+            int id;
+
+            while (gamesLecture >> id)
+                gamesAlreadyPlayed.insert(id);
+
+            while (counterMaps < showMapsLot)
+            {
+                if (ChangeMap(currentMap))
+                {
+                    std::vector<MapId> gamesNotPlayed;
+                    for (int i = 0; i < totalGames; ++i)
+                    {
+                        if (gamesAlreadyPlayed.find(static_cast<int>(allGames[i])) == gamesAlreadyPlayed.end())
+                        {
+                            gamesNotPlayed.push_back(allGames[i]);
+                        }
+                    }
+
+                    if (gamesNotPlayed.empty())
+                    {
+                        system("cls");
+                        std::wcout << L"No quedan juegos disponibles.\n";
+                        Sleep(1000);
+                        break;
+                    }
+
+                    GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size());
+
+                    for (int i = 0; i < 3 && i < gamesNotPlayed.size(); ++i)
+                        opcionesGames[i] = gamesNotPlayed[i];
+
+                    selected = mainRoom.Run(consoleSettings, opcionesGames);
+
+                    if (ChangeMap(selected))
+                    {
+                        gamesCompleted << static_cast<int>(selected) << std::endl;
+                    }
+
+                    currentMap = MapId::MainRoom;
+                    counterMaps++;
+                }
+            }
+
+            MapId allBosses[] = {BoosMario, BoosZelda};
+            const int totalBosses = sizeof(allBosses) / sizeof(allBosses[0]);
+
+            int counterBoss = 0;
+
+            wofstream bossesCompleted(filenameBoss, std::ios::app);
+            wifstream bossesLecture(filenameBoss);
+
+            std::set<int> bossesAlredyPlayed;
+            int idB;
+
+            while (bossesLecture >> idB)
+                bossesAlredyPlayed.insert(idB);
+
+            if (counterMaps == showMapsLot)
+            {
+                while (counterBoss < showBoossLot)
+                {
+                    currentMap = MapId::BoosSalaPrev;
+                    if (ChangeMap(currentMap))
+                    {
+                        std::vector<MapId> bossesNotPlayed;
+
+                        for (int i = 0; i < totalBosses; ++i)
+                        {
+                            if (bossesAlredyPlayed.find(static_cast<int>(allBosses[i])) == bossesAlredyPlayed.end())
+                            {
+                                bossesNotPlayed.push_back(allBosses[i]);
+                            }
+                        }
+
+                        if (bossesNotPlayed.empty())
+                        {
+                            system("cls");
+                            std::wcout << L"No quedan juegos disponibles.\n";
+                            Sleep(1000);
+                            break;
+                        }
+
+                        GenerateRandomMapId(bossesNotPlayed.data(), bossesNotPlayed.size());
+
+                        for (int i = 0; i < 2 && i < bossesNotPlayed.size(); ++i)
+                            opcionesBoses[i] = bossesNotPlayed[i];
+
+                        selected = bossSalaPrev.Run(consoleSettings, opcionesBoses);
+
+                        bossesCompleted << static_cast<int>(selected) << std::endl;
+
+                        ChangeMap(selected);
+                        counterBoss++;
+                    }
+                }
+            }
+
+            if (counterBoss == showBoossLot)
+            {
+                // TODO MOSTRAR FINAL
+            }
+        }
+    }
+
+    bool ChangeMap(MapId map)
+    {
+        switch (map)
+        {
+        case FrstWay:
+            return frstWay.Run(consoleSettings);
+
+        case BomberManGame:
+            return bomberman.Run();
+
+        case MazeGame:
+            return maze.Run();
+
+        case GeniusGame:
+            return geniusLamp.Run();
+
+            /*case ChestGame:
+                chestGame.Run();
+                return true;*/
+
+        case WormGame:
+            return worm.Run(consoleSettings);
+
+        case ElevatorGame:
+            return elevator.Run(consoleSettings);
+
+        case BoosMario:
+            bossFightMario.Run();
+            return true;
+
+        case BoosZelda:
+            bossFightZelda.Run();
+            return true;
+
+        default:
+            std::wcout << L"Mapa desconocido: " << map << opcionesGames[0] << std::endl;
+            return false;
+        }
+    }
+
+    void GenerateRandomMapId(MapId *arr, int size)
+    {
+        for (int i = size - 1; i > 0; i--)
+        {
+            int j = rand() % (i + 1);
+            MapId temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
         }
     }
 };

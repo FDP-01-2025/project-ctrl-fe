@@ -18,6 +18,21 @@
 #define _O_U8TEXT 0x40000
 #endif
 
+enum MapId
+{
+        MainRoom = 0,
+        BomberManGame = 1,
+        MazeGame = 2,
+        GeniusGame = 3,
+        // ChestGame = 4,
+        WormGame = 5,
+        ElevatorGame = 6,
+        BoosMario = 7,
+        BoosZelda = 8,
+        FrstWay = 9,
+        BoosSalaPrev = 10
+};
+
 class Utils
 {
 public:
@@ -109,9 +124,9 @@ public:
 
         void SetUtf8()
         {
-                SetConsoleOutputCP(CP_UTF8);
-                SetConsoleCP(CP_UTF8);
-                _setmode(_fileno(stdout), _O_U8TEXT);
+                SetConsoleOutputCP(CP_UTF8);          // Para std::cout
+                SetConsoleCP(CP_UTF8);                // Para std::cin
+                _setmode(_fileno(stdout), _O_U8TEXT); // Para std::wcout con UTF-8
         }
 
         // Function use to prints a single line of text at a specific position in the HUD.
