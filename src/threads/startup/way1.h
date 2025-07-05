@@ -7,16 +7,17 @@
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
 
-class MainRoadGame
+class Way1
 {
 public:
-    MainRoadGame();
+    Way1();
     bool Run(Console consoleSettings);
 
 private:
     Map map;
     Utils utils;
     Player player;
+
     int viewW;
     int consoleW;
     int playerX;
@@ -29,35 +30,35 @@ private:
     void LoadLevel(std::string key);
     void SetGoodStyle(Console consoleSettings);
     void ShowLoadingAnimation(Console consoleSettings, int c, int d);
-    void AnimateAutomaticDoor(int x, int y);
+    std::string GetPath();
 };
 
-MainRoadGame::MainRoadGame() : isRunning(true)
+Way1::Way1() : isRunning(true)
 {
     consoleW = utils.GetConsoleWidth();
     viewW = consoleW;
 }
 
-bool MainRoadGame::Run(Console consoleSettings)
+bool Way1::Run(Console consoleSettings)
 {
     SetGoodStyle(consoleSettings);
-    std::string key = utils.GetAssetsPath() + "maps\\main\\mainRoad.txt";
+    std::string key = utils.GetAssetsPath() + "maps\\main\\way1.txt";
     LoadLevel(key);
+    player.SetPosition(3, 5);
     while (isRunning)
     {
         utils.ClearScreen();
-        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY);
+        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY, FrstWay);
 
         if (_kbhit())
             ProceesInput(_getch(), consoleSettings);
 
-        Sleep(50);
+        Sleep(15);
     }
-    consoleSettings.SetConsoleFont();
     return true;
 }
 
-void MainRoadGame::ProceesInput(char input, Console consoleSettings)
+void Way1::ProceesInput(char input, Console consoleSettings)
 {
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first;
@@ -77,53 +78,21 @@ void MainRoadGame::ProceesInput(char input, Console consoleSettings)
     } // Si yo se, falta que al alejarse regrese a como antes, paciencia
 
     // Solo permitir moverse a espacios vacíos o puerta
-    if (tile == ' ' || tile == '|')
+    if (tile == ' ' || tile == 's')
     {
-        if (tile == '|')
-        {
-            system("cls");
-            Sleep(300);
-            consoleSettings.SetConsoleFont();
-            Sleep(300);
-            consoleSettings.SetConsoleFont(14, 20, L"Lucida Console");
-            utils.PrintCentered(L"Seguro que quieres entrar? S = si, N = no");
-            // Leer tecla
-            while (true)
-            {
-                char tecla = _getch();
-                if (tecla == 's' || tecla == 'S')
-                {
-                    system("cls");
-                    Sleep(100);
-                    utils.PrintCentered(L"Has decidido entrar.");
-                    Sleep(1000);
-                    system("cls");
-                    Sleep(500);
-                    isRunning = false;
-                    return;
-                }
-                else if (tecla == 'n' || tecla == 'N')
-                {
-                    system("cls");
-                    Sleep(100);
-                    utils.PrintCentered(L"Has decidido no entrar.");
-                    Sleep(1000);
-                    system("cls");
-                    consoleSettings.SetConsoleFont();
-                    Sleep(100);
-                    consoleSettings.SetConsoleFont(23, 28, L"Lucida console");
-                    Sleep(100);
-                    break;
-                    // poner logica de volver a recargar el mapa con su posición anterior
-                }
-            }
-        }
-
         player.SetPosition(newX, newY);
+    }
+
+    if (tile == 'P')
+    {
+        system("cls");
+        utils.ClearScreen();
+        isRunning = false;
+        return;
     }
 }
 
-void MainRoadGame::LoadLevel(std::string key)
+void Way1::LoadLevel(std::string key)
 {
     // Clear screen and load map if found
     utils.ClearScreenComplety();
@@ -136,9 +105,14 @@ void MainRoadGame::LoadLevel(std::string key)
     viewW = utils.GetConsoleWidth();
     if (viewW > map.GetWidth())
         viewW = map.GetWidth();
+
+    int consoleHeight = utils.GetConsoleHeight();
+    offsetY = (consoleHeight - map.GetHeight()) / 2;
+    if (offsetY < 0)
+        offsetY = 0;
 }
 
-void MainRoadGame::ShowLoadingAnimation(Console consoleSettings, int cycles = 3, int delay = 300)
+void Way1::ShowLoadingAnimation(Console consoleSettings, int cycles = 3, int delay = 300)
 {
     consoleSettings.SetConsoleFont(19, 25, L"Lucida Console");
     consoleSettings.SetColor(FOREGROUND_RED);
@@ -159,22 +133,12 @@ void MainRoadGame::ShowLoadingAnimation(Console consoleSettings, int cycles = 3,
     system("cls");
 }
 
-void MainRoadGame::SetGoodStyle(Console consoleSettings)
+void Way1::SetGoodStyle(Console consoleSettings)
 {
     ShowLoadingAnimation(consoleSettings);
     Sleep(300);
     consoleSettings.SetConsoleFont();
     Sleep(300);
-    consoleSettings.SetConsoleFont(23, 28, L"Lucida console");
+    consoleSettings.SetConsoleFont(25, 25, L"Lucida console");
     Sleep(100);
-}
-
-void MainRoadGame::AnimateAutomaticDoor(int x, int y)
-{
-    for (int i = 0; i < 2; ++i)
-    {
-        map.SetTile(x, y + i, L' ');
-        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY);
-        Sleep(100);
-    }
 }
