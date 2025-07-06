@@ -222,7 +222,8 @@ std::wstring MainRoomGame::GetMapName(MapId id)
         return L"Laberinto";
     case GeniusGame:
         return L"Genio";
-    // case ChestGame: return L"Cofres";
+    case ChestGame:
+        return L"Cofres";
     case WormGame:
         return L"Gusano";
     case ElevatorGame:

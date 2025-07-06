@@ -21,6 +21,7 @@
 #include "./src/threads/startup/way1.h"
 #include "./src/threads/startup/bossSalaPrev.h"
 #include "./src/threads/startup/gameOver.h"
+#include "./src/threads/events/chest.h"
 
 #include <set>
 
@@ -40,6 +41,7 @@ protected:
     MainMaze maze;
     SphinxGame sphinx;
     MainGenious geniusLamp;
+    ChestEvent chestGame;
     Utils utils;
     MainBossFight bossFightMario;
     MainRoomGame mainRoom;
@@ -217,7 +219,7 @@ public:
 
     bool GamesExecute()
     {
-        MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
+        MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame, ChestGame};
         const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
 
         wofstream gamesCompleted(filename, std::ios::app);
@@ -387,9 +389,8 @@ public:
         case GeniusGame:
             return geniusLamp.Run();
 
-            /*case ChestGame:
-                chestGame.Run();
-                return true;*/
+        case ChestGame:
+            return chestGame.Run();
 
         case WormGame:
             return worm.Run(consoleSettings);

@@ -25,7 +25,7 @@ enum MapId
         BomberManGame = 1,
         MazeGame = 2,
         GeniusGame = 3,
-        // ChestGame = 4,
+        ChestGame = 4,
         WormGame = 5,
         ElevatorGame = 6,
         BoosMario = 7,
