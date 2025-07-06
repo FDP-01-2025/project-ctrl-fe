@@ -33,7 +33,7 @@ private:
 
 public:
     // Main loop of the boss fight
-    void Run()
+    bool Run()
     {
         utils.SetUtf8();                      // Set console encoding to UTF-8
         utils.ClearScreenComplety();          // Clear screen before starting
@@ -86,8 +86,8 @@ public:
             if (!player.IsAlive())
             {
                 utils.MoveCursor(offsetX + 30, offsetY + 10);
-                std::wcout << RED << L"Game Over! The boss defeated you." << RESET;
                 isRunning = false;
+                return false; // End game if player is defeated
             }
 
             // If boss is defeated and door hasn't been shown, activate it
@@ -105,8 +105,8 @@ public:
                 if (player.x == doorX && player.y == doorY)
                 {
                     utils.MoveCursor(offsetX + 25, offsetY + 10);
-                    std::wcout << GREEN_BRIGHT << L"You entered the next room!" << RESET;
                     isRunning = false;
+                    return true; // Player reached the door, end fight
                 }
             }
 

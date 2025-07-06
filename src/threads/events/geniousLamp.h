@@ -81,6 +81,9 @@ inline void MainGenious::processInput(char input)
 }
 
 // Main execution logic of the Genie event
+// This function handles both the lamp interaction and the genie appearance
+// We declare it as inline to suggest that it can be optimized by the compiler
+// This is a performance optimization hint, not a strict requirement
 inline bool MainGenious::Run()
 {
     srand(time(0));
@@ -107,7 +110,8 @@ inline bool MainGenious::Run()
             utils.MoveCursor(msgX, offsetY - 2);
             std::wcout << L"Do you want to rub the lamp? Press [i] to interact";
         }
-        else{
+        else
+        {
             int msgX = std::max(0, offsetX + map.GetWidth() / 2 - 20);
             utils.MoveCursor(msgX, offsetY - 2);
             std::wcout << L"                                                   ";
@@ -217,7 +221,7 @@ inline bool MainGenious::Run()
                     {
                         utils.ClearScreen();
                         map.DrawWithPlayerGenius(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
-                        hud.SetCenteredOffset(offsetX); 
+                        hud.SetCenteredOffset(offsetX);
                         hud.DrawGeniusEvent(player, player.GetRoom(), map.GetWidth());
 
                         int msgY = offsetY + map.GetHeight() + 2;
@@ -258,7 +262,7 @@ inline bool MainGenious::Run()
 
         utils.ClearScreen();
         map.DrawWithPlayer(60, 50, player.GetX(), player.GetY(), offsetX, offsetY);
-        hud.SetCenteredOffset(offsetX); 
+        hud.SetCenteredOffset(offsetX);
         hud.DrawRoomEmptyEvent(player, player.GetRoom(), map.GetWidth());
 
         if (_kbhit())
