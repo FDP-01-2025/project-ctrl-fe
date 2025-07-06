@@ -227,22 +227,6 @@ public:
 
         while (counterMaps < showMapsLot)
         {
-            if (player.GetLives() == 0)
-            {
-                // Mostrar Game Over y preguntar
-                bool restart = gameOver.Show(utils);
-                if (restart)
-                {
-                    // Reinicia el estado del jugador y vuelve al menú o al inicio
-                    player.ResetState(SetDificultyDetails());
-                    return GamesExecute(); // o reinicia Global::StartGame()
-                }
-                else
-                {
-                    exit(0); // Sale del juego
-                }
-            }
-
             std::set<int> gamesAlreadyPlayed;
             ReadFileGamesId(filename, gamesAlreadyPlayed);
 
@@ -271,7 +255,7 @@ public:
                 if (selected == opcionesGames[i])
                     valid = true;
 
-            if (valid && ChangeMap(selected))
+            if (valid && ChangeMapAndCheck(selected))
             {
                 gamesCompleted << static_cast<int>(selected) << std::endl;
                 counterMaps++;
@@ -279,7 +263,21 @@ public:
                 if (counterMaps >= showMapsLot)
                     break;
             }
-
+            else if (player.GetLives() == 0)
+            {
+                // Mostrar Game Over y preguntar
+                bool restart = gameOver.Show(utils);
+                if (restart)
+                {
+                    // Reinicia el estado del jugador y vuelve al menú o al inicio
+                    player.ResetState(SetDificultyDetails());
+                    return GamesExecute(); // o reinicia Global::StartGame()
+                }
+                else
+                {
+                    exit(0); // Sale del juego
+                }
+            }
             Sleep(50);
         }
 
@@ -414,6 +412,16 @@ public:
             std::wcout << L"Mapa desconocido: " << map << opcionesGames[0] << std::endl;
             return false;
         }
+    }
+
+    bool ChangeMapAndCheck(MapId map)
+    {
+        bool result = ChangeMap(map);
+        if (player.GetLives() == 0)
+        {
+            return false;
+        }
+        return result;
     }
 
     void GenerateRandomMapId(MapId *source, int sourceSize, MapId *dest, int count)

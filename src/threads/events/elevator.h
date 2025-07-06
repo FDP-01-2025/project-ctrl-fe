@@ -90,6 +90,7 @@ Elevator::Elevator() : isRunning(true)
 
 bool Elevator::Run(Console consoleSettings)
 {
+    isRunning = true;
     lives = player.GetLives();
     SetGoodStyle(consoleSettings);
     std::string key = utils.GetAssetsPath() + "maps\\elevator\\elevator.txt";
@@ -144,7 +145,7 @@ bool Elevator::Run(Console consoleSettings)
         Sleep(50);
     }
     consoleSettings.SetConsoleFont();
-    return true;
+    return result;
 }
 
 void Elevator::ProceesInput(char input, Console consoleSettings)

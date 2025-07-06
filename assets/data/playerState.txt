@@ -1,6 +1,6 @@
-X: 3
-Y: 7
-Lives: 5
+X: 1
+Y: 1
+Lives: 4
 Bombs: 10
 Difficulty: 0
 ControlB: 0
