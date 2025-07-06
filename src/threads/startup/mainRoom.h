@@ -6,6 +6,7 @@
 #include "utils/functions/utils.h"
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
+#include "utils/functions/toWstring.h"
 
 class MainRoomGame
 {
@@ -24,12 +25,16 @@ private:
     int playerY;
     MapId selection;
     MapId opcionesGames[3];
+    int totalOpciones = 0;
 
     int offsetX = 1, offsetY = 1; // Map drawing offset
 
     bool isRunning;
     void ProceesInput(char input, Console consoleSettings);
     void LoadLevel(std::string key);
+    std::wstring GetMapName(MapId id);
+    void ReplaceDoorsName(MapId op[3]);
+    void WriteTextOnMap(Map &map, int row, int colStart, const std::wstring &text);
 };
 
 MainRoomGame::MainRoomGame() : isRunning(true)
@@ -40,13 +45,18 @@ MainRoomGame::MainRoomGame() : isRunning(true)
 
 MapId MainRoomGame::Run(Console consoleSettings, MapId opciones[3])
 {
+    totalOpciones = 0;
     for (int i = 0; i < 3; ++i)
     {
         opcionesGames[i] = opciones[i];
+        if (opciones[i] != MapId::None)
+            totalOpciones++;
     }
+
     std::string key = utils.GetAssetsPath() + "maps\\main\\mainRoom.txt";
     LoadLevel(key);
     player.SetPosition(3, 7);
+
     while (isRunning)
     {
         utils.ClearScreen();
@@ -59,6 +69,55 @@ MapId MainRoomGame::Run(Console consoleSettings, MapId opciones[3])
     }
     consoleSettings.SetConsoleFont();
     return selection;
+}
+
+void MainRoomGame::ReplaceDoorsName(MapId op[3])
+{
+    for (int i = 0; i < totalOpciones; ++i)
+    {
+        if (opcionesGames[i] == MapId::None)
+            continue;
+
+        std::wstring nombre = GetMapName(opcionesGames[i]);
+
+        int fila;
+        switch (i)
+        {
+        case 0:
+            fila = 3;
+            break;
+        case 1:
+            fila = 6;
+            break;
+        case 2:
+            fila = 9;
+            break;
+        }
+
+        WriteTextOnMap(map, fila, 44, nombre);
+    }
+
+    // Si no hay tercera opción, tapar puerta 3 (fila 11 y 12)
+    if (totalOpciones < 3)
+    {
+        map.SetTile(60, 10, L'|');
+        map.SetTile(60, 11, L'|');
+    }
+
+    // Si no hay segunda opción, tapar puerta 2 (fila 8 y 9)
+    if (totalOpciones < 2)
+    {
+        map.SetTile(60, 7, L'|');
+        map.SetTile(60, 8, L'|');
+    }
+}
+
+void MainRoomGame::WriteTextOnMap(Map &map, int row, int colStart, const std::wstring &text)
+{
+    for (size_t i = 0; i < text.length(); ++i)
+    {
+        map.SetTile(colStart + i, row, text[i]);
+    }
 }
 
 void MainRoomGame::ProceesInput(char input, Console consoleSettings)
@@ -86,10 +145,10 @@ void MainRoomGame::ProceesInput(char input, Console consoleSettings)
 
         Sleep(500);
         system("cls");
-        Sleep(300);
         consoleSettings.SetConsoleFont();
         Sleep(300);
         consoleSettings.SetConsoleFont(14, 20, L"Lucida Console");
+        Sleep(500);
         utils.PrintCentered(L"Seguro que quieres entrar? S = si, N = no");
         // Leer tecla
         while (true)
@@ -102,7 +161,7 @@ void MainRoomGame::ProceesInput(char input, Console consoleSettings)
                 utils.PrintCentered(L"Has decidido entrar.");
                 Sleep(1000);
                 system("cls");
-                Sleep(500);
+                Sleep(300);
                 isRunning = false;
                 return;
             }
@@ -139,6 +198,7 @@ void MainRoomGame::LoadLevel(std::string key)
     utils.ClearScreenComplety();
     // We call ReadMap from the Map class to load the map
     map.ReadMap(key, map.GetWidth(), map.GetHeight());
+    ReplaceDoorsName(opcionesGames);
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
     playerX = player.GetX(); // sincronizar por si acaso
     playerY = player.GetY();
@@ -146,4 +206,29 @@ void MainRoomGame::LoadLevel(std::string key)
     viewW = utils.GetConsoleWidth();
     if (viewW > map.GetWidth())
         viewW = map.GetWidth();
+}
+
+std::wstring MainRoomGame::GetMapName(MapId id)
+{
+    // MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
+    switch (id)
+    {
+    case BomberManGame:
+        return L"Bomberman";
+    case MazeGame:
+        return L"Laberinto";
+    case GeniusGame:
+        return L"Genio";
+    // case ChestGame: return L"Cofres";
+    case WormGame:
+        return L"Gusano";
+    case ElevatorGame:
+        return L"Ascensor";
+    case BoosMario:
+        return L"Jefe Mario";
+    case BoosZelda:
+        return L"Jefe Zelda";
+    default:
+        return L"Desconocido";
+    }
 }

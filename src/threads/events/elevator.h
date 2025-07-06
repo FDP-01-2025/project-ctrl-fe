@@ -237,6 +237,7 @@ void Elevator::LoadLevel(std::string key)
 
 void Elevator::ShowLoadingAnimation(Console consoleSettings, int cycles = 3, int delay = 300)
 {
+        Sleep(300);
     consoleSettings.SetConsoleFont(19, 25, L"Lucida Console");
     consoleSettings.SetColor(FOREGROUND_RED);
 

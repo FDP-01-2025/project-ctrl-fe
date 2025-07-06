@@ -20,6 +20,7 @@
 
 enum MapId
 {
+        None = -1,
         MainRoom = 0,
         BomberManGame = 1,
         MazeGame = 2,
