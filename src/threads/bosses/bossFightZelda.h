@@ -79,6 +79,8 @@ public:
         bombX = bombY = -1;
         bossDefeated = false;
 
+        utils.ClearScreenComplety(); // Clear the console before starting
+
         // Main game loop: runs until the player wins, loses, or exits
         while (isRunning)
         {
@@ -99,7 +101,7 @@ public:
                 hud.DrawDefeat(player, mapWidth);
             else
             {
-                hud.ClearHUDArea(mapWidth, consoleHeight); 
+                hud.ClearHUDArea(mapWidth, consoleHeight);
                 hud.DrawGoAway(player, mapWidth);
             }
             // Draw the bomb if it has been placed by the player
@@ -191,7 +193,7 @@ public:
                     }
 
                     // If projectile hits the player or statue, player loses a life
-                    if ((p.first == player.GetX() && p.second == player.GetY()) || (player.GetX() == statueX && player.GetY() == statueY))
+                    if ((p.first == player.GetX() && p.second == player.GetY()))
                         player.LoseLife();
                 }
                 // Update the projectile list for the next frame
@@ -336,7 +338,7 @@ public:
                     int nx = player.GetX() + dir.first;
                     int ny = player.GetY() + dir.second;
                     wchar_t tile = map.GetTile(nx, ny);
-                    if (tile == ' ' || tile == '/' || tile == 'B')
+                    if ((nx != statueX || ny != statueY) && (tile == ' ' || tile == '/' || tile == 'B'))
                     {
                         player.Move(dir.first, dir.second, tile);
                         // If player reaches the exit, end the fight

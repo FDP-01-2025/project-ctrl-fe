@@ -87,6 +87,7 @@ public:
     void IncrementOpenedChests()
     {
         openedChests++;
+        CleanEmptyLines();
         saveOpenedChests();
     }
 
@@ -102,6 +103,7 @@ public:
     void ActivateControlB(bool state)
     {
         controlB = state;
+        CleanEmptyLines();
         saveControlB(); // save just this specific field
     }
 
@@ -110,6 +112,7 @@ public:
     {
         x = newX;
         y = newY;
+        CleanEmptyLines();
         savePosition(); // save only X and Y values
     }
 
@@ -117,6 +120,7 @@ public:
     void SetLives(int newLives)
     {
         lives = newLives;
+        CleanEmptyLines();
         saveLives(); // save only lives field
     }
 
@@ -124,6 +128,7 @@ public:
     void SetRoom(int newRoom)
     {
         room = newRoom;
+        CleanEmptyLines();
         saveRoom();
     }
 
@@ -131,6 +136,7 @@ public:
     void SetEvent(int newEvent)
     {
         event = newEvent;
+        CleanEmptyLines();
         saveEvent();
     }
 
@@ -138,6 +144,7 @@ public:
     void SetBombs(int newBombs)
     {
         bombsAvailable = (newBombs > maxBombs) ? maxBombs : newBombs;
+        CleanEmptyLines();
         saveBombs(); // save only bombs field
     }
 
@@ -145,6 +152,7 @@ public:
     void SetDifficulty(Difficulty dif)
     {
         difficulty = dif;
+        CleanEmptyLines();
         saveDifficulty();
     }
 
@@ -154,7 +162,8 @@ public:
     {
         x += dx;
         y += dy;
-        saveState(); // full state save after movement
+        CleanEmptyLines();
+        savePosition(); // full state save after movement
     }
     bool IsOpenChestKey(wchar_t input)
     {
@@ -170,7 +179,8 @@ public:
         if (bombsAvailable > 0)
         {
             bombsAvailable--;
-            saveState();
+            CleanEmptyLines();
+            saveBombs();
         }
     }
 
@@ -178,7 +188,8 @@ public:
     void LoseLife()
     {
         lives--;
-        saveState();
+        CleanEmptyLines();
+        saveLives();
     }
 
     // Add a bomb (if under limit) and save
@@ -187,7 +198,8 @@ public:
         if (bombsAvailable < maxBombs)
         {
             bombsAvailable++;
-            saveState();
+            CleanEmptyLines();
+            saveBombs();
         }
     }
 
@@ -195,13 +207,15 @@ public:
     void IncrementLife()
     {
         lives++;
-        saveState();
+        CleanEmptyLines();
+        saveLives();
     }
 
     // Increment lives by a specific count and save
     void IncrementLives(int count)
     {
         lives += count;
+        CleanEmptyLines();
         saveLives(); // save only lives field
     }
 
@@ -211,7 +225,8 @@ public:
         lives -= count;
         if (lives < 0)
             lives = 1; // Prevent negative lives
-        saveLives();   // save only lives field
+        CleanEmptyLines();
+        saveLives(); // save only lives field
     }
 
     // Increment bombs by a specific count and save
@@ -220,7 +235,8 @@ public:
         bombsAvailable += count;
         if (bombsAvailable > maxBombs)
             bombsAvailable = maxBombs; // Prevent exceeding max bombs
-        saveBombs();                   // save only bombs field
+        CleanEmptyLines();
+        saveBombs(); // save only bombs field
     }
 
     // Decrement bombs by a specific count and save
@@ -229,7 +245,8 @@ public:
         bombsAvailable -= count;
         if (bombsAvailable < 0)
             bombsAvailable = 0; // Prevent negative bombs
-        saveBombs();            // save only bombs field
+        CleanEmptyLines();
+        saveBombs(); // save only bombs field
     }
 
     // Convert keyboard input into movement direction
@@ -279,6 +296,7 @@ public:
             break;
         }
 
+        CleanEmptyLines();
         saveState(); // Save entire state
     }
 
@@ -334,7 +352,6 @@ private:
             out << "Room: " << room << "\n";
             // Write the current event or state
             out << "Event: " << event << "\n";
-
             out << "OpenedChests: " << openedChests << "\n";
 
             // Close the file after writing
@@ -374,25 +391,29 @@ private:
     void saveControlB()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
 
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
-            // Check if the line starts with "ControlB:"
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("ControlB:", 0) == 0)
-                out << "ControlB: " << (controlB ? 1 : 0) << "\n"; // Write updated value
+                out << "ControlB: " << (controlB ? 1 : 0);
             else
-                out << line << "\n"; // Copy line unchanged
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
         out.close();
-        // Delete the original file
         std::remove(filename.c_str());
-        // Rename the temporary file to original filename
         std::rename("temp.txt", filename.c_str());
     }
 
@@ -401,18 +422,26 @@ private:
     void savePosition()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
+
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("X:", 0) == 0)
-                out << "X: " << x << "\n"; // Update X position
+                out << "X: " << x;
             else if (line.rfind("Y:", 0) == 0)
-                out << "Y: " << y << "\n"; // Update Y position
+                out << "Y: " << y;
             else
-                out << line << "\n"; // Copy other lines unchanged
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
@@ -427,16 +456,24 @@ private:
     void saveBombs()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
+
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("Bombs:", 0) == 0)
-                out << "Bombs: " << bombsAvailable << "\n"; // Update bombs count
+                out << "Bombs: " << bombsAvailable;
             else
-                out << line << "\n"; // Copy other lines unchanged
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
@@ -450,16 +487,24 @@ private:
     void saveLives()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
+
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("Lives:", 0) == 0)
-                out << "Lives: " << lives << "\n"; // Update lives count
+                out << "Lives: " << lives;
             else
-                out << line << "\n"; // Copy other lines unchanged
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
@@ -467,19 +512,28 @@ private:
         std::remove(filename.c_str());
         std::rename("temp.txt", filename.c_str());
     }
+
     void saveOpenedChests()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
+
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("OpenedChests:", 0) == 0)
-                out << "OpenedChests: " << openedChests << "\n"; // Actualiza cofres
+                out << "OpenedChests: " << openedChests;
             else
-                out << line << "\n"; // Mantén el resto igual
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
@@ -494,16 +548,24 @@ private:
     void saveDifficulty()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
+
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("Difficulty:", 0) == 0)
-                out << "Difficulty: " << (int)difficulty << "\n"; // Update difficulty
+                out << "Difficulty: " << (int)difficulty;
             else
-                out << line << "\n"; // Copy other lines unchanged
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
@@ -516,16 +578,24 @@ private:
     void saveRoom()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
+
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("Room:", 0) == 0)
-                out << "Room: " << room << "\n"; // Update room
+                out << "Room: " << room;
             else
-                out << line << "\n"; // Copy other lines unchanged
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
@@ -538,22 +608,60 @@ private:
     void saveEvent()
     {
         std::ifstream in(filename, std::ios::binary);
-        std::ofstream out("temp.txt");
+        std::ofstream out("temp.txt", std::ios::trunc);
         std::string line;
+        bool firstLine = true;
+
         while (std::getline(in, line))
         {
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
             if (line.empty())
                 continue;
+
+            if (!firstLine)
+                out << "\n";
             if (line.rfind("Event:", 0) == 0)
-                out << "Event: " << event << "\n"; // Update event
+                out << "Event: " << event;
             else
-                out << line << "\n"; // Copy other lines unchanged
+                out << line;
+
+            firstLine = false;
         }
 
         in.close();
         out.close();
         std::remove(filename.c_str());
         std::rename("temp.txt", filename.c_str());
+    }
+
+    // Cleans up empty lines in the save file
+    // This function reads the save file and removes any empty lines,
+    // rewriting the file without them to keep it clean.
+    void CleanEmptyLines()
+    {
+        std::ifstream in(filename, std::ios::binary);
+        std::ofstream out("temp_clean.txt", std::ios::trunc);
+
+        std::string line;
+        bool firstLine = true;
+        while (std::getline(in, line))
+        {
+            // Trim whitespace
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
+
+            if (!line.empty())
+            {
+                if (!firstLine)
+                    out << "\n"; // Only add newline before this if it's not the first line
+                out << line;
+                firstLine = false;
+            }
+        }
+
+        in.close();
+        out.close();
+        std::remove(filename.c_str());
+        std::rename("temp_clean.txt", filename.c_str());
     }
 };
 
