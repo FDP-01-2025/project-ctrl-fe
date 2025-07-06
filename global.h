@@ -232,6 +232,12 @@ public:
 
         while (counterMaps < showMapsLot)
         {
+            if (player.GetLives() == 0)
+            {
+                // TODO mostrar mensaje de pérdida
+                return false;
+            }
+
             std::set<int> gamesAlreadyPlayed;
             ReadFileGamesId(filename, gamesAlreadyPlayed);
 
@@ -253,12 +259,6 @@ public:
             int cantidadOpciones = std::min(3, (int)gamesNotPlayed.size());
             GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size(), opcionesGames, cantidadOpciones);
 
-            if (player.GetLives() == 0)
-            {
-                // TODO mostrar mensaje de pérdida
-                return false;
-            }
-
             selected = mainRoom.Run(consoleSettings, opcionesGames);
 
             bool valid = false;
@@ -269,9 +269,9 @@ public:
             if (valid && ChangeMap(selected))
             {
                 gamesCompleted << static_cast<int>(selected) << std::endl;
+                counterMaps++;
             }
 
-            counterMaps++;
             Sleep(50);
         }
 
