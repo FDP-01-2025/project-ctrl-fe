@@ -118,7 +118,7 @@ SphinxGame::SphinxGame()
 {
     player.SetLives(3);
     lives = player.GetLives();
-    totalQuestions = 5; // fijo
+    totalQuestions = 5;
     question = GenerateQuestion();
 }
 
@@ -132,8 +132,10 @@ bool SphinxGame::Run(Console consoleSettings)
 
     offsetX = (utils.GetConsoleWidth() - viewWidth) / 2 - 4;
     offsetY = (utils.GetConsoleHeight() - map.GetHeight()) / 2 - 1;
-    if (offsetX < 0) offsetX = 0;
-    if (offsetY < 0) offsetY = 0;
+    if (offsetX < 0)
+        offsetX = 0;
+    if (offsetY < 0)
+        offsetY = 0;
 
     messageX = offsetX;
     messageY = offsetY + map.GetHeight() + 2;
@@ -149,8 +151,8 @@ bool SphinxGame::Run(Console consoleSettings)
             offsetX, offsetY);
 
         hud.Draw(player, currentQuestion, viewWidth, answerStatus);
-        answerStatus = -1;
 
+        // Mostrar pregunta
         int preguntaY = offsetY + map.GetHeight() + 1;
         int preguntaX = offsetX + (viewWidth - question.question.length()) / 2;
         utils.PrintAtPosition(preguntaX, preguntaY, question.question, ORANGE);
@@ -160,6 +162,16 @@ bool SphinxGame::Run(Console consoleSettings)
             std::wstring text = ToWString(i + 1) + L") " + question.options[i];
             int optionX = offsetX + (viewWidth - text.length()) / 2;
             utils.PrintAtPosition(optionX, preguntaY + 2 + i, text, YELLOW_BRIGHT);
+        }
+
+        // Mostrar feedback de respuesta
+        if (answerStatus == 1)
+        {
+            utils.PrintAtPosition(offsetX, preguntaY + 6, L"Correct!", GREEN_BRIGHT);
+        }
+        else if (answerStatus == 0)
+        {
+            utils.PrintAtPosition(offsetX, preguntaY + 6, L"Incorrect! Try again.", RED_BRIGHT);
         }
 
         if (_kbhit())
@@ -179,7 +191,8 @@ void SphinxGame::ProcessInput(char input)
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first, dy = dir.second;
 
-    if (dx == 0 && dy == 0) return;
+    if (dx == 0 && dy == 0)
+        return;
 
     int newX = player.GetX() + dx;
     int newY = player.GetY() + dy;
@@ -193,36 +206,40 @@ void SphinxGame::ProcessInput(char input)
         {
             int answer = tile - L'1';
 
+            questionAnswered = true;
+
             if (answer == question.correctAnswer)
             {
                 answerStatus = 1;
                 correctAnswers++;
+                currentQuestion++;
+
+                if (correctAnswers >= totalQuestions)
+                {
+                    utils.ClearScreen();
+                    std::wcout << L"\n\n\nYou passed the Sphinx's challenge!\n";
+                    isRunning = false;
+                    return;
+                }
+
+                question = GenerateQuestion();
+                questionAnswered = false;
             }
             else
             {
                 answerStatus = 0;
                 lives--;
                 player.SetLives(lives);
-            }
 
-            questionAnswered = true;
-            currentQuestion++;
+                if (lives <= 0)
+                {
+                    utils.ClearScreen();
+                    std::wcout << L"\n\n\nYou lost. The Sphinx has defeated you.\n";
+                    isRunning = false;
+                    return;
+                }
 
-            if (correctAnswers >= totalQuestions)
-            {
-                utils.ClearScreen();
-                std::wcout << L"\n\n\nYou passed the Sphinx's challenge!\n";
-                isRunning = false;
-            }
-            else if (lives <= 0)
-            {
-                utils.ClearScreen();
-                std::wcout << L"\n\n\nYou lost. The Sphinx has defeated you.\n";
-                isRunning = false;
-            }
-            else if (currentQuestion <= totalQuestions)
-            {
-                question = GenerateQuestion();
+                // No avanza de pregunta, solo vuelve a mostrar la misma
                 questionAnswered = false;
             }
         }

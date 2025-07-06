@@ -197,7 +197,8 @@ public:
     // TODO ----- PROCESO (6) ----
     void StartGame()
     {
-        if (processThread != STATE_GAME_STARTED)
+        sphinx.Run(consoleSettings);
+        /*if (processThread != STATE_GAME_STARTED)
             return;
 
         player.removeStatusFile();
@@ -217,7 +218,7 @@ public:
         if (counterBoss == showBoossLot)
         {
             // TODO: Mostrar final del juego
-        }
+        }*/
     }
 
     bool GamesExecute()
