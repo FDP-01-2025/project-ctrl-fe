@@ -228,8 +228,8 @@ public:
                 break;
             }
             player.ResetState(currentDificulti);
-
-            MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
+            sphinx.Run(consoleSettings); // ✅ CORRECTO
+            /*MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
             const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
 
             int counterMaps = 0;
@@ -338,7 +338,7 @@ public:
             if (counterBoss == showBoossLot)
             {
                 // TODO MOSTRAR FINAL
-            }
+            }*/
         }
     }
 

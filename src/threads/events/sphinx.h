@@ -57,7 +57,7 @@ private:
     Player player;
     HUDSphinx hud;
 
-    int viewWidth = 36; // Se puede cambiar dinámicamente según mapa
+    int viewWidth = 36;
     int viewHeight = 18;
 
     int playerX;
@@ -93,40 +93,42 @@ bool SphinxGame::Run(Console consoleSettings)
     std::string key = utils.GetAssetsPath() + "maps\\sphinx\\sphinx.txt";
     LoadLevel(key);
 
-    // Actualizamos viewWidth para el ancho total del mapa
     viewWidth = map.GetWidth();
 
-    // Calculamos offsetX para centrar el mapa en consola (asumiendo utils.GetConsoleWidth() da ancho)
-    offsetX = (utils.GetConsoleWidth() - viewWidth) / 2;
+    // Centrar horizontal y vertical
+    offsetX = (utils.GetConsoleWidth() - viewWidth) / 2 - 4;
     if (offsetX < 0)
-        offsetX = 0; // Para evitar negativo
+        offsetX = 0;
 
-    // Inicializamos mensajeX y mensajeY
+    offsetY = (utils.GetConsoleHeight() - map.GetHeight()) / 2 - 1;
+    if (offsetY < 0)
+        offsetY = 0;
+
     mensajeX = offsetX;
-    mensajeY = offsetY + viewHeight + 2;
+    mensajeY = offsetY + map.GetHeight() + 2;
 
-    hud.SetCenteredOffset(offsetX); // Alinea HUD a la derecha del mapa
+    hud.SetCenteredOffset(offsetX);
 
-    utils.ClearScreenComplety();
-    hud.Draw(player, 1, viewWidth); // usa viewWidth como ancho del mapa
+    utils.ClearScreenComplety(); // Solo limpio una vez antes del loop
+    hud.Draw(player, 1, viewWidth);
 
     while (isRunning)
     {
-        // Dibuja todo el mapa centrado, con jugador
+        // Solo limpiar la pantalla UNA vez al inicio o cuando ganes o pierdas
+        // utils.ClearScreen();  <-- quitar de aquí para que no limpie todo
+
+        // Dibujar mapa y jugador
         map.DrawWithPlayerSphinx(
             map.GetWidth(), map.GetHeight(),
             player.GetX(), player.GetY(),
             offsetX, offsetY);
 
-        // Limpia área de preguntas
-        for (int i = 0; i < 5; ++i)
-            utils.PrintAtPosition(mensajeX, mensajeY + i, std::wstring(viewWidth, L' '), RESET);
+        hud.Draw(player, 1, viewWidth);
 
-        // Pregunta centrada
+        // Mostrar pregunta y opciones
         int startX = mensajeX + (viewWidth - (int)preguntaActual.pregunta.size()) / 2;
         utils.PrintAtPosition(startX, mensajeY, preguntaActual.pregunta, BLUE);
 
-        // Opciones de respuesta
         for (int i = 0; i < 3; ++i)
         {
             std::wstring texto = ToWString(i + 1) + L") " + preguntaActual.opciones[i];
@@ -134,17 +136,16 @@ bool SphinxGame::Run(Console consoleSettings)
             utils.PrintAtPosition(xPos, mensajeY + 2, texto, YELLOW_BRIGHT);
         }
 
+        // Detectar tecla sin bloquear, mover si hay input
         if (_kbhit())
         {
-            ProceesInput(_getch());
-            hud.Draw(player, 1, viewWidth); // redibuja HUD al responder
+            char input = _getch();
+            ProceesInput(input);
         }
 
-        Sleep(50);
+        // Pausa mínima para no saturar el CPU (muy pequeña)
+        Sleep(20);
     }
-
-    consoleSettings.SetConsoleFont();
-    return true;
 }
 
 void SphinxGame::ProceesInput(char input)
@@ -159,8 +160,7 @@ void SphinxGame::ProceesInput(char input)
     int newX = player.GetX() + dx;
     int newY = player.GetY() + dy;
     wchar_t tile = map.GetTile(newX, newY);
-    // --- Bloque de colisión ---
-    // Solo se puede mover si la casilla NO es A ni B
+
     if (tile != L'A' && tile != L'B' && tile != L'#')
     {
         player.SetPosition(newX, newY);
@@ -175,7 +175,6 @@ void SphinxGame::ProceesInput(char input)
             utils.PrintAtPosition(offsetX, mensajeY + 5, L"¡Correcto!", GREEN);
             Sleep(700);
             aciertos++;
-            player.SetPosition(2, 2);
             intentos = 3;
         }
         else
@@ -189,7 +188,6 @@ void SphinxGame::ProceesInput(char input)
                 player.SetLives(lives);
                 intentos = 3;
             }
-            player.SetPosition(2, 2);
         }
 
         if (aciertos >= 3)
@@ -213,7 +211,9 @@ void SphinxGame::LoadLevel(std::string key)
 {
     utils.ClearScreenComplety();
     map.ReadMap(key, map.GetWidth(), map.GetHeight());
-    player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
+
+    player.SetPosition(14, 17); // Aquí pones X,Y donde quieras
+
     playerX = player.GetX();
     playerY = player.GetY();
 }
