@@ -72,6 +72,8 @@ protected:
     // Tamaño horizontal de la vista
     int sizeViewW = 40;
     const std::string filename = utils.GetAssetsPath() + "data\\GamesCounter.txt", filenameBoss = utils.GetAssetsPath() + "data\\BossesCounter.txt";
+    Player::Difficulty currentDificulti;
+    int counterMaps = 0, counterBoss = 0;
 
 public:
     //* Valores iniciales
@@ -193,157 +195,178 @@ public:
         }
     }
     // TODO ----- PROCESO (6) ----
-    // TODO ----- PROCESO (6) ----
     void StartGame()
     {
-        // En este punto ya habiramos: Mostrado el logo, Leer el estado del usuario, mostrar la historia y mostrar ambos menus
-        // Ahora pongan el .Run de prueba despues del mainRoad.Run
-        if (processThread == STATE_GAME_STARTED)
+        if (processThread != STATE_GAME_STARTED)
+            return;
+
+        player.removeStatusFile();
+        utils.ClearScreenComplety();
+
+        player.ResetState(SetDificultyDetails());
+
+        if (!ChangeMap(currentMap))
+            return;
+
+        if (!GamesExecute())
+            return;
+
+        if (counterMaps == showMapsLot)
+            BossesExecute();
+
+        if (counterBoss == showBoossLot)
         {
-            player.removeStatusFile();
-            utils.ClearScreenComplety(); // Limpia la pantalla antes de iniciar el juego
+            // TODO: Mostrar final del juego
+        }
+    }
 
-            Player::Difficulty currentDificulti;
+    bool GamesExecute()
+    {
+        MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
+        const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
 
-            switch (selectedDifficulty)
-            {
-            case 1:
-                currentDificulti = Player::EASY;
-                showMapsLot = 3;
-                showBoossLot = 1;
-                break;
-            case 2:
-                currentDificulti = Player::NORMAL;
-                showMapsLot = 5;
-                showBoossLot = 1;
-                break;
-            case 3:
-                // Iniciar modo difícil
-                currentDificulti = Player::HARD;
-                showMapsLot = 6;
-                showBoossLot = 2;
-                break;
-            default:
-                std::wcout << L"Dificultad no válida\n";
-                break;
-            }
-            player.ResetState(currentDificulti);
+        wofstream gamesCompleted(filename, std::ios::app);
+        wifstream gamesLecture;
 
-            MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
-            const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
+        counterMaps = 0;
 
-            int counterMaps = 0;
-
-            wofstream gamesCompleted(filename, std::ios::app);
-            wifstream gamesLecture(filename);
-
+        while (counterMaps < showMapsLot)
+        {
             std::set<int> gamesAlreadyPlayed;
-            int id;
+            ReadFileGamesId(filename, gamesAlreadyPlayed);
 
-            while (gamesLecture >> id)
-                gamesAlreadyPlayed.insert(id);
+            std::vector<MapId> gamesNotPlayed;
+            ReduceGamesPlayed(allGames, totalGames, gamesAlreadyPlayed, gamesNotPlayed);
 
-            while (counterMaps < showMapsLot)
+            if (gamesNotPlayed.empty())
             {
-                if (ChangeMap(currentMap))
-                {
-                    std::vector<MapId> gamesNotPlayed;
-                    for (int i = 0; i < totalGames; ++i)
-                    {
-                        if (gamesAlreadyPlayed.find(static_cast<int>(allGames[i])) == gamesAlreadyPlayed.end())
-                        {
-                            gamesNotPlayed.push_back(allGames[i]);
-                        }
-                    }
-
-                    if (gamesNotPlayed.empty())
-                    {
-                        system("cls");
-                        std::wcout << L"No quedan juegos disponibles.\n";
-                        Sleep(1000);
-                        break;
-                    }
-
-                    GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size());
-
-                    for (int i = 0; i < 3 && i < gamesNotPlayed.size(); ++i)
-                        opcionesGames[i] = gamesNotPlayed[i];
-
-                    selected = mainRoom.Run(consoleSettings, opcionesGames);
-
-                    if (ChangeMap(selected))
-                    {
-                        gamesCompleted << static_cast<int>(selected) << std::endl;
-                    }
-
-                    currentMap = MapId::MainRoom;
-                    counterMaps++;
-                }
+                utils.ClearScreenComplety();
+                std::wcout << L"No quedan juegos disponibles.\n";
+                Sleep(1000);
+                return false;
             }
 
-            MapId allBosses[] = {BoosMario, BoosZelda};
-            const int totalBosses = sizeof(allBosses) / sizeof(allBosses[0]);
+            // LIMPIAR y generar nuevas opciones
+            for (int i = 0; i < 3; ++i)
+                opcionesGames[i] = MapId::None;
 
-            int counterBoss = 0;
+            int cantidadOpciones = std::min(3, (int)gamesNotPlayed.size());
+            GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size(), opcionesGames, cantidadOpciones);
 
-            wofstream bossesCompleted(filenameBoss, std::ios::app);
-            wifstream bossesLecture(filenameBoss);
-
-            std::set<int> bossesAlredyPlayed;
-            int idB;
-
-            while (bossesLecture >> idB)
-                bossesAlredyPlayed.insert(idB);
-
-            if (counterMaps == showMapsLot)
+            if (player.GetLives() == 0)
             {
-                while (counterBoss < showBoossLot)
-                {
-                    currentMap = MapId::BoosSalaPrev;
-                    if (ChangeMap(currentMap))
-                    {
-                        std::vector<MapId> bossesNotPlayed;
-
-                        for (int i = 0; i < totalBosses; ++i)
-                        {
-                            if (bossesAlredyPlayed.find(static_cast<int>(allBosses[i])) == bossesAlredyPlayed.end())
-                            {
-                                bossesNotPlayed.push_back(allBosses[i]);
-                            }
-                        }
-
-                        if (bossesNotPlayed.empty())
-                        {
-                            system("cls");
-                            std::wcout << L"No quedan juegos disponibles.\n";
-                            Sleep(1000);
-                            break;
-                        }
-
-                        GenerateRandomMapId(bossesNotPlayed.data(), bossesNotPlayed.size());
-
-                        for (int i = 0; i < 2 && i < bossesNotPlayed.size(); ++i)
-                            opcionesBoses[i] = bossesNotPlayed[i];
-
-                        selected = bossSalaPrev.Run(consoleSettings, opcionesBoses);
-
-                        bossesCompleted << static_cast<int>(selected) << std::endl;
-
-                        ChangeMap(selected);
-                        counterBoss++;
-                    }
-                }
+                // TODO mostrar mensaje de pérdida
+                return false;
             }
 
-            if (counterBoss == showBoossLot)
+            selected = mainRoom.Run(consoleSettings, opcionesGames);
+
+            bool valid = false;
+            for (int i = 0; i < cantidadOpciones; ++i)
+                if (selected == opcionesGames[i])
+                    valid = true;
+
+            if (valid && ChangeMap(selected))
             {
-                // TODO MOSTRAR FINAL
+                gamesCompleted << static_cast<int>(selected) << std::endl;
+            }
+
+            counterMaps++;
+            Sleep(50);
+        }
+
+        return true;
+    }
+
+    void BossesExecute()
+    {
+        MapId allBosses[] = {BoosMario, BoosZelda};
+        const int totalBosses = sizeof(allBosses) / sizeof(allBosses[0]);
+
+        wofstream bossesCompleted(filenameBoss, std::ios::app);
+
+        std::set<int> bossesAlreadyPlayed;
+        ReadFileGamesId(filenameBoss, bossesAlreadyPlayed);
+
+        counterBoss = 0;
+
+        while (counterBoss < showBoossLot)
+        {
+            if (!ChangeMap(MapId::BoosSalaPrev))
+                return;
+
+            std::vector<MapId> bossesNotPlayed;
+            ReduceGamesPlayed(allBosses, totalBosses, bossesAlreadyPlayed, bossesNotPlayed);
+
+            if (bossesNotPlayed.empty())
+            {
+                utils.ClearScreenComplety();
+                std::wcout << L"No quedan jefes disponibles.\n";
+                Sleep(1000);
+                return;
+            }
+
+            GenerateRandomMapId(bossesNotPlayed.data(), bossesNotPlayed.size(), opcionesBoses, 3);
+
+            for (int i = 0; i < 2 && i < bossesNotPlayed.size(); ++i)
+                opcionesBoses[i] = bossesNotPlayed[i];
+
+            selected = bossSalaPrev.Run(consoleSettings, opcionesBoses);
+            bossesCompleted << static_cast<int>(selected) << std::endl;
+
+            ChangeMap(selected);
+            counterBoss++;
+        }
+    }
+
+    Player::Difficulty SetDificultyDetails()
+    {
+        switch (selectedDifficulty)
+        {
+        case 1:
+            currentDificulti = Player::EASY;
+            showMapsLot = 3;
+            showBoossLot = 1;
+            break;
+        case 2:
+            currentDificulti = Player::NORMAL;
+            showMapsLot = 5;
+            showBoossLot = 1;
+            break;
+        case 3:
+            currentDificulti = Player::HARD;
+            showMapsLot = 6;
+            showBoossLot = 1;
+            break;
+        default:
+            std::wcout << L"Dificultad no válida\n";
+            break;
+        }
+        return currentDificulti;
+    }
+
+    void ReadFileGamesId(const std::string &filename, std::set<int> &conjunto)
+    {
+        std::wifstream file(filename);
+        int id;
+        while (file >> id)
+            conjunto.insert(id);
+    }
+
+    void ReduceGamesPlayed(MapId all[], int total, const std::set<int> &jugados, std::vector<MapId> &noJugados)
+    {
+        for (int i = 0; i < total; ++i)
+        {
+            if (jugados.find(static_cast<int>(all[i])) == jugados.end())
+            {
+                noJugados.push_back(all[i]);
             }
         }
     }
 
     bool ChangeMap(MapId map)
     {
+        // MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
         switch (map)
         {
         case FrstWay:
@@ -376,20 +399,27 @@ public:
             bossFightZelda.Run();
             return true;
 
+        case MainRoom:
+            break;
+
         default:
             std::wcout << L"Mapa desconocido: " << map << opcionesGames[0] << std::endl;
             return false;
         }
     }
 
-    void GenerateRandomMapId(MapId *arr, int size)
+    void GenerateRandomMapId(MapId *source, int sourceSize, MapId *dest, int count)
     {
-        for (int i = size - 1; i > 0; i--)
+        // Limpiar o asignar valor por defecto
+        for (int i = 0; i < count; ++i)
+            dest[i] = MapId::None; // o cualquier valor válido por defecto
+
+        std::vector<MapId> pool(source, source + sourceSize);
+        std::random_shuffle(pool.begin(), pool.end());
+
+        for (int i = 0; i < count && i < pool.size(); ++i)
         {
-            int j = rand() % (i + 1);
-            MapId temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
+            dest[i] = pool[i];
         }
     }
 };

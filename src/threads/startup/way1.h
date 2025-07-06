@@ -41,6 +41,8 @@ Way1::Way1() : isRunning(true)
 
 bool Way1::Run(Console consoleSettings)
 {
+    system("cls");
+    Sleep(10);
     SetGoodStyle(consoleSettings);
     std::string key = utils.GetAssetsPath() + "maps\\main\\way1.txt";
     LoadLevel(key);
