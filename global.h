@@ -72,8 +72,6 @@ protected:
     // Tamaño horizontal de la vista
     int sizeViewW = 40;
     const std::string filename = utils.GetAssetsPath() + "data\\GamesCounter.txt", filenameBoss = utils.GetAssetsPath() + "data\\BossesCounter.txt";
-    Player::Difficulty currentDificulti;
-    int counterMaps = 0, counterBoss = 0;
 
 public:
     //* Valores iniciales
@@ -194,6 +192,7 @@ public:
             break;
         }
     }
+    // TODO ----- PROCESO (6) ----
     // TODO ----- PROCESO (6) ----
     void StartGame()
     {
@@ -366,7 +365,6 @@ public:
 
     bool ChangeMap(MapId map)
     {
-        // MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
         switch (map)
         {
         case FrstWay:
@@ -399,27 +397,20 @@ public:
             bossFightZelda.Run();
             return true;
 
-        case MainRoom:
-            break;
-
         default:
             std::wcout << L"Mapa desconocido: " << map << opcionesGames[0] << std::endl;
             return false;
         }
     }
 
-    void GenerateRandomMapId(MapId *source, int sourceSize, MapId *dest, int count)
+    void GenerateRandomMapId(MapId *arr, int size)
     {
-        // Limpiar o asignar valor por defecto
-        for (int i = 0; i < count; ++i)
-            dest[i] = MapId::None; // o cualquier valor válido por defecto
-
-        std::vector<MapId> pool(source, source + sourceSize);
-        std::random_shuffle(pool.begin(), pool.end());
-
-        for (int i = 0; i < count && i < pool.size(); ++i)
+        for (int i = size - 1; i > 0; i--)
         {
-            dest[i] = pool[i];
+            int j = rand() % (i + 1);
+            MapId temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
         }
     }
 };
