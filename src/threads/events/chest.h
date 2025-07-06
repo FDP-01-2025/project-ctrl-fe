@@ -6,10 +6,13 @@
 #include "utils/player/player.h"
 #include "core/engine/settings/console.h"
 #include "core/engine/tool/dialogues.h"
+#include "core/modules/hud/hudChest.h"
+#include "threads/startup/gameOver.h"
 
 #include <iostream>
 #include <conio.h>
 #include <string>
+#include <random>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -23,7 +26,7 @@ public:
 
 private:
     bool isRunning = true;
-    bool chestOpened = false;
+    bool chestOpened = false;   // for checking if the chest was opened
     bool beginningEvent = true; // for the first message
     bool moveAllow = false;
 
@@ -42,6 +45,8 @@ private:
     Utils utils;
     Map map;
     Player player;
+    HUDChest hud;
+    GameOverScreen gameOver;
 
     void ProcessInput(char input);
     void ChestInteraction();
@@ -52,19 +57,28 @@ private:
 
 inline ChestEvent::ChestEvent() {};
 
+void ClearKeyboardBuffer() // to avoid saving inputs when moveAllow is false
+{
+    while (_kbhit())
+        _getch();
+}
+
 inline void ChestEvent::WaitKey()
 {
+    ClearKeyboardBuffer(); // first clear the buffer
     utils.MoveCursor(offsetX, offsetY + 11);
-    std::wcout << L"Press any key to continue...";
+    std::wcout << L"Press any key to continue... ";
+
     _getch();
     utils.MoveCursor(offsetX, offsetY + 11);
     std::wcout << L"                             "; // for cleaning
 }
 
-void ClearKeyboardBuffer() // to avoid saving inputs when moveAllow is false
+int RandomNumber(int min, int max)
 {
-    while (_kbhit())
-        _getch();
+    static std::mt19937 gen(std::random_device{}());
+    std::uniform_int_distribution<> distr(min, max);
+    return distr(gen);
 }
 
 inline void ChestEvent::ChestInteraction() // asking the player to open the chest
@@ -75,14 +89,42 @@ inline void ChestEvent::ChestInteraction() // asking the player to open the ches
     utils.MoveCursor(offsetX + 3, offsetY - 2);
     std::wcout << L"                      "; // for cleaning (Press 'Y'...)
     utils.MoveCursor(offsetX - 5, offsetY - 3);
-    std::wcout << L"You opened the chest and gained an extra life!!";
-    DrawDialogue(L"+1 life", offsetX + 12, offsetY + 1);
+
+    Player::Difficulty dif = player.GetDifficulty();
+    int probability = RandomNumber(1, 100); // the probability
+    int goodRatio = 0;
+
+    switch (dif) // check the difficulty
+    {
+    case Player::EASY:
+        goodRatio = 70;
+        break;
+    case Player::NORMAL:
+        goodRatio = 50;
+        break;
+    case Player::HARD:
+        goodRatio = 25;
+        break;
+    }
+
+    if (probability <= goodRatio)
+    {
+        player.IncrementLives(1); // add one more life
+        std::wcout << GREEN << L"You opened the chest and gained an extra life!!" << RESET << std::endl;
+        DrawDialogue(L"+1 life", offsetX + 12, offsetY + 1);
+    }
+    else
+    {
+        player.DecrementLives(1); // diminish one life
+        std::wcout << RED << L"Bad luck! It was a mimic chest! and it attacked you" << RESET << std::endl;
+        DrawDialogue(L"-1 life", offsetX + 12, offsetY + 1);
+        std::wcout << RESET;
+    }
     Sleep(2000);
-    ClearKeyboardBuffer();
     WaitKey(); // this is for waiting
 
     utils.MoveCursor(offsetX - 5, offsetY - 3); // Clear the message
-    std::wcout << L"                                               ";
+    std::wcout << L"                                                   ";
     ClearDialogue(offsetX + 12, offsetY + 1, 7); // clear the item dialogue
 
     // for cleaning the chest area after it's opened
@@ -94,9 +136,8 @@ inline void ChestEvent::ChestInteraction() // asking the player to open the ches
             map.SetTile(chestX[j], chestY[i], ' ');
         }
     }
-    DrawDialogue(L"It seems the chest has disappeared...", offsetX, offsetY + 1);
+    DrawDialogue(L"It seems the chest has disappeared...", offsetX, offsetY + 1); // the last message
     Sleep(2000);
-    ClearKeyboardBuffer();
     WaitKey();
     ClearDialogue(offsetX, offsetY + 1, 37);
 
@@ -105,9 +146,12 @@ inline void ChestEvent::ChestInteraction() // asking the player to open the ches
 
 inline void ChestEvent::Beginning() // the introduction to the room
 {
+    std::wcout << BROWN;
     DrawDialogue(L"There's a chest over that kind of altar. Perhaps something lies within... ", offsetX, offsetY + 10);
+    Sleep(3000);
     DrawDialogue(L"Shall I break its seal and look inside?", offsetX, offsetY + 12);
     Sleep(3000);
+    std::wcout << RESET;
     ClearDialogue(offsetX, offsetY + 10, 74);
     ClearDialogue(offsetX, offsetY + 12, 39);
     ClearKeyboardBuffer();
@@ -176,16 +220,16 @@ inline void ChestEvent::LoadMap()
         offsetY = 0;
 }
 
-inline bool ChestEvent::Run() //call this in main.cpp 
+inline bool ChestEvent::Run() // call this in main.cpp
 {
-    player.ResetState(Player::NORMAL);
     LoadMap();
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
-
     while (isRunning)
     {
         utils.ClearScreen();
         map.DrawWithPlayer(mapWidth, mapHeight, player.GetX(), player.GetY(), offsetX, offsetY); // for the map
+        hud.SetCenteredOffset(offsetX);
+        hud.DrawLampEvent(player, player.GetRoom(), map.GetWidth());
 
         if (beginningEvent) // for the first dialogue
         {
@@ -205,6 +249,11 @@ inline bool ChestEvent::Run() //call this in main.cpp
         if (!chestOpened && input == 'y' && player.GetX() == chestLockX && player.GetY() == chestLockY)
         {
             ChestInteraction();
+        }
+        if (player.GetLives() <= 0)
+        {
+            isRunning = false;    // stop the loop
+            gameOver.Show(utils); // when the lives is 0 or less
         }
     }
 

@@ -44,7 +44,7 @@ public:
         // Controls
         utils.PrintLine(hudX, y, L"Controls:", WHITE_BRIGHT);
         utils.PrintLine(hudX, y, L"[WASD]: Move");
-
+        utils.PrintLine(hudX, y, L"Stand in front of the chest to interact");
         std::wcout << RESET; // Reset text color
     }
 
