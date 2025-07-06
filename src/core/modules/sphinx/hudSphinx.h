@@ -51,6 +51,9 @@ public:
         if (statusCode != -1)
         {
             y++;
+            // Borra la línea completa antes de imprimir el mensaje nuevo
+            std::wcout << L"\033[" << y << L";" << hudX << L"H" << std::wstring(25, L' ');
+
             std::wstring message = (statusCode == 1) ? L"✔ Correct!" : L"✖ Incorrect!";
             std::wstring color = (statusCode == 1) ? GREEN : RED;
             PrintAndAdvance(hudX, y, message, color);
@@ -63,7 +66,7 @@ private:
     int hudOffsetX = 0;
     Utils utils;
 
-    void PrintAndAdvance(int x, int& y, const std::wstring& text, const std::wstring& color = GRAY_BRIGHT)
+    void PrintAndAdvance(int x, int &y, const std::wstring &text, const std::wstring &color = GRAY_BRIGHT)
     {
         utils.PrintLine(x, y, text, color);
         ++y;
