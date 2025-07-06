@@ -45,6 +45,7 @@ MainRoomGame::MainRoomGame() : isRunning(true)
 
 MapId MainRoomGame::Run(Console consoleSettings, MapId opciones[3])
 {
+    isRunning = true;
     totalOpciones = 0;
     for (int i = 0; i < 3; ++i)
     {
@@ -52,7 +53,9 @@ MapId MainRoomGame::Run(Console consoleSettings, MapId opciones[3])
         if (opciones[i] != MapId::None)
             totalOpciones++;
     }
-
+    Sleep(100);
+    consoleSettings.SetConsoleFont(25, 25, L"Lucida console");
+    Sleep(100);
     std::string key = utils.GetAssetsPath() + "maps\\main\\mainRoom.txt";
     LoadLevel(key);
     player.SetPosition(3, 7);

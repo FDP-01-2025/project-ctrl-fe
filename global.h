@@ -271,6 +271,9 @@ public:
             {
                 gamesCompleted << static_cast<int>(selected) << std::endl;
                 counterMaps++;
+                
+                if (counterMaps >= showMapsLot)
+                    break;
             }
 
             Sleep(50);

@@ -62,6 +62,7 @@ private:
     int playerX;
     int playerY;
     bool isRunning;
+    bool result;
     int lives;
     int aciertos;
     int mensajeX;
@@ -81,8 +82,7 @@ Elevator::Elevator() : isRunning(true)
 {
     consoleW = utils.GetConsoleWidth();
     viewW = consoleW;
-    player.SetLives(5);
-    lives = player.GetLives();
+
     aciertos = 0;
     ejercicioActual = GenerarEjercicio();
     startTime = std::chrono::steady_clock::now();
@@ -90,6 +90,7 @@ Elevator::Elevator() : isRunning(true)
 
 bool Elevator::Run(Console consoleSettings)
 {
+    lives = player.GetLives();
     SetGoodStyle(consoleSettings);
     std::string key = utils.GetAssetsPath() + "maps\\elevator\\elevator.txt";
     LoadLevel(key);
@@ -113,10 +114,8 @@ bool Elevator::Run(Console consoleSettings)
             if (lives <= 0)
             {
                 utils.ClearScreen();
-                std::wcout << L"Perdiste. Intenta de nuevoA.\n"
-                           << L"" << lives << L"";
-                //_getch();
-                isRunning = false;
+                result = false;    // retornar que se quedó sin vidas
+                isRunning = false; // parar el juego
             }
 
             // Generar nuevo ejercicio y reiniciar tiempo
@@ -200,19 +199,14 @@ void Elevator::ProceesInput(char input, Console consoleSettings)
 
         if (aciertos >= 3)
         {
-            utils.ClearScreen();
-            std::wcout << "¡Ganaste el nivel!\n";
-            //_getch();
-            isRunning = false;
-            return;
+            result = true;     // Indicar que todavia puede continuar con los demás juegos
+            isRunning = false; // parar el juego
         }
+
         else if (lives <= 0)
         {
-            utils.ClearScreen();
-            std::wcout << "Perdiste. Intenta de nuevoB.\n";
-            //_getch();
-            isRunning = false;
-            return;
+            result = false;    // Indicar que NO puede continuar con los demás jeugos
+            isRunning = false; // parar el juego
         }
 
         ejercicioActual = GenerarEjercicio(); // siguiente ejercicio
@@ -237,7 +231,7 @@ void Elevator::LoadLevel(std::string key)
 
 void Elevator::ShowLoadingAnimation(Console consoleSettings, int cycles = 3, int delay = 300)
 {
-        Sleep(300);
+    Sleep(300);
     consoleSettings.SetConsoleFont(19, 25, L"Lucida Console");
     consoleSettings.SetColor(FOREGROUND_RED);
 
