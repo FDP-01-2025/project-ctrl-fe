@@ -3,35 +3,41 @@
 #include <iostream>
 #include <conio.h>
 using namespace std;
+
 #include "utils/screen/colors.h"
-#include "utils\functions\utils.h"
+#include "utils/functions/utils.h"
 
-int StartSecondMenu()
+int StartSecondMenu(Console& consoleSettings, Utils& utils)
 {
-    Utils utils;
-
     wstring difficulties[] = {L"Normal", L"Media", L"Difícil"};
     int currentOption = 0;
     int totalOptions = 3;
 
-    const int consoleWidth = 100;
+    // Función para obtener el ancho real de la consola
+    auto GetConsoleWidth = []() {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        return csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    };
 
     while (true)
     {
         system("cls");
         utils.SetUtf8();
 
-        // Encabezado centrado horizontalmente
+        int consoleWidth = GetConsoleWidth();
+
+        // Encabezado centrado
         wstring title = L"ELIGE LA DIFICULTAD";
         int paddingTitle = (consoleWidth - title.length()) / 2;
         wcout << WHITE_BRIGHT << L"\n\n" << wstring(paddingTitle, ' ') << title << endl;
 
-        // Línea separadora centrada
+        // Separador centrado
         wstring separator = L"------------------------";
         int paddingSeparator = (consoleWidth - separator.length()) / 2;
         wcout << GRAY << wstring(paddingSeparator, ' ') << separator << L"\n\n";
 
-        // Mostrar opciones centradas
+        // Opciones centradas
         for (int i = 0; i < totalOptions; ++i)
         {
             wstring optionText = difficulties[i];
@@ -39,29 +45,24 @@ int StartSecondMenu()
 
             if (i == currentOption)
             {
-                // Flechas a ambos lados
                 optionLine = L">> " + optionText + L" <<";
             }
             else
             {
-                // Igual largo, pero con espacios en lugar de flechas para no mover texto
-                int arrowsLength = 6; // ">> " + " <<"
-                // Espacios a cada lado para mantener longitud igual
+                int arrowsLength = 6;
                 optionLine = wstring(arrowsLength / 2, ' ') + optionText + wstring(arrowsLength / 2, ' ');
             }
 
             int padding = (consoleWidth - optionLine.length()) / 2;
 
-            if (i == currentOption)
-                wcout << GREEN << wstring(padding, ' ') << optionLine << RESET << endl;
-            else
-                wcout << WHITE_BRIGHT << wstring(padding, ' ') << optionLine << RESET << endl;
+            wcout << (i == currentOption ? GREEN : WHITE_BRIGHT)
+                  << wstring(padding, ' ') << optionLine << RESET << endl;
         }
 
         // Captura de teclas
         int key = _getch();
 
-        if (key == 224) // Flechas
+        if (key == 224)
         {
             key = _getch();
             if (key == 72) // ↑

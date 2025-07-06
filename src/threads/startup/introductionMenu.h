@@ -1,12 +1,17 @@
 #pragma once
+
 #include <windows.h>
 #include <iostream>
 #include <conio.h>
-using namespace std;
-#include "utils/screen/colors.h"
-#include "utils\functions\utils.h"
+#include <string>
+#include "../../utils/screen/colors.h"
+#include "../../utils/functions/utils.h"
+#include "../../core/engine/settings/console.h"
 
-int GetConsoleWidth()
+using std::wstring;
+
+// Obtiene el ancho actual de la consola
+static int GetConsoleWidth()
 {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
@@ -14,20 +19,23 @@ int GetConsoleWidth()
     return 80;
 }
 
-wstring CenterText(const wstring &text, int width)
+// Centra un texto en un ancho dado
+static wstring CenterText(const wstring &text, int width)
 {
-    int padding = (width - (int)text.length()) / 2;
-    if (padding < 0)
-        padding = 0;
-    return wstring(padding, ' ') + text;
+    int padding = (width - static_cast<int>(text.length())) / 2;
+    if (padding < 0) padding = 0;
+    return wstring(padding, L' ') + text;
 }
 
-int StartMenu()
+// Menú principal: Jugar / Continuar / Salir
+// Devuelve 1..3
+static int StartMenu(Console &consoleSettings, Utils &utils)
 {
-    Utils utils;
-    wstring options[] = {L"Jugar", L"Continuar", L"Salir"};
+    consoleSettings.SetConsoleFont(16, 24, L"Lucida Console");
+
+    const wstring options[] = { L"Jugar", L"Continuar", L"Salir" };
+    const int totalOptions = 3;
     int currentOption = 0;
-    int totalOptions = 3;
 
     while (true)
     {
@@ -35,56 +43,48 @@ int StartMenu()
         utils.SetUtf8();
         int width = GetConsoleWidth();
 
-        wcout << WHITE_BRIGHT << L"\n\n"
-              << CenterText(L"TORRE DE LEUGIM ☻", width) << L"\n";
-        wcout << GRAY << CenterText(L"------------------------", width) << L"\n\n";
+        // Título
+        std::wcout << WHITE_BRIGHT << L"\n\n"
+                   << CenterText(L"TORRE DE LEGUIM ☻", width) << L"\n"
+                   << GRAY << CenterText(L"------------------------", width) << L"\n\n";
 
+        // Opciones
         for (int i = 0; i < totalOptions; ++i)
         {
-            wstring text = options[i];
-            wstring line;
+            wstring line = (i == currentOption)
+                ? L">> " + options[i] + L" <<"
+                : L"   " + options[i] + L"   ";
 
-            if (i == currentOption)
-            {
-                // Flechas a ambos lados
-                line = L">> " + text + L" <<";
-            }
-            else
-            {
-                // Mismo espacio pero con espacios en lugar de flechas
-                line = L"   " + text + L"   ";
-            }
-
-            // Centrar toda la línea con flechas o espacios para que no se mueva
-            wcout << (i == currentOption ? GREEN : WHITE_BRIGHT) << CenterText(line, width) << RESET << endl;
+            std::wcout << (i == currentOption ? GREEN : WHITE_BRIGHT)
+                       << CenterText(line, width)
+                       << RESET << L"\n";
         }
 
         int key = _getch();
-
-        if (key == 224)
+        if (key == 224)  // flecha
         {
             key = _getch();
-            if (key == 72)
+            if (key == 72)       // arriba
                 currentOption = (currentOption - 1 + totalOptions) % totalOptions;
-            else if (key == 80)
+            else if (key == 80)  // abajo
                 currentOption = (currentOption + 1) % totalOptions;
         }
-        else if (key == 13)
+        else if (key == 13)   // Enter
         {
             return currentOption + 1;
         }
     }
-
-    return 0;
 }
 
-// Funcion para salir si el usuario quiere
-bool ConfirmExitMenu()
+// Menú de confirmación de salida: Sí / No
+// Devuelve true si elige "Sí"
+static bool ConfirmExitMenu(Console &consoleSettings, Utils &utils)
 {
-    Utils utils;
+    consoleSettings.SetConsoleFont(16, 24, L"Lucida Console");
+
+    const wstring choices[] = { L"Sí", L"No" };
+    const int totalChoices = 2;
     int option = 0;
-    const wstring choices[] = {L"Sí", L"No"};
-    int totalChoices = 2;
 
     while (true)
     {
@@ -92,27 +92,35 @@ bool ConfirmExitMenu()
         int width = GetConsoleWidth();
         utils.SetUtf8();
 
-        wcout << WHITE_BRIGHT << "\n\n"
-              << CenterText(L"¿Seguro que quieres salir?", width) << "\n\n";
+        // Pregunta
+        std::wcout << WHITE_BRIGHT << L"\n\n"
+                   << CenterText(L"¿Seguro que quieres salir?", width)
+                   << L"\n\n";
 
+        // Opciones
         for (int i = 0; i < totalChoices; ++i)
         {
-            wstring line = (i == option) ? L">> " + choices[i] + L" <<" : L"   " + choices[i] + L"   ";
-            wcout << (i == option ? GREEN : WHITE_BRIGHT) << CenterText(line, width) << RESET << endl;
+            wstring line = (i == option)
+                ? L">> " + choices[i] + L" <<"
+                : L"   " + choices[i] + L"   ";
+
+            std::wcout << (i == option ? GREEN : WHITE_BRIGHT)
+                       << CenterText(line, width)
+                       << RESET << L"\n";
         }
 
         int key = _getch();
         if (key == 224)
         {
             key = _getch();
-            if (key == 72) // ↑
+            if (key == 72)       // arriba
                 option = (option - 1 + totalChoices) % totalChoices;
-            else if (key == 80) // ↓
+            else if (key == 80)  // abajo
                 option = (option + 1) % totalChoices;
         }
-        else if (key == 13)
+        else if (key == 13)    // Enter
         {
-            return option == 0; // Devuelve true si eligió "Sí"
+            return (option == 0);
         }
     }
 }

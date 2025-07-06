@@ -147,31 +147,24 @@ public:
         if (processThread == STATE_STORYBOARD_SHOWN)
         {
             consoleSettings.SetTitle(title);
-            switch (StartMenu()) // Aqui se manda a llamar la logica del menu que devolveria un numero dependiendo de lo que escoga
+            int choice = StartMenu(consoleSettings, utils);
+            switch (choice)
             {
-            case 1: // Si le dio a jugar entonces? (deberia borrar cualquier partida anterior que tenga si es que tiene o no para comenzar de 0)
-                    // Si sale bien entonces:
+            case 1: // Jugar
                 processThread = STATE_INITIAL_MENU_DONE;
                 ShowSecondMenu();
                 break;
-            case 2: // Si le dio a continuar es que tiene partida guardada, entonces no es necesario mostrar el segundo menú
+            case 2: // Continuar
                 processThread = STATE_SECOND_MENU_DONE;
                 break;
-            default:
-                processThread = STATE_NOT_STARTED;
-                if (ConfirmExitMenu())
-                {
-                    exit(0); // Finaliza el juego
-                }
-                else
-                {
-                    // El usuario no quiso salir, se queda en el menú
-                    processThread = STATE_STORYBOARD_SHOWN;
-                }
+            case 3: // Salir
+                if (ConfirmExitMenu(consoleSettings, utils))
+                    exit(0);
                 break;
             }
         }
     }
+
     // TODO ----- PROCESO (5) ----
     int selectedDifficulty = 0;
 
@@ -181,7 +174,7 @@ public:
         {
         case STATE_INITIAL_MENU_DONE:
 
-            selectedDifficulty = StartSecondMenu(); //
+            selectedDifficulty = StartSecondMenu(consoleSettings, utils);
             if (selectedDifficulty >= 1 && selectedDifficulty <= 3)
             {
                 processThread = STATE_GAME_STARTED;

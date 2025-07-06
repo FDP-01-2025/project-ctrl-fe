@@ -53,7 +53,6 @@ private:
 SphinxGame::SphinxGame()
     : isRunning(true), correctAnswers(0), currentQuestion(1), answerStatus(-1), questionAnswered(false)
 {
-    player.SetLives(3);
     lives = player.GetLives();
     totalQuestions = 5;
 
