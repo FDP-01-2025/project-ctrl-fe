@@ -511,30 +511,26 @@ public:
                             std::wcout << GREEN << L"║" << RESET;
                             drawn = true;
                             break;
-                        case 'A':
+                        case '*':
                             std::wcout << BROWN << L"┬" << RESET;
                             drawn = true;
                             break;
-                        case 'B':
+                        case '-':
                             std::wcout << BROWN << L"│" << RESET;
                             drawn = true;
                             break;
-                        case 'C':
+                        case '=':
                             std::wcout << BROWN << L"┴" << RESET;
                             drawn = true;
                             break;
-                        case 'F':
-                            std::wcout << RED << L"→" << RESET;
-                            drawn = true;
-                            break;
-                        case 'l':
-                            std::wcout << RED << L"─" << RESET;
-                            drawn = true;
-                            break;
-                        case 'O':
-                            std::wcout << RED << L"─" << RESET;
-                            drawn = true;
-                            break;
+                            /* case 'F':
+                                 std::wcout << RED << L"→" << RESET;
+                                 drawn = true;
+                                 break;
+                             case 'l':
+                                 std::wcout << RED << L"─" << RESET;
+                                 drawn = true;
+                                 break;*/
                         }
                         break;
 
@@ -551,7 +547,6 @@ public:
                             break;
                         case '|':
                         case '_':
-                        case 'W':
                             std::wcout << GRAY << L"░" << RESET;
                             drawn = true;
                             break;
