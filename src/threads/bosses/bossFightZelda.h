@@ -23,7 +23,7 @@ public:
     MainBossFightZelda() {}
 
     // Main loop to run the boss fight sequence
-    void Run()
+    bool Run()
     {
         // Load the Zelda temple map from file
         std::string currentMapName = utils.GetAssetsPath() + "maps\\zelda\\temple.txt";
@@ -344,7 +344,7 @@ public:
                         {
                             utils.ClearScreen();
                             isRunning = false;
-                            return;
+                            return true;
                         }
                     }
                 }
@@ -354,9 +354,8 @@ public:
             if (player.GetLives() <= 0)
             {
                 utils.ClearScreen();
-                std::wcout << L"\nYou have been defeated. Game Over.\n";
                 isRunning = false;
-                return;
+                return false;
             }
 
             // Check if boss is defeated and open the exit

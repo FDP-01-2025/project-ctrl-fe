@@ -230,6 +230,12 @@ public:
                     case 'B':
                         std::wcout << GREEN << L"═" << RESET;
                         break;
+                    case 'v':
+                        std::wcout << YELLOW << L"°" << RESET;
+                        break;
+                    case 'n':
+                        std::wcout << YELLOW << L"¥" << RESET;
+                        break;
                     default:
                         std::wcout << tile;
                         break;
