@@ -87,8 +87,7 @@ GeographyQuestion SphinxGame::GenerateQuestion()
             available[count++] = i;
     }
 
-    if (count == 0)
-        return questions[0]; // fallback
+    if (count == 0) return questions[0]; // fallback
 
     int randomIndex = available[rand() % count];
     usedQuestions[randomIndex] = true;
@@ -105,10 +104,8 @@ bool SphinxGame::Run(Console consoleSettings)
 
     offsetX = (utils.GetConsoleWidth() - viewWidth) / 2 - 4;
     offsetY = (utils.GetConsoleHeight() - map.GetHeight()) / 2 - 1;
-    if (offsetX < 0)
-        offsetX = 0;
-    if (offsetY < 0)
-        offsetY = 0;
+    if (offsetX < 0) offsetX = 0;
+    if (offsetY < 0) offsetY = 0;
 
     messageX = offsetX;
     messageY = offsetY + map.GetHeight() + 2;
@@ -118,7 +115,6 @@ bool SphinxGame::Run(Console consoleSettings)
 
     while (isRunning)
     {
-
         map.DrawWithPlayerSphinx(
             map.GetWidth(), map.GetHeight(),
             player.GetX(), player.GetY(),
@@ -154,8 +150,7 @@ void SphinxGame::ProcessInput(char input)
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first, dy = dir.second;
 
-    if (dx == 0 && dy == 0)
-        return;
+    if (dx == 0 && dy == 0) return;
 
     int newX = player.GetX() + dx;
     int newY = player.GetY() + dy;

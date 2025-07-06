@@ -20,6 +20,8 @@
 #include "./src/threads/events/sphinx.h"
 #include "./src/threads/startup/way1.h"
 #include "./src/threads/startup/bossSalaPrev.h"
+#include "./src/threads/startup/gameOver.h"
+
 #include <set>
 
 class Global
@@ -44,7 +46,7 @@ protected:
     MainBossFightZelda bossFightZelda;
     Worm worm;
     Elevator elevator;
-
+    GameOverScreen gameOver;
     MapId currentMap;
     Way1 frstWay;
     BossSalaPrev bossSalaPrev;
@@ -197,8 +199,7 @@ public:
     // TODO ----- PROCESO (6) ----
     void StartGame()
     {
-        sphinx.Run(consoleSettings);
-        /*if (processThread != STATE_GAME_STARTED)
+        if (processThread != STATE_GAME_STARTED)
             return;
 
         player.removeStatusFile();
@@ -218,7 +219,7 @@ public:
         if (counterBoss == showBoossLot)
         {
             // TODO: Mostrar final del juego
-        }*/
+        }
     }
 
     bool GamesExecute()
@@ -235,8 +236,18 @@ public:
         {
             if (player.GetLives() == 0)
             {
-                // TODO mostrar mensaje de pérdida
-                return false;
+                // Mostrar Game Over y preguntar
+                bool restart = gameOver.Show(utils);
+                if (restart)
+                {
+                    // Reinicia el estado del jugador y vuelve al menú o al inicio
+                    player.ResetState(currentDificulti);
+                    return GamesExecute(); // o reinicia Global::StartGame()
+                }
+                else
+                {
+                    exit(0); // Sale del juego
+                }
             }
 
             std::set<int> gamesAlreadyPlayed;
@@ -271,7 +282,7 @@ public:
             {
                 gamesCompleted << static_cast<int>(selected) << std::endl;
                 counterMaps++;
-                
+
                 if (counterMaps >= showMapsLot)
                     break;
             }
