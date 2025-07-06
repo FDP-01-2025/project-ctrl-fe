@@ -234,7 +234,7 @@ public:
                 if (restart)
                 {
                     // Reinicia el estado del jugador y vuelve al menú o al inicio
-                    player.ResetState(currentDificulti);
+                    player.ResetState(SetDificultyDetails());
                     return GamesExecute(); // o reinicia Global::StartGame()
                 }
                 else

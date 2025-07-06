@@ -18,9 +18,9 @@ public:
             L"  ██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ",
             L" ██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗",
             L" ██║  ███╗███████║██╔████╔██║█████╗      ██║   ██║██║   ██║█████╗  ██████╔╝",
-            L" ██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔═══╝ ",
-            L" ╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║     ",
-            L"  ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝     "
+            L" ██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ███║    ",
+            L" ╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║ █║  ",
+            L"  ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝ ╚╝ "
         };
 
         const int artHeight = sizeof(gameOverArt) / sizeof(gameOverArt[0]);
@@ -28,6 +28,14 @@ public:
         while (true) {
             system("cls");
             int width = utils.GetConsoleWidth();
+            int height = utils.GetConsoleHeight();
+
+            // Calcular padding vertical para centrar
+            int totalLines = artHeight + 2 + nOptions; // arte + líneas en blanco + opciones
+            int verticalPadding = (height - totalLines) / 2;
+
+            // Padding vertical arriba
+            std::wcout << std::wstring(verticalPadding, L'\n');
 
             // Mostrar arte de "GAME OVER"
             for (int i = 0; i < artHeight; ++i) {
@@ -38,7 +46,7 @@ public:
 
             std::wcout << L"\n\n";
 
-            // Mostrar opciones
+            // Mostrar opciones centradas horizontalmente
             for (int i = 0; i < nOptions; ++i) {
                 std::wstring text = (i == choice)
                     ? L">> " + std::wstring(options[i]) + L" <<"
