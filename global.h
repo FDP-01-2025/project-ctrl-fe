@@ -21,8 +21,8 @@
 #include "./src/threads/startup/way1.h"
 #include "./src/threads/startup/bossSalaPrev.h"
 #include "./src/threads/startup/gameOver.h"
+#include "./src/threads/startup/Win.h"
 #include "./src/threads/events/chest.h"
-
 
 #include <set>
 
@@ -56,6 +56,7 @@ protected:
     MapId selected;
     MapId opcionesGames[3];
     MapId opcionesBoses[2];
+    VictoryScreen victoryScreen;
 
     int showMapsLot, showBoossLot;
 
@@ -245,7 +246,19 @@ public:
         // If enough bosses have been defeated, show the end of the game (not implemented yet)
         if (counterBoss == showBoossLot)
         {
-            // TODO: Display end of the game
+            bool restart = victoryScreen.Show(utils);
+            if (restart)
+            {
+                // Reinicia el estado del jugador y vuelve al menú o al inicio
+                player.ResetState(SetDificultyDetails());
+                counterMaps = 0;
+                counterBoss = 0;
+                StartGame(); // o regresa al menú inicial si quieres
+            }
+            else
+            {
+                exit(0); // Sale del juego
+            }
         }
     }
 
@@ -324,6 +337,22 @@ public:
             }
             else if (player.GetLives() == 0)
             {
+
+                bool restart = victoryScreen.Show(utils);
+                if (restart)
+                {
+                    // Reinicia el estado del jugador y vuelve al menú o al inicio
+                    player.ResetState(SetDificultyDetails());
+                    counterMaps = 0;
+                    counterBoss = 0;
+                    StartGame(); // o regresa al menú inicial si quieres
+                }
+                else
+                {
+                    exit(0); // Sale del juego
+                }
+
+                /*
                 // Mostrar Game Over y preguntar
                 bool restart = gameOver.Show(utils);
                 if (restart)
@@ -335,7 +364,7 @@ public:
                 else
                 {
                     exit(0); // Sale del juego
-                }
+                }*/
             }
             Sleep(50);
         }
@@ -343,7 +372,8 @@ public:
         return true;
     }
 
-    bool BossesExecute()
+    bool
+    BossesExecute()
     {
         MapId allGames[] = {BoosMario, BoosZelda};
         const int totalGames = sizeof(allGames) / sizeof(allGames[0]);

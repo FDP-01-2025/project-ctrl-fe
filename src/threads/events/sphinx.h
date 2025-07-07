@@ -5,6 +5,7 @@
 #include "../../core/engine/settings/console.h"
 #include "core/modules/sphinx/hudSphinx.h"
 
+// This struct represents a multiple-choice question
 struct GeographyQuestion
 {
     std::wstring question;
@@ -40,7 +41,7 @@ private:
     bool usedQuestions[8];
     GeographyQuestion question;
 
-    int answerStatus; // -1 = sin mensaje, 0 = incorrecto, 1 = correcto
+    int answerStatus; // -1 = no message, 0 = wrong, 1 = correct
     bool questionAnswered;
 
     void LoadLevel(std::string key);
@@ -50,6 +51,7 @@ private:
     GeographyQuestion GenerateQuestion();
 };
 
+// Constructor: set initial values and get first question
 SphinxGame::SphinxGame()
     : isRunning(true), correctAnswers(0), currentQuestion(1), answerStatus(-1), questionAnswered(false)
 {
@@ -60,6 +62,7 @@ SphinxGame::SphinxGame()
     question = GenerateQuestion();
 }
 
+// Load all the questions into the array
 void SphinxGame::InitializeQuestions()
 {
     questions[0] = {L"Who was the first President of the United States?", {L"George Washington", L"Thomas Jefferson", L"Abraham Lincoln"}, 0};
@@ -75,6 +78,7 @@ void SphinxGame::InitializeQuestions()
         usedQuestions[i] = false;
 }
 
+// Pick a random question that hasn't been used
 GeographyQuestion SphinxGame::GenerateQuestion()
 {
     int available[8];
@@ -87,13 +91,14 @@ GeographyQuestion SphinxGame::GenerateQuestion()
     }
 
     if (count == 0)
-        return questions[0]; // fallback
+        return questions[0]; // default fallback
 
     int randomIndex = available[rand() % count];
     usedQuestions[randomIndex] = true;
     return questions[randomIndex];
 }
 
+// Main game loop
 bool SphinxGame::Run(Console consoleSettings)
 {
     SetGoodStyle(consoleSettings);
@@ -102,12 +107,11 @@ bool SphinxGame::Run(Console consoleSettings)
     LoadLevel(key);
     viewWidth = map.GetWidth();
 
+    // Center the map in the screen
     offsetX = (utils.GetConsoleWidth() - viewWidth) / 2 - 4;
     offsetY = (utils.GetConsoleHeight() - map.GetHeight()) / 2 - 1;
-    if (offsetX < 0)
-        offsetX = 0;
-    if (offsetY < 0)
-        offsetY = 0;
+    if (offsetX < 0) offsetX = 0;
+    if (offsetY < 0) offsetY = 0;
 
     messageX = offsetX;
     messageY = offsetY + map.GetHeight() + 2;
@@ -117,11 +121,13 @@ bool SphinxGame::Run(Console consoleSettings)
 
     while (isRunning)
     {
+        // Draw the map and player
         map.DrawWithPlayerSphinx(
             map.GetWidth(), map.GetHeight(),
             player.GetX(), player.GetY(),
             offsetX, offsetY);
 
+        // Draw HUD and question
         hud.Draw(player, currentQuestion, viewWidth, answerStatus);
 
         int preguntaY = offsetY + map.GetHeight() + 1;
@@ -135,6 +141,7 @@ bool SphinxGame::Run(Console consoleSettings)
             utils.PrintAtPosition(optionX, preguntaY + 2 + i, text, YELLOW_BRIGHT);
         }
 
+        // Read input
         if (_kbhit())
         {
             char input = _getch();
@@ -147,6 +154,7 @@ bool SphinxGame::Run(Console consoleSettings)
     return (lives > 0);
 }
 
+// Handle user input and movement
 void SphinxGame::ProcessInput(char input)
 {
     std::pair<int, int> dir = player.GetInputDirection(input);
@@ -159,10 +167,12 @@ void SphinxGame::ProcessInput(char input)
     int newY = player.GetY() + dy;
     wchar_t tile = map.GetTile(newX, newY);
 
+    // Only move if it's not blocked
     if (tile != L'A' && tile != L'B' && tile != L'#')
     {
         player.SetPosition(newX, newY);
 
+        // Check if player answered a question
         if (!questionAnswered && (tile == L'1' || tile == L'2' || tile == L'3'))
         {
             int answer = tile - L'1';
@@ -196,16 +206,16 @@ void SphinxGame::ProcessInput(char input)
                     utils.ClearScreen();
                     std::wcout << L"\n\n\nYou lost. The Sphinx has defeated you.\n";
                     isRunning = false;
-                    return; // <- Esto sigue saliendo del if, pero no cambia el valor de retorno aún
+                    return;
                 }
 
-                // misma pregunta, no se avanza
                 questionAnswered = false;
             }
         }
     }
 }
 
+// Load the level map and set player's start position
 void SphinxGame::LoadLevel(std::string key)
 {
     utils.ClearScreenComplety();
@@ -215,6 +225,7 @@ void SphinxGame::LoadLevel(std::string key)
     playerY = player.GetY();
 }
 
+// Set console style and show intro
 void SphinxGame::SetGoodStyle(Console consoleSettings)
 {
     consoleSettings.SetConsoleFont(8, 12, L"Lucida Console");
