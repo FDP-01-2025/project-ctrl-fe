@@ -27,7 +27,12 @@ bool InitializerThread(int width, int height, Console consoleSettings, Utils uti
         L"|  |.'.|  |_)(|  '--. |  |`-' |/_) |     |--)|  | |  ||  |'.'|  |  |  '--. ",
         L"|         |   |  .--'(|  '---.'||  |         |  | |  ||  |   |  |  |  .--' ",
         L"|   ,'.   |   |  `---.|      |(_'  '--'|     '  '-'  '|  |   |  |  |  `---.",
-        L"'--'   '--'   `------'`------'   `-----'      `-----' `--'   `--'  `------'"};
+        L"'--'   '--'   `------'`------'   `-----'      `-----' `--'   `--'  `------'",
+        L"                                                                           ",
+        L"                                                                           ",
+        L"                                                                           ",
+        L"                                                                           "
+    };
 
     // ASCII art for "TOWER OF LEGUIM"
     const std::wstring titleArt[] = {
@@ -74,10 +79,10 @@ bool InitializerThread(int width, int height, Console consoleSettings, Utils uti
         const std::wstring color = rainbowColors[i % numColors];
         std::wcout << std::wstring(padding, L' ') << color << welcomeArt[i] << RESET << L"\n";
     }
+    utils.PrintAtPosition(10, 60, L"        Made by: Cntrl + Fe", GRAY);
 
     Sleep(1500); // Pause before clearing
     system("cls");
-    Sleep(300);
 
     int verticalPadding = std::max(0, (consoleH - titleLines) / 2);
     std::wcout << std::wstring(verticalPadding, L'\n'); // Add top padding for title

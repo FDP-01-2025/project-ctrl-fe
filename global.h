@@ -132,7 +132,7 @@ public:
         {
         case STATE_FIRST_INIT:
             // LOGICA de mostrar el story board
-            processThread = ShowStoryBoard() ? STATE_STORYBOARD_SHOWN : STATE_NOT_STARTED;
+            processThread = ShowStoryBoard(consoleW, consoleH, consoleSettings, utils) ? STATE_STORYBOARD_SHOWN : STATE_NOT_STARTED;
             if (processThread == STATE_NOT_STARTED)
                 std::wcout << L"storyBoard no se completo";
             break;
