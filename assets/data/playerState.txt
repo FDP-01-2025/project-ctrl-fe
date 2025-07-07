@@ -1,9 +1,9 @@
-X: 12
-Y: 10
-Lives: 5
+X: 3
+Y: 8
+Lives: 0
 Bombs: 10
 Difficulty: 0
 ControlB: 0
-Room: 2
+Room: 1
 Event: 0
 OpenedChests: 0

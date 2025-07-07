@@ -199,7 +199,7 @@ bool Worm::Run(Console consoleSettings)
     utils.ClearScreen();
     if (player.GetLives() == 0)
     {
-        utils.PrintAtPosition(messageX, messageY, L"Game Over. No lives left.", RED);
+        //utils.PrintAtPosition(messageX, messageY, L"Game Over. No lives left.", RED);
         result = false;
     }
     else if (correctAnswers >= maxCorrectAnswers)
@@ -208,7 +208,7 @@ bool Worm::Run(Console consoleSettings)
         result = true;
     }
 
-    Sleep(2000);
+    Sleep(1500);
     system("cls");
     PlaySoundW(NULL, NULL, 0);        // Stop background music
     consoleSettings.SetConsoleFont(); // Reset font size
