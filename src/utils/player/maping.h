@@ -47,49 +47,7 @@ public:
     int GetSpawnX() const { return spawnX; }
     int GetSpawnY() const { return spawnY; }
 
-    Utils utils; // Utility object for printing/moving the cursor
-
-    // --- Deprecated map reading method from composed path ---
-    // std::ifstream IdentifierMap(std::string map)
-    // {
-    //     std::string path = "/maps/";
-    //     std::string filename = path + map;
-    //     return std::ifstream(filename);
-    // }
-
-    // void ReadMap(std::string key, int mapW, int mapH)
-    // {
-    //     std::ifstream file = IdentifierMap(key);
-    //     if (!file.is_open())
-    //     {
-    //         std::cerr << "Error opening file: " << strerror(errno) << "\n";
-    //     }
-
-    //     std::string line;
-    //     int y = 0;
-    //     while (std::getline(file, line) && y < mapH)
-    //     {
-    //         int lineLength = std::min((int)line.size(), mapW);
-    //         for (int x = 0; x < lineLength; ++x)
-    //         {
-    //             grid[y][x] = line[x];
-    //             if (line[x] == ']')
-    //             {
-    //                 spawnX = x + 1;
-    //                 spawnY = y;
-    //             }
-    //         }
-    //         for (int x = lineLength; x < mW; ++x)
-    //         {
-    //             grid[y][x] = ' ';
-    //         }
-    //         ++y;
-    //     }
-
-    //     height = y;
-    //     width = mW;
-    // }
-
+    Utils utils;
     // Reads the map from a plain text file
     void ReadMap(std::string key, int mapW, int mapH)
     {
@@ -131,30 +89,6 @@ public:
         height = y;
         width = maxWidth;
     }
-
-    // Draws the map on screen, optionally with player
-    /*void DrawMap(std::string key, int mapW, int mapH, int playerX = 1, int playerY = 1)
-    {
-        ReadMap(key, mapW, mapH); // Load the map
-
-        for (int y = 0; y < GetHeight(); ++y)
-        {
-            for (int x = 0; x < GetWidth(); ++x)
-            {
-                utils.MoveCursor(playerX + x, playerY + y);
-                if (x == playerX && y == playerY)
-                {
-                    std::wcout << PINK << L"o" << RESET; // Draw player
-                }
-                else
-                {
-                    std::wstring txt = L"";
-                    txt += grid[y][x];
-                    std::wcout << txt; // Draw map tile
-                }
-            }
-        }
-    }*/
 
     // Draws map and player, with configurable offset
     void DrawWithPlayer(int mapW, int mapH, int playerX = 1, int playerY = 1, int offsetX = 0, int offsetY = 0)
@@ -454,36 +388,51 @@ public:
 
     void DrawWithWindowView(int viewWidth, int playerX = 3, int playerY = 3, int offsetX = 0, int offsetY = 0, MapId mapId = MapId::FrstWay)
     {
+        // Ensure the view width does not exceed the map width
         if (viewWidth > width)
             viewWidth = width;
 
+        // Calculate starting X position for the viewport so player is centered
         int startX = playerX - viewWidth / 2;
+
+        // Clamp startX to minimum 0 (left edge)
         if (startX < 0)
             startX = 0;
+
+        // Clamp startX to maximum so viewport fits within map width
         if (startX + viewWidth > width)
             startX = width - viewWidth;
+
+        // Just in case startX went below zero again after adjustment
         if (startX < 0)
             startX = 0;
 
+        // Loop through each visible row (vertical)
         for (int y = 0; y < MAP_HEIGHT && y < height; ++y)
         {
+            // Loop through each visible column in the viewport (horizontal)
             for (int x = 0; x < viewWidth; ++x)
             {
-                int mapX = startX + x;
+                int mapX = startX + x; // Actual map X coordinate corresponding to viewport column
+
+                // Move console cursor to correct screen position plus offsets
                 utils.MoveCursor(offsetX + x, offsetY + y);
 
+                // Draw player if current tile matches player's position
                 if (mapX == playerX && y == playerY)
                 {
-                    std::wcout << PINK << L"இ" << RESET;
+                    std::wcout << PINK << L"இ" << RESET; // Print player symbol in pink color
                 }
                 else
                 {
-                    wchar_t tile = GetTile(mapX, y);
-                    bool drawn = false;
+                    wchar_t tile = GetTile(mapX, y); // Get the map tile character at this position
+                    bool drawn = false;              // Flag to check if tile was drawn
 
+                    // Draw tile differently depending on current map id (area/level)
                     switch (mapId)
                     {
                     case FrstWay:
+                        // Tiles specific to FrstWay map
                         switch (tile)
                         {
                         case 'D':
@@ -496,14 +445,17 @@ public:
                             break;
                         case 'b':
                             std::wcout << BROWN << L"║" << RESET;
+                            drawn = true;
                             break;
                         case 'a':
                             std::wcout << BROWN << L"═" << RESET;
+                            drawn = true;
                             break;
                         }
                         break;
 
                     case MainRoom:
+                        // Tiles specific to MainRoom map
                         switch (tile)
                         {
                         case '1':
@@ -524,53 +476,62 @@ public:
                             std::wcout << BROWN << L"┴" << RESET;
                             drawn = true;
                             break;
-                            /* case 'F':
-                                 std::wcout << RED << L"→" << RESET;
-                                 drawn = true;
-                                 break;
-                             case 'l':
-                                 std::wcout << RED << L"─" << RESET;
-                                 drawn = true;
-                                 break;*/
+                        case 'f':
+                            std::wcout << RED << L"→" << RESET;
+                            drawn = true;
+                            break;
+                        case 'l':
+                            std::wcout << RED << L"─" << RESET;
+                            drawn = true;
+                            break;
                         case 'b':
                             std::wcout << BROWN << L"║" << RESET;
+                            drawn = true;
                             break;
                         case 'a':
                             std::wcout << BROWN << L"═" << RESET;
+                            drawn = true;
                             break;
                         }
                         break;
+
                     case ElevatorGame:
+                        // Tiles specific to ElevatorGame map
                         switch (tile)
                         {
-                        case '¿':
-                            std::wcout << BROWN << L"║" << RESET;
-                            break;
-                        case '}':
+                        case L'z':
                             std::wcout << BROWN << L"═" << RESET;
+                            drawn = true;
                             break;
-                             case '¡':
+                        case L'j':
                             std::wcout << BROWN << L"║" << RESET;
+                            drawn = true;
+                            break;
+                        case L'k':
+                            std::wcout << YELLOW_BRIGHT << L"░" << RESET;
+                            drawn = true;
                             break;
                         }
                         break;
+
                     default:
                         break;
                     }
 
+                    // If tile was not drawn by any above case, draw default tiles
                     if (!drawn)
                     {
                         switch (tile)
                         {
                         case '#':
-                            std::wcout << GRAY << L" " << RESET;
+                            std::wcout << GRAY << L" " << RESET; // Draw gray space for wall or similar
                             break;
                         case '|':
                         case '_':
-                            std::wcout << GRAY << L"░" << RESET;
+                            std::wcout << GRAY << L"░" << RESET; // Draw shaded gray block
                             break;
                         default:
-                            std::wcout << tile;
+                            std::wcout << tile; // Just print the tile character as is
                             break;
                         }
                     }

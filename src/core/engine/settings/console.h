@@ -1,17 +1,17 @@
 #pragma once
 
-// Include de librerías necesarias
-#include <windows.h> // API de Windows para control de consola
-#include <iostream>  // Para salida de errores (std::cerr)
-#include <cstdio>    // Para freopen_s
-#include <conio.h>   // Para _kbhit, _getch
-#include <wchar.h>   // Para funciones de caracteres anchos
-#include <algorithm> // Para std::max y std::min
+// Include necessary libraries
+#include <windows.h> // Windows API for console control
+#include <iostream>  // For error output (std::cerr)
+#include <cstdio>    // For freopen_s
+#include <conio.h>   // For _kbhit, _getch
+#include <wchar.h>   // For wide character functions
+#include <algorithm> // For std::max and std::min
 #include <io.h>
 #include <fcntl.h>
 #include "utils\functions\utils.h"
 
-// Comentado: definición de CONSOLE_FONT_INFOEX por si no está disponibleMore actions
+// Commented out: Definition of CONSOLE_FONT_INFOEX in case it's not available
 
 #ifndef _CONSOLE_FONT_INFOEX
 #define _CONSOLE_FONT_INFOEX
@@ -26,69 +26,68 @@ typedef struct _CONSOLE_FONT_INFOEX
     WCHAR FaceName[LF_FACESIZE];
 } CONSOLE_FONT_INFOEX, *PCONSOLE_FONT_INFOEX;
 #endif
-
-// Define un puntero a función que apunta a SetCurrentConsoleFontEx de Windows API
+// Define a function pointer type that points to Windows API's SetCurrentConsoleFontEx function
 typedef BOOL(WINAPI *PFN_SetCurrentConsoleFontEx)(HANDLE, BOOL, PCONSOLE_FONT_INFOEX);
 
-// Clase Console para manejar la configuración y apariencia de la consola de Windows
+// Console class to manage Windows console configuration and appearance
 class Console
 {
 public:
-    // Constructor con valores por defecto para dimensiones de consola, buffer y fuente
+    // Constructor with default values for console dimensions, buffer, and font
     Console(int w = 100, int h = 45, int fw = 10, int fh = 16)
         : consoleW(w), consoleH(h), fontW(fw), fontH(fh),
-          originalW(w), originalH(h), originalFW(fw), originalFH(fh) // Guardar valores originales
+          originalW(w), originalH(h), originalFW(fw), originalFH(fh) // Save original values
     {
         bufferW = w;
         bufferH = h;
     }
-    // Configura la consola: crea una nueva consola, redirige entradas/salidas y aplica ajustes
+    // Configure the console: allocate a new console, redirect I/O, and apply settings
     void ConfigConsole()
     {
         Utils utils;
-        FreeConsole(); // Libera la consola actual (si existe)More actions
+        FreeConsole(); // Release the current console (if any)
 
-        if (AllocConsole()) // Asigna una nueva consola
+        if (AllocConsole()) // Allocate a new console
         {
-            // Redirige stdout, stdin y stderr a la consola recién creadaMore actions
+            // Redirect stdout, stdin, and stderr to the new console
             if (!freopen("CONOUT$", "w", stdout))
-                std::cerr << "Error al redirigir stdout.\n";
+                std::cerr << "Error redirecting stdout.\n";
             if (!freopen("CONIN$", "r", stdin))
-                std::cerr << "Error al redirigir stdin.\n";
+                std::cerr << "Error redirecting stdin.\n";
             if (!freopen("CONOUT$", "w", stderr))
-                std::cerr << "Error al redirigir stderr.\n";
+                std::cerr << "Error redirecting stderr.\n";
 
             utils.SetUtf8();
 
-            // Obtiene los handles de entrada y salida de la consola
+            // Get the handles for console input and output
             hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
             hConsoleIN = GetStdHandle(STD_INPUT_HANDLE);
 
-            // Verifica si el handle es válido
+            // Check if handles are valid
             if (hConsoleOUT == NULL || hConsoleOUT == INVALID_HANDLE_VALUE)
             {
-                std::cerr << "Error: Handle de consola invalido.\n";
+                std::cerr << "Error: Invalid console handle.\n";
                 return;
             }
-            // Si la configuración es válida, aplica los cambios visuales
+            // If configuration is valid, apply visual changes
             if (ValidConfigs(hConsoleOUT))
             {
-                ApllySettings(); // Aplica tamaño de buffer y ventana
+                ApllySettings(); // Apply buffer and window size
                 Sleep(10);
                 hwnd = GetConsoleWindow();
-                SetConsoleFont(); // Cambia el tipo y tamaño de fuente
-                HideCursor();     // Oculta el cursor
+                SetConsoleFont(); // Change font type and size
+                HideCursor();     // Hide the cursor
                 StylizeWindow();
-                CenterWindow(); // Centra la ventana en la pantalla
+                CenterWindow(); // Center the window on the screen
             }
         }
         else
         {
-            std::cerr << "No se pudo crear la consola." << std::endl;
+            std::cerr << "Failed to create console." << std::endl;
         }
     }
 
-    // Verifica y ajusta configuraciones de consola según límites máximos
+    // Validate and adjust console configurations according to maximum limits
     bool ValidConfigs(HANDLE handle)
     {
         if (!GetConsoleScreenBufferInfo(handle, &csbi))
@@ -96,7 +95,7 @@ public:
             DWORD error = GetLastError();
             LPSTR errorMsg = nullptr;
 
-            FormatMessageA( // Obtiene mensaje legible del error
+            FormatMessageA( // Get readable error message
                 FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
                 nullptr,
                 error,
@@ -105,68 +104,69 @@ public:
                 0,
                 nullptr);
 
-            std::cerr << "Error al obtener info de la consola. Codigo: " << error << "\n";
-            std::cerr << "Mensaje: " << (errorMsg ? errorMsg : "Error desconocido") << "\n";
-            std::cerr << "Error obteniendo info consola\n";
+            std::cerr << "Error getting console info. Code: " << error << "\n";
+            std::cerr << "Message: " << (errorMsg ? errorMsg : "Unknown error") << "\n";
+            std::cerr << "Error retrieving console info\n";
             return false;
         }
         return true;
     }
 
-    // Aplica tamaño del buffer y la ventana de la consola
+    // Apply console buffer and window size
     void ApllySettings()
     {
-        // Paso 1: Reducir temporalmente la ventana (antes de cambiar el buffer)
+        // Step 1: Temporarily shrink the window before changing buffer size
         SMALL_RECT tmp = {0, 0, 1, 1};
         SetConsoleWindowInfo(hConsoleOUT, TRUE, &tmp);
 
-        // Paso 2: Cambiar el tamaño del buffer
+        // Step 2: Change the buffer size
         bufferSize = {static_cast<SHORT>(consoleW), static_cast<SHORT>(consoleH)};
         if (!SetConsoleScreenBufferSize(hConsoleOUT, bufferSize))
         {
-            std::cerr << "Error estableciendo buffer: " << GetLastError() << "\n";
+            std::cerr << "Error setting buffer: " << GetLastError() << "\n";
             return;
         }
 
-        // Paso 3: Establecer tamaño final de la ventana
+        // Step 3: Set final window size
         windowSize = {0, 0, static_cast<SHORT>(consoleW - 1), static_cast<SHORT>(consoleH - 1)};
         if (!SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize))
         {
-            std::cerr << "Error ajustando ventana: " << GetLastError() << "\n";
-            // Intentar con tamaño máximo
+            std::cerr << "Error setting window size: " << GetLastError() << "\n";
+            // Try max possible size
             windowSize = {0, 0, static_cast<SHORT>(csbi.dwMaximumWindowSize.X - 1),
                           static_cast<SHORT>(csbi.dwMaximumWindowSize.Y - 1)};
             SetConsoleWindowInfo(hConsoleOUT, TRUE, &windowSize);
         }
     }
 
-    // Función pública sin parámetros que usa valores por defecto de la clase
+    // Public function without parameters that uses default class values
     void SetConsoleFont()
     {
         SetConsoleFontImpl(originalFW, originalFH, L"Lucida console");
         ResetConsoleSize();
     }
 
+    // Set console font with specified width, height, and font face name
     void SetConsoleFont(int width, int height, const wchar_t *faceName)
     {
-        // Guardar las dimensiones físicas actuales
+        // Save current physical window dimensions
         GetWindowRect(hwnd, &rect);
         int currentWidth = rect.right - rect.left;
         int currentHeight = rect.bottom - rect.top;
 
-        // Calcular nuevas dimensiones en caracteres
+        // Calculate new console width and height in characters
         int newConsoleW = currentWidth / width;
         int newConsoleH = currentHeight / height;
 
         consoleW = newConsoleW;
         consoleH = newConsoleH;
 
-        // Aplicar cambios
+        // Apply changes
         SetConsoleFontImpl(width, height, faceName);
         ApllySettings();
     }
 
-    // Centra la ventana de la consola en la pantalla
+    // Center the console window on the screen
     void CenterWindow()
     {
         if (!hwnd)
@@ -182,19 +182,19 @@ public:
         SetWindowPos(hwnd, HWND_TOP, posX, posY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
     }
 
-    // Cambia el título de la ventana de consola
+    // Change the console window title
     void SetTitle(const wchar_t *title)
     {
         SetConsoleTitleW(title);
     }
 
-    // Cambia el color de texto de la consola
+    // Change the text color of the console
     void SetColor(WORD attributes)
     {
         SetConsoleTextAttribute(hConsoleOUT, attributes);
     }
 
-    // Oculta el cursor de texto en la consola
+    // Hide the text cursor in the console
     void HideCursor()
     {
         if (hConsoleOUT == INVALID_HANDLE_VALUE)
@@ -210,9 +210,9 @@ public:
         SetConsoleCursorInfo(hConsoleOUT, &cursorInfo);
     }
 
+    // Remove border and resizing styles from the window
     void StylizeWindow()
     {
-        // Quitar estilos de borde y redimensionamiento
         LONG style = GetWindowLong(hwnd, GWL_STYLE);
         style &= ~WS_CAPTION;
         style &= ~WS_THICKFRAME;
@@ -222,64 +222,50 @@ public:
 
         SetWindowLong(hwnd, GWL_STYLE, style);
 
-        // Forzar que Windows reprocese los estilos aplicados
+        // Force Windows to reapply the styles
         SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
                      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
 
-    /*
-    void DisableResize()
-{
-
-    // Obtener el estilo actual
-    LONG style = GetWindowLong(hwnd, GWL_STYLE);
-
-    // Quitar redimensionamiento y botón de maximizar
-    style &= ~WS_SIZEBOX;       // quita el borde redimensionable
-    style &= ~WS_MAXIMIZEBOX;   // quita el botón de maximizar
-
-    // Dejar la barra de título (WS_CAPTION) y botón de cerrar (WS_SYSMENU)
-    // Los otros flags importantes ya están presentes por defecto
-
-    // Aplicar cambios
-    SetWindowLong(hwnd, GWL_STYLE, style);
-
-    // Forzar redibujo del frame para aplicar los nuevos estilos
-    SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-} */
-
 private:
+    // Internal helper method to set the console font using Windows API
     void SetConsoleFontImpl(int width, int height, const wchar_t *faceName)
     {
+        // Get a handle to the kernel32.dll module where the function is located
         HMODULE hKernel = GetModuleHandleA("kernel32.dll");
         if (!hKernel)
         {
-            std::cerr << "No se pudo obtener kernel32.dll\n";
+            std::cerr << "Failed to get kernel32.dll\n"; // Unable to get module handle
             return;
         }
 
+        // Get the address of the SetCurrentConsoleFontEx function dynamically
         PFN_SetCurrentConsoleFontEx pSetFont = (PFN_SetCurrentConsoleFontEx)GetProcAddress(hKernel, "SetCurrentConsoleFontEx");
         if (!pSetFont)
         {
-            std::cerr << "SetCurrentConsoleFontEx no disponible en esta versión de Windows\n";
+            // The function may not be available on older Windows versions
+            std::cerr << "SetCurrentConsoleFontEx not available on this Windows version\n";
             return;
         }
 
+        // Prepare the CONSOLE_FONT_INFOEX structure to specify the font parameters
         CONSOLE_FONT_INFOEX cfi = {0};
-        cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
-        cfi.dwFontSize.X = static_cast<SHORT>(width);
-        cfi.dwFontSize.Y = static_cast<SHORT>(height);
-        cfi.FontFamily = FF_DONTCARE;
-        cfi.FontWeight = FW_NORMAL;
-        lstrcpyW(cfi.FaceName, faceName);
+        cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);      // Size of this structure
+        cfi.dwFontSize.X = static_cast<SHORT>(width);  // Font width in pixels
+        cfi.dwFontSize.Y = static_cast<SHORT>(height); // Font height in pixels
+        cfi.FontFamily = FF_DONTCARE;                  // Let the system choose the font family
+        cfi.FontWeight = FW_NORMAL;                    // Normal font weight (not bold)
+        lstrcpyW(cfi.FaceName, faceName);              // Copy the font face name (e.g., "Lucida Console")
 
+        // Call the function to set the console font; pass FALSE for the bMaximumWindow parameter
         if (!pSetFont(hConsoleOUT, FALSE, &cfi))
         {
-            std::cerr << "Error cambiando fuente\n";
+            // If the function fails, output an error message
+            std::cerr << "Error changing font\n";
         }
     }
 
+    // Reset console size parameters to original and reapply settings
     void ResetConsoleSize()
     {
         consoleW = originalW;
@@ -290,23 +276,23 @@ private:
     }
 
 protected:
-    // Parámetros de configuración
-    int consoleW; // Ancho de la ventana
-    int consoleH; // Alto de la ventana
-    int bufferW;  // Ancho del buffer
-    int bufferH;  // Alto del buffer
-    int fontW;    // Ancho de fuente
-    int fontH;    // Alto de fuente
-    int originalW;
-    int originalH;
-    int originalFW;
-    int originalFH;
+    // Configuration parameters
+    int consoleW;   // Window width in characters
+    int consoleH;   // Window height in characters
+    int bufferW;    // Buffer width in characters
+    int bufferH;    // Buffer height in characters
+    int fontW;      // Font width in pixels
+    int fontH;      // Font height in pixels
+    int originalW;  // Original window width
+    int originalH;  // Original window height
+    int originalFW; // Original font width
+    int originalFH; // Original font height
 
-    // Handles de entrada y salida
+    // Input and output handles
     HANDLE hConsoleOUT;
     HANDLE hConsoleIN;
 
-    // Información del estado de la consola
+    // Console state info
     SMALL_RECT windowSize;
     RECT rect;
     COORD bufferSize;

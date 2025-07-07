@@ -1,17 +1,6 @@
-<<<<<<< HEAD
-X: 20
-Y: 8
-Lives: 4
-=======
-<<<<<<< HEAD
-X: 4
-Y: 6
-=======
-X: 59
-Y: 11
->>>>>>> 05e4cf4f5316a19e05081bbc75724a56b56f61ef
+X: 19
+Y: 4
 Lives: 5
->>>>>>> f3b3ce2109f344f80dadf049fa050b77c82972f2
 Bombs: 10
 Difficulty: 0
 ControlB: 0

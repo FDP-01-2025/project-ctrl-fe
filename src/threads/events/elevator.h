@@ -41,7 +41,7 @@ Exercise GenerateExercise()
     case 2:
         e.question = L"What is the result of (x + 3)(x - 2) if x = 1?";
         e.options[0] = L"2";
-        e.options[1] = L"-2";
+        e.options[1] = L"-4";
         e.options[2] = L"1";
         e.correctAnswer = 1;
         break;
@@ -78,7 +78,7 @@ Exercise GenerateExercise()
         e.options[0] = L"0";
         e.options[1] = L"4";
         e.options[2] = L"1";
-        e.correctAnswer = 2;
+        e.correctAnswer = 0;
         break;
     case 8:
         e.question = L"What is the result of (x^2 - 1)/(x - 1) if x = 3?";
@@ -146,7 +146,7 @@ bool Elevator::Run(Console consoleSettings)
     int spacing = 30;                         // Horizontal spacing between options
     messageY = offsetY + map.GetHeight() + 2; // Y position to show question
 
-    player.SetPosition(3, 6); // Set initial player position
+    player.SetPosition(3, 8); // Set initial player position
 
     std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\LunarAbyss.wav";
     PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
@@ -178,8 +178,8 @@ bool Elevator::Run(Console consoleSettings)
         }
 
         utils.ClearScreen();
-        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY); // Draw map with camera
-        hud.Draw(player, 1, map.GetWidth(), correctAnswers, secondsLeft);              // Draw HUD
+        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY, ElevatorGame); // Draw map with camera
+        hud.Draw(player, 1, map.GetWidth(), correctAnswers, secondsLeft);                            // Draw HUD
 
         if (currentExercise.question != lastQuestion)
         {
@@ -188,7 +188,7 @@ bool Elevator::Run(Console consoleSettings)
             utils.PrintAtPosition(startX, messageY + 2, std::wstring(80, L' '), RESET);
 
             // Print new question and options
-            utils.PrintAtPosition(startX, messageY, currentExercise.question, PURPLE_BRIGHT);
+            utils.PrintAtPosition(startX, messageY, currentExercise.question, PURPLE);
             for (int i = 0; i < 3; ++i)
             {
                 int number = i + 1;
@@ -227,7 +227,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
     wchar_t tile = map.GetTile(newX, newY);
     // utils.PrintAtPosition(0, 0, std::wstring(L"Tile: ") + tile, GREEN); // Debug: show tile char
 
-    if (tile == L' ' || tile == L'¿')
+    if (tile == L' ' || tile == L' ')
     {
         player.SetPosition(newX, newY); // Move player to new position if tile is empty or vertical bar
     }
@@ -244,7 +244,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
             utils.PrintAtPosition(2, messagePosY, L"Correct", GREEN);
             Sleep(500);
             utils.PrintAtPosition(2, messagePosY, L"       ", RESET); // Clear message
-            player.SetPosition(3, 6);                                 // Reset player position
+            player.SetPosition(3, 8);                                 // Reset player position
             correctAnswers++;
         }
         else
@@ -252,7 +252,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
             utils.PrintAtPosition(2, messagePosY, L"Incorrect", RED);
             Sleep(500);
             utils.PrintAtPosition(2, messagePosY, L"         ", RESET); // Clear message
-            player.SetPosition(3, 6);
+            player.SetPosition(3, 8);
             Sleep(100);
             lives--;
             player.SetLives(lives);

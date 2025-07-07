@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include <vector>
 #include "../../utils/screen/colors.h"
 #include "../../utils/functions/utils.h"
 #include "../../core/engine/settings/console.h"

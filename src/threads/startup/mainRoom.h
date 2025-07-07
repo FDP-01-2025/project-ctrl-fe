@@ -6,16 +6,15 @@
 #include "utils/functions/utils.h"
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
-#include "utils/functions/toWstring.h"
 #include "core/modules/hud/hudMainRoom.h"
-#include <mmsystem.h>             // Reproducir sonido
-#pragma comment(lib, "winmm.lib") // Enlace con la librería de sonido
+#include <mmsystem.h>             // Play sound
+#pragma comment(lib, "winmm.lib") // Link with sound library
 
 class MainRoomGame
 {
 public:
     MainRoomGame();
-    MapId Run(Console consoleSettings, MapId opciones[3]);
+    MapId Run(Console consoleSettings, MapId options[3]);
 
 private:
     Map map;
@@ -23,108 +22,132 @@ private:
     Player player;
     HudMain hud;
 
-    int viewW;
-    int consoleW;
-    int playerX;
-    int playerY;
-    MapId selection;
-    MapId opcionesGames[3];
-    int totalOpciones = 0;
+    int viewWidth;        // Width of the viewport for map drawing
+    int consoleWidth;     // Console window width
+    int playerX;          // Player X coordinate
+    int playerY;          // Player Y coordinate
+    MapId selection;      // Currently selected option
+    MapId gameOptions[3]; // Array holding game options for doors
+    int totalOptions = 0; // Number of valid options
 
-    int offsetX = 1, offsetY = 1; // Map drawing offset
+    int offsetX = 1, offsetY = 1; // Offset for drawing the map in the console
 
-    bool isRunning;
-    void ProceesInput(char input, Console consoleSettings);
-    void LoadLevel(std::string key);
-    std::wstring GetMapName(MapId id);
-    void ReplaceDoorsName(MapId op[3]);
-    void WriteTextOnMap(Map &map, int row, int colStart, const std::wstring &text);
+    bool isRunning; // Flag to keep main loop running
+
+    void ProcessInput(char input, Console consoleSettings);                         // Handles player input
+    void LoadLevel(std::string key);                                                // Loads map from file
+    std::wstring GetMapName(MapId id);                                              // Returns display name for MapId
+    void ReplaceDoorNames(MapId options[3]);                                        // Writes door names on the map
+    void WriteTextOnMap(Map &map, int row, int colStart, const std::wstring &text); // Writes text on map grid
 };
 
 MainRoomGame::MainRoomGame() : isRunning(true)
 {
-    consoleW = utils.GetConsoleWidth();
-    viewW = consoleW;
+    consoleWidth = utils.GetConsoleWidth(); // Get console width on initialization
+    viewWidth = consoleWidth;               // Viewport width equals console width initially
 }
 
-MapId MainRoomGame::Run(Console consoleSettings, MapId opciones[3])
+MapId MainRoomGame::Run(Console consoleSettings, MapId options[3])
 {
     isRunning = true;
-    totalOpciones = 0;
+    totalOptions = 0;
+
+    // Copy options and count how many are valid (not None)
     for (int i = 0; i < 3; ++i)
     {
-        opcionesGames[i] = opciones[i];
-        if (opciones[i] != MapId::None)
-            totalOpciones++;
+        gameOptions[i] = options[i];
+        if (options[i] != MapId::None)
+            totalOptions++;
     }
 
     Sleep(100);
-    consoleSettings.SetConsoleFont(25, 25, L"Lucida console");
+    consoleSettings.SetConsoleFont(25, 25, L"Lucida Console"); // Set console font larger for better visibility
     Sleep(100);
-    std::string key = utils.GetAssetsPath() + "maps\\main\\mainRoom.txt";
-    LoadLevel(key);
+
+    // Load the main room map file
+    std::string mapFile = utils.GetAssetsPath() + "maps\\main\\mainRoom.txt";
+    LoadLevel(mapFile);
+
+    // Set initial player position inside the map
     player.SetPosition(3, 7);
 
+    // Play background sound asynchronously in a loop
     std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\LookOut.wav";
     PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+    // Main game loop for the main room
     while (isRunning)
     {
-        viewW = 30;
-        utils.ClearScreen();
-        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY, MapId::MainRoom);
-        hud.Draw(player, 1, viewW);
+        viewWidth = 30;      // Fixed viewport width to display map slice
+        utils.ClearScreen(); // Clear console screen
 
+        // Draw map with window view centered on player position, with offset
+        map.DrawWithWindowView(viewWidth, player.GetX(), player.GetY(), offsetX, offsetY, MapId::MainRoom);
+
+        // Draw the HUD with player info and viewport width
+        hud.Draw(player, 1, viewWidth);
+
+        // Process input if a key was pressed
         if (_kbhit())
-            ProceesInput(_getch(), consoleSettings);
+            ProcessInput(_getch(), consoleSettings);
 
-        Sleep(15);
+        Sleep(15); // Small delay to reduce CPU usage
     }
+
+    // Stop playing any sound
     PlaySoundW(NULL, NULL, 0);
+
+    // Reset console font to default
     consoleSettings.SetConsoleFont();
+
+    // Return the selected game/door option
     return selection;
 }
 
-void MainRoomGame::ReplaceDoorsName(MapId op[3])
+void MainRoomGame::ReplaceDoorNames(MapId options[3])
 {
-    for (int i = 0; i < totalOpciones; ++i)
+    // For each valid option, write the door name on the map
+    for (int i = 0; i < totalOptions; ++i)
     {
-        if (opcionesGames[i] == MapId::None)
+        if (gameOptions[i] == MapId::None)
             continue;
 
-        std::wstring nombre = GetMapName(opcionesGames[i]);
+        std::wstring doorName = GetMapName(gameOptions[i]);
 
-        int fila;
+        int row;
+        // Assign row to write the door name based on option index
         switch (i)
         {
         case 0:
-            fila = 3;
+            row = 3;
             break;
         case 1:
-            fila = 6;
+            row = 6;
             break;
         case 2:
-            fila = 9;
+            row = 9;
             break;
         }
 
-        WriteTextOnMap(map, fila, 44, nombre);
+        WriteTextOnMap(map, row, 44, doorName);
     }
 
-    // Si no hay tercera opción, tapar puerta 3 (fila 11 y 12)
-    if (totalOpciones < 3)
+    // If there is no third option, block door 3 by drawing walls (rows 10 and 11)
+    if (totalOptions < 3)
     {
         map.SetTile(60, 10, L'|');
         map.SetTile(60, 11, L'|');
     }
 
-    // Si no hay segunda opción, tapar puerta 2 (fila 8 y 9)
-    if (totalOpciones < 2)
+    // If there is no second option, block door 2 (rows 7 and 8)
+    if (totalOptions < 2)
     {
         map.SetTile(60, 7, L'|');
         map.SetTile(60, 8, L'|');
     }
 }
 
+// Write a wide string text starting at (row, colStart) on the map grid
 void MainRoomGame::WriteTextOnMap(Map &map, int row, int colStart, const std::wstring &text)
 {
     for (size_t i = 0; i < text.length(); ++i)
@@ -133,28 +156,32 @@ void MainRoomGame::WriteTextOnMap(Map &map, int row, int colStart, const std::ws
     }
 }
 
-void MainRoomGame::ProceesInput(char input, Console consoleSettings)
+// Process keyboard input for player movement and door selection
+void MainRoomGame::ProcessInput(char input, Console consoleSettings)
 {
-    std::pair<int, int> dir = player.GetInputDirection(input);
-    int dx = dir.first;
-    int dy = dir.second;
+    std::pair<int, int> direction = player.GetInputDirection(input);
+    int dx = direction.first;
+    int dy = direction.second;
 
+    // Ignore if input does not correspond to movement
     if (dx == 0 && dy == 0)
-        return; // Invalid key
+        return;
 
     int newX = player.GetX() + dx;
     int newY = player.GetY() + dy;
 
-    wchar_t tile = map.GetTile(newX, newY);
+    wchar_t tile = map.GetTile(newX, newY); // Get tile character at new player position
 
+    // If stepping onto a door tile ('1', '2' or '3')
     if (tile == L'1' || tile == L'2' || tile == L'3')
     {
+        // Set selection based on door stepped on
         if (tile == L'1')
-            selection = opcionesGames[0];
+            selection = gameOptions[0];
         if (tile == L'2')
-            selection = opcionesGames[1];
+            selection = gameOptions[1];
         if (tile == L'3')
-            selection = opcionesGames[2];
+            selection = gameOptions[2];
 
         Sleep(500);
         system("cls");
@@ -162,87 +189,106 @@ void MainRoomGame::ProceesInput(char input, Console consoleSettings)
         Sleep(300);
         consoleSettings.SetConsoleFont(14, 20, L"Lucida Console");
         Sleep(500);
-        utils.PrintCentered(L"Seguro que quieres entrar? S = si, N = no");
-        // Leer tecla
+
+        // Ask player for confirmation to enter
+        utils.PrintCentered(L"Are you sure you want to enter? S = yes, N = no");
+
+        // Wait for confirmation input
         while (true)
         {
-            char tecla = _getch();
-            if (tecla == 's' || tecla == 'S')
+            char key = _getch();
+            if (key == 's' || key == 'S')
             {
                 system("cls");
                 Sleep(100);
-                utils.PrintCentered(L"Has decidido entrar.");
+                utils.PrintCentered(L"You decided to enter.");
                 Sleep(1000);
                 system("cls");
                 Sleep(300);
-                isRunning = false;
+                isRunning = false; // Exit main loop to start selected game
                 return;
             }
-            else if (tecla == 'n' || tecla == 'N')
+            else if (key == 'n' || key == 'N')
             {
                 system("cls");
                 Sleep(100);
-                utils.PrintCentered(L"Has decidido no entrar.");
+                utils.PrintCentered(L"You decided not to enter.");
                 Sleep(1000);
                 system("cls");
                 consoleSettings.SetConsoleFont();
                 Sleep(100);
-                consoleSettings.SetConsoleFont(22, 25, L"Lucida console");
+                consoleSettings.SetConsoleFont(22, 25, L"Lucida Console");
                 Sleep(100);
+
+                // Move player back 3 tiles to previous position
                 player.SetPosition(player.GetX() - 3, player.GetY());
                 Sleep(100);
+
+                // Reset door tile to original character
                 map.SetTile(newX, newY, tile);
                 break;
-                // poner logica de volver a recargar el mapa con su posición anterior
+                // Logic to reload map and player position can be added here if needed
             }
         }
     }
 
-    // Solo permitir moverse a espacios vacíos o puerta
+    // Allow player to move only on empty space or floor tile (' ' or '-')
     if (tile == ' ' || tile == '-')
     {
         player.SetPosition(newX, newY);
     }
 }
 
-void MainRoomGame::LoadLevel(std::string key)
+// Loads map from given file path, initializes player position and view width
+void MainRoomGame::LoadLevel(std::string mapFile)
 {
-    // Clear screen and load map if found
-    utils.ClearScreenComplety();
-    // We call ReadMap from the Map class to load the map
-    map.ReadMap(key, map.GetWidth(), map.GetHeight());
-    ReplaceDoorsName(opcionesGames);
+    utils.ClearScreenComplety(); // Clear entire console
+
+    // Read map data into Map object
+    map.ReadMap(mapFile, map.GetWidth(), map.GetHeight());
+
+    // Write door names on map according to options
+    ReplaceDoorNames(gameOptions);
+
+    // Set player position to map spawn point
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
-    playerX = player.GetX(); // sincronizar por si acaso
+
+    // Sync player coordinates variables
+    playerX = player.GetX();
     playerY = player.GetY();
 
-    viewW = utils.GetConsoleWidth();
-    if (viewW > map.GetWidth())
-        viewW = map.GetWidth();
+    // Set view width according to console width and map width
+    viewWidth = utils.GetConsoleWidth();
+    if (viewWidth > map.GetWidth())
+        viewWidth = map.GetWidth();
 }
 
+// Returns display name string for given MapId value
 std::wstring MainRoomGame::GetMapName(MapId id)
 {
-    // MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
     switch (id)
     {
     case BomberManGame:
         return L"Bomberman";
     case MazeGame:
-        return L"Laberinto";
+        return L"Maze";
     case GeniusGame:
-        return L"Genio";
+        return L"Genius";
     case ChestGame:
-        return L"Cofres";
+        return L"Chests";
     case WormGame:
-        return L"Gusano";
+        return L"Worm";
     case ElevatorGame:
-        return L"Ascensor";
+        return L"Elevator";
     case BoosMario:
-        return L"Jefe Mario";
+        return L"Boss Mario";
     case BoosZelda:
-        return L"Jefe Zelda";
+        return L"Boss Zelda";
+    case SphinxGameM:
+        return L"Sphinx";
+    case DodgeGame:
+        return L"Dodge";
     default:
-        return L"Desconocido";
+        return L"Unknown";
     }
 }
