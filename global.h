@@ -23,6 +23,7 @@
 #include "./src/threads/startup/gameOver.h"
 #include "./src/threads/events/chest.h"
 
+
 #include <set>
 
 class Global
@@ -342,45 +343,98 @@ public:
         return true;
     }
 
-    void BossesExecute()
+    bool BossesExecute()
     {
-        MapId allBosses[] = {BoosMario, BoosZelda};
-        const int totalBosses = sizeof(allBosses) / sizeof(allBosses[0]);
+        MapId allGames[] = {BoosMario, BoosZelda};
+        const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
 
-        wofstream bossesCompleted(filenameBoss, std::ios::app);
+        // Open the output file stream in append mode to store the list of completed games.
+        // This allows new game IDs to be added without erasing the existing content.
+        wofstream gamesCompleted(filenameBoss, std::ios::app);
 
-        std::set<int> bossesAlreadyPlayed;
-        ReadFileGamesId(filenameBoss, bossesAlreadyPlayed);
+        // Open the input file stream in append mode to read the list of previously completed games.
+        // NOTE: Using std::ios::app here for reading is unusual — normally you use std::ios::in for input.
+        wifstream gamesLecture(filenameBoss, std::ios::app);
 
-        counterBoss = 0;
-
-        while (counterBoss < showBoossLot)
+        // Check if the game was loaded from a previously saved state (manual load)
+        if (processThread == STATE_SECOND_MENU_DONE)
         {
-            if (!ChangeMap(MapId::BoosSalaPrev))
-                return;
+            counterMaps = 0; // Initialize map counter to zero
 
-            std::vector<MapId> bossesNotPlayed;
-            ReduceGamesPlayed(allBosses, totalBosses, bossesAlreadyPlayed, bossesNotPlayed);
+            int value;
+            // Read each integer (representing a game ID) from the file
+            // Each successful read means one game was completed in the past
+            while (gamesLecture >> value)
+            {
+                counterMaps++; // Increment for each game found in the file
+            }
+        }
+        else
+        {
+            // If it's not a resumed game, start with zero maps played
+            counterMaps = 0;
+        }
 
-            if (bossesNotPlayed.empty())
+        while (counterMaps < showBoossLot)
+        {
+            std::wcout << counterMaps;
+            std::set<int> gamesAlreadyPlayed;
+            ReadFileGamesId(filename, gamesAlreadyPlayed);
+
+            std::vector<MapId> gamesNotPlayed;
+            ReduceGamesPlayed(allGames, totalGames, gamesAlreadyPlayed, gamesNotPlayed);
+
+            if (gamesNotPlayed.empty())
             {
                 utils.ClearScreenComplety();
                 std::wcout << L"No quedan jefes disponibles.\n";
                 Sleep(1000);
-                return;
+                return false;
             }
 
-            GenerateRandomMapId(bossesNotPlayed.data(), bossesNotPlayed.size(), opcionesBoses, 3);
+            // LIMPIAR y generar nuevas opciones
+            for (int i = 0; i < 3; ++i)
+                opcionesGames[i] = MapId::None;
 
-            for (int i = 0; i < 2 && i < bossesNotPlayed.size(); ++i)
-                opcionesBoses[i] = bossesNotPlayed[i];
+            int cantidadOpciones = std::min(3, (int)gamesNotPlayed.size());
+            GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size(), opcionesGames, cantidadOpciones);
 
-            selected = bossSalaPrev.Run(consoleSettings, opcionesBoses);
-            bossesCompleted << static_cast<int>(selected) << std::endl;
+            selected = mainRoom.Run(consoleSettings, opcionesGames);
 
-            ChangeMap(selected);
-            counterBoss++;
+            bool valid = false;
+            for (int i = 0; i < cantidadOpciones; ++i)
+                if (selected == opcionesGames[i])
+                    valid = true;
+
+            if (valid && ChangeMapAndCheck(selected))
+            {
+                gamesCompleted << static_cast<int>(selected) << std::endl;
+                // Increment the player's room when a game is successfully played
+                player.SetRoom(player.GetRoom() + 1);
+                counterMaps++;
+
+                if (counterMaps >= showMapsLot)
+                    break;
+            }
+            else if (player.GetLives() == 0)
+            {
+                // Mostrar Game Over y preguntar
+                bool restart = gameOver.Show(utils);
+                if (restart)
+                {
+                    // Reinicia el estado del jugador y vuelve al menú o al inicio
+                    player.ResetState(SetDificultyDetails());
+                    return GamesExecute(); // o reinicia Global::StartGame()
+                }
+                else
+                {
+                    exit(0); // Sale del juego
+                }
+            }
+            Sleep(50);
         }
+
+        return true;
     }
 
     Player::Difficulty SetDificultyDetails()

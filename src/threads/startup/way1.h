@@ -6,6 +6,9 @@
 #include "utils/functions/utils.h"
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
+#include "core/modules/hud/hudWay.h"
+#include <mmsystem.h>             // Reproducir sonido
+#pragma comment(lib, "winmm.lib") // Enlace con la librería de sonido
 
 class Way1
 {
@@ -17,6 +20,7 @@ private:
     Map map;
     Utils utils;
     Player player;
+    HudWay hud;
 
     int viewW;
     int consoleW;
@@ -36,7 +40,6 @@ private:
 Way1::Way1() : isRunning(true)
 {
     consoleW = utils.GetConsoleWidth();
-    viewW = consoleW;
 }
 
 bool Way1::Run(Console consoleSettings)
@@ -47,16 +50,24 @@ bool Way1::Run(Console consoleSettings)
     std::string key = utils.GetAssetsPath() + "maps\\main\\way1.txt";
     LoadLevel(key);
     player.SetPosition(3, 5);
+
+    // Reproducir música en buclea
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\SilentHill2.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
     while (isRunning)
     {
+        viewW = 34;
         utils.ClearScreen();
         map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY, FrstWay);
+        hud.Draw(player, 1, viewW);
 
         if (_kbhit())
             ProceesInput(_getch(), consoleSettings);
 
         Sleep(15);
     }
+    PlaySoundW(NULL, NULL, 0);
     return true;
 }
 
@@ -141,6 +152,6 @@ void Way1::SetGoodStyle(Console consoleSettings)
     Sleep(300);
     consoleSettings.SetConsoleFont();
     Sleep(300);
-    consoleSettings.SetConsoleFont(25, 25, L"Lucida console");
+    consoleSettings.SetConsoleFont(22, 25, L"Lucida console");
     Sleep(100);
 }

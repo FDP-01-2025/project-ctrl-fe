@@ -230,31 +230,8 @@ void Elevator::LoadLevel(std::string key)
         viewW = map.GetWidth();
 }
 
-void Elevator::ShowLoadingAnimation(Console consoleSettings, int cycles = 3, int delay = 300)
-{
-    Sleep(300);
-    consoleSettings.SetConsoleFont(19, 25, L"Lucida Console");
-    consoleSettings.SetColor(FOREGROUND_RED);
-
-    std::wstring baseText = L"Loading";
-    std::wstring dots[] = {L".", L"..", L"..."};
-
-    for (int i = 0; i < cycles * 3; ++i)
-    {
-        std::wstring text = baseText + dots[i % 3];
-
-        utils.ClearScreen();
-        utils.PrintCentered(text);
-
-        Sleep(delay);
-    }
-
-    system("cls");
-}
-
 void Elevator::SetGoodStyle(Console consoleSettings)
 {
-    ShowLoadingAnimation(consoleSettings);
     Sleep(300);
     consoleSettings.SetConsoleFont(16, 22, L"Lucida console");
     Sleep(100);

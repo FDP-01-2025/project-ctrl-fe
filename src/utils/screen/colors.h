@@ -19,3 +19,8 @@
 #define YELLOW L"\033[33m"
 #define CYAN L"\033[36m"
 #define GREEN_BRIGHT L"\033[92m"
+
+#define PURPLE_BRIGHT L"\033[38;5;93m"   
+
+#define PURPLE L"\033[38;5;129m"  
+

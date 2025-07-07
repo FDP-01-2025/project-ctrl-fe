@@ -1,59 +1,100 @@
 #pragma once
 #include <windows.h>
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <string>
+#include <algorithm> // for std::max
 #include "../../utils/screen/colors.h"
 #include "../../utils/functions/utils.h"
 #include "../../core/engine/settings/console.h"
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
+// Function to display the welcome and title screen with centered ASCII art
 bool InitializerThread(int width, int height, Console consoleSettings, Utils utils)
 {
-    // Arte ASCII para "Bienvenido a..."
+    utils.SetUtf8(); // Set UTF-8 encoding for console output
+
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\GamecubeStartupLogo.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+
+    // ASCII art for "Welcome"
     const std::wstring welcomeArt[] = {
-        L"  ____  _                        _           _            _           ",
-        L" | __ )(_) ___  _ __ ___   __ _| |_ ___  __| | ___ _ __ | |__   ___  ",
-        L" |  _ \\| |/ _ \\| '_ ` _ \\ / _` | __/ _ \\/ _` |/ _ \\ '_ \\| '_ \\ / _ \\ ",
-        L" | |_) | | (_) | | | | | | (_| | ||  __/ (_| |  __/ | | | | | |  __/ ",
-        L" |____/|_|\\___/|_| |_| |_|\\__,_|\\__\\___|\\__,_|\\___|_| |_|_| |_|\\___| "};
+        L"  (`  .-') /`   ('-.                                  _   .-')       ('-.  ",
+        L"   `.( OO ),' _(  OO)                                ( '.( OO )_   _(  OO) ",
+        L",--./  .--.  (,------.,--.       .-----.  .-'),-----. ,--.   ,--.)(,------.",
+        L"|  |   |  |   |  .---'|  |.-')  '  .--./ ( OO'  .-.  '|   `.'   |  |  .---'",
+        L"|  |   |  |,  |  |    |  | OO ) |  |     /   |  | |  ||         |  |  |    ",
+        L"|  |.'.|  |_)(|  '--. |  |`-' |/_) |     |--)|  | |  ||  |'.'|  |  |  '--. ",
+        L"|         |   |  .--'(|  '---.'||  |         |  | |  ||  |   |  |  |  .--' ",
+        L"|   ,'.   |   |  `---.|      |(_'  '--'|     '  '-'  '|  |   |  |  |  `---.",
+        L"'--'   '--'   `------'`------'   `-----'      `-----' `--'   `--'  `------'"};
 
-    // Arte ASCII para "LA TORRE DE LEGUIM"
+    // ASCII art for "TOWER OF LEGUIM"
     const std::wstring titleArt[] = {
-        L"  _      _____     _______                       _____       _           _         ",
-        L" | |    |_ _\\ \\   / / ____|                     |_   _|     | |         (_)        ",
-        L" | |     | | \\ \\ / /| (___   ___  ___  _ __ ___   | |  _ __ | |_   _ ___ _ ___ ___ ",
-        L" | |     | |  \\ V /  \\___ \\ / _ \\/ _ \\| '_ ` _ \\  | | | '_ \\| | | | / __| / __/ __|",
-        L" | |_____| |_  | |   ____) |  __/ (_) | | | | | |_| |_| | | | | |_| \\__ \\ \\__ \\__ \\",
-        L" |______|___|  |_|  |_____/ \\___|\\___/|_| |_| |_|_____|_| |_|_|\\__,_|___/_|___/___/"};
+        L"                                                                                   ",
+        L" _____                                    _                                        ",
+        L"(_   _)                                  | |        /\\                             ",
+        L"  | | ___   __   __  ___  ___     ___   _| |_      /  \\   ___ _   _ _   _ _  _   _ ",
+        L"  | |/ _ \\ / / _ \\ \\/ __)/ _ \\   / _ \\ /     \\    / /\\ \\ / __| \\ / ) | | | || | | |",
+        L"  | ( (_) ) |_/ \\_| > _)| |_) ) ( (_) | (| |) )  / /  \\ \\> _) \\ v /| |_| | || |_| |",
+        L"  |_|\\___/ \\___^___/\\___)  __/   \\___/ \\_   _/  /_/    \\_\\___) | |  \\___/ \\_) ._,_|",
+        L"                        | |              | |                   | |          | |    ",
+        L"                        |_|              |_|                   |_|          |_|    "};
 
+    const int welcomeLines = sizeof(welcomeArt) / sizeof(welcomeArt[0]);
+    const int titleLines = sizeof(titleArt) / sizeof(titleArt[0]);
+
+    // Set smaller console font for welcome screen
     consoleSettings.SetConsoleFont(12, 18, L"Lucida Console");
+    system("cls"); // Clear screen
 
-    // Mostrar "Bienvenido a..."
-    system("cls");
-    for (const auto &line : welcomeArt)
+    int consoleW = utils.GetConsoleWidth();
+    int consoleH = utils.GetConsoleHeight();
+
+    // Rainbow color palette for welcome text
+    const std::wstring rainbowColors[] = {
+        PINK,
+        PINK,
+        RED,
+        ORANGE,
+        YELLOW,
+        GREEN,
+        CYAN,
+        BLUE,
+        PURPLE};
+    const int numColors = sizeof(rainbowColors) / sizeof(rainbowColors[0]);
+
+    int verticalPaddingW = std::max(0, (consoleH - welcomeLines) / 2);
+    std::wcout << std::wstring(verticalPaddingW, L'\n'); // Add top padding
+
+    // Print welcome lines with rainbow color cycling
+    for (int i = 0; i < welcomeLines; ++i)
     {
-        utils.PrintCentered(line);
+        int padding = std::max(0, (consoleW - static_cast<int>(welcomeArt[i].length())) / 2);
+        const std::wstring color = rainbowColors[i % numColors];
+        std::wcout << std::wstring(padding, L' ') << color << welcomeArt[i] << RESET << L"\n";
     }
 
-    Sleep(1000);
+    Sleep(1500); // Pause before clearing
     system("cls");
+    Sleep(300);
 
-    // Mostrar "LA TORRE DE LEGUIM"
-    consoleSettings.SetConsoleFont(20, 26, L"Lucida Console");
-    Sleep(500);
+    int verticalPadding = std::max(0, (consoleH - titleLines) / 2);
+    std::wcout << std::wstring(verticalPadding, L'\n'); // Add top padding for title
 
-    for (const auto &line : titleArt)
+    // Print title in red
+    for (int i = 0; i < titleLines; ++i)
     {
-        consoleSettings.SetColor(FOREGROUND_BLUE);
-        utils.PrintCentered(line);
+        int padding = std::max(0, (consoleW - static_cast<int>(titleArt[i].length())) / 2);
+        std::wcout << std::wstring(padding, L' ') << RED << titleArt[i] << RESET << L"\n";
     }
 
-    Sleep(1000);
+    Sleep(2499); // Pause before clearing
     system("cls");
 
-    // Restaurar fuente por defecto
+    // Reset console font to default size
     consoleSettings.SetConsoleFont();
-    Sleep(500);
+    Sleep(300);
 
     return true;
 }

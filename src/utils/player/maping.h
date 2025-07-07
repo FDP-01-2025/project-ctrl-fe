@@ -178,6 +178,9 @@ public:
                     case '#':
                         std::wcout << GRAY << L"#" << RESET;
                         break;
+                    case '0':
+                        std::wcout << GRAY << L"░" << RESET;
+                        break;
                     case ']':
                         std::wcout << GRAY << L"]" << RESET;
                         break;
@@ -483,14 +486,6 @@ public:
                     case FrstWay:
                         switch (tile)
                         {
-                        case 'b':
-                            std::wcout << BROWN << L"║" << RESET;
-                            drawn = true;
-                            break;
-                        case 'a':
-                            std::wcout << BROWN << L"═" << RESET;
-                            drawn = true;
-                            break;
                         case 'D':
                             std::wcout << GREEN << L"◇" << RESET;
                             drawn = true;
@@ -548,7 +543,12 @@ public:
                         case '|':
                         case '_':
                             std::wcout << GRAY << L"░" << RESET;
-                            drawn = true;
+                            break;
+                        case 'b':
+                            std::wcout << BROWN << L"║" << RESET;
+                            break;
+                        case 'a':
+                            std::wcout << BROWN << L"═" << RESET;
                             break;
                         default:
                             std::wcout << tile;

@@ -7,6 +7,9 @@
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
 #include "utils/functions/toWstring.h"
+#include "core/modules/hud/hudMainRoom.h"
+#include <mmsystem.h>             // Reproducir sonido
+#pragma comment(lib, "winmm.lib") // Enlace con la librería de sonido
 
 class MainRoomGame
 {
@@ -18,6 +21,7 @@ private:
     Map map;
     Utils utils;
     Player player;
+    HudMain hud;
 
     int viewW;
     int consoleW;
@@ -53,6 +57,7 @@ MapId MainRoomGame::Run(Console consoleSettings, MapId opciones[3])
         if (opciones[i] != MapId::None)
             totalOpciones++;
     }
+
     Sleep(100);
     consoleSettings.SetConsoleFont(25, 25, L"Lucida console");
     Sleep(100);
@@ -60,16 +65,21 @@ MapId MainRoomGame::Run(Console consoleSettings, MapId opciones[3])
     LoadLevel(key);
     player.SetPosition(3, 7);
 
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\LookOut.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
     while (isRunning)
     {
+        viewW = 30;
         utils.ClearScreen();
         map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY, MapId::MainRoom);
+        hud.Draw(player, 1, viewW);
 
         if (_kbhit())
             ProceesInput(_getch(), consoleSettings);
 
         Sleep(15);
     }
+    PlaySoundW(NULL, NULL, 0);
     consoleSettings.SetConsoleFont();
     return selection;
 }
@@ -177,7 +187,7 @@ void MainRoomGame::ProceesInput(char input, Console consoleSettings)
                 system("cls");
                 consoleSettings.SetConsoleFont();
                 Sleep(100);
-                consoleSettings.SetConsoleFont(23, 28, L"Lucida console");
+                consoleSettings.SetConsoleFont(22, 25, L"Lucida console");
                 Sleep(100);
                 player.SetPosition(player.GetX() - 3, player.GetY());
                 Sleep(100);

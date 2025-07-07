@@ -212,6 +212,30 @@ public:
 
                 std::wcout << color << text << RESET;
         }
+
+        // Returns the absolute path to the "assets" directory relative to the executable location
+        std::wstring GetAssetsPathW()
+        {
+                wchar_t buffer[MAX_PATH];
+
+                // Get the full path of the current executable (e.g., "C:\project\build\app.exe")
+                GetModuleFileNameW(NULL, buffer, MAX_PATH);
+
+                std::wstring fullPath(buffer);
+
+                // Find the last '\' or '/' character to separate the directory from the executable name
+                size_t pos = fullPath.find_last_of(L"\\/");
+
+                // If no separator is found (shouldn't happen), return an empty string
+                if (pos == std::wstring::npos)
+                        return L"";
+
+                // Extract the directory path (e.g., "C:\project\build")
+                std::wstring exeDir = fullPath.substr(0, pos);
+
+                // Return the path to the assets folder, assuming it's one level up (e.g., "C:\project\assets\")
+                return exeDir + L"\\..\\assets\\";
+        }
 };
 
 #endif

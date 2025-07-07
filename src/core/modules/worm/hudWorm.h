@@ -44,7 +44,8 @@ public:
 
         // Game objective
         utils.PrintLine(hudX, y, L"[Goal]:", WHITE_BRIGHT);
-        utils.PrintLine(hudX, y, L"type the key combination");
+        utils.PrintLine(hudX, y, L"type the");
+        utils.PrintLine(hudX, y, L"key combination");
         utils.PrintLine(hudX, y, keyCombination, RED);
         y++;
 
@@ -56,6 +57,7 @@ public:
         utils.PrintLine(hudX, y, L"[Correctas]:", WHITE_BRIGHT);
         std::wstring correct = ToWString(corrects) + L"/" + ToWString(maxCorrects);
         utils.PrintLine(hudX, y, correct, YELLOW_BRIGHT);
+        y++;
 
         utils.PrintLine(hudX, y, L"[Tiempo restante]:", WHITE_BRIGHT);
         std::wstring time = ToWString(secondsLeft) + L"s";

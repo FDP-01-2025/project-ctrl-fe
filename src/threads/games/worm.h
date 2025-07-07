@@ -28,6 +28,7 @@ private:
     int maxCorrects = 10;
     int baseX = 18;
     int baseY = 2;
+    bool result = false;
 
     vector<wchar_t> animationFrames = {L'@', L'o', L'O', L'0'};
 
@@ -41,7 +42,6 @@ private:
     int animationFrame;
 
     int offsetX = 1, offsetY = 1;
-
     bool isRunning;
 
     void SetGoodStyle(Console consoleSettings);
@@ -67,11 +67,12 @@ Worm::Worm() : isRunning(true)
 
 bool Worm::Run(Console consoleSettings)
 {
+    isRunning = true;
+    lives = player.GetLives();
+
     SetGoodStyle(consoleSettings);
     std::string key = utils.GetAssetsPath() + "maps\\worm\\easy-levels\\level1.txt";
     LoadLevel(key);
-
-    lives = player.GetLives();
 
     int animationFrame = 0;
 
@@ -89,7 +90,7 @@ bool Worm::Run(Console consoleSettings)
         {
             auto currentTime = std::chrono::steady_clock::now();
             auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime).count();
-            int secondsLeft = 6 - static_cast<int>(elapsed);
+            int secondsLeft = 50 - static_cast<int>(elapsed);
             if (secondsLeft < 0)
                 secondsLeft = 0;
 
@@ -112,7 +113,7 @@ bool Worm::Run(Console consoleSettings)
             Sleep(100);
 
             // Verificar si se acabó el tiempo
-            if (elapsed >= 6)
+            if (elapsed >= 50)
             {
                 inputDone = true;
                 userInput = L""; // lo borra para que falle automáticamente
@@ -132,21 +133,21 @@ bool Worm::Run(Console consoleSettings)
             }
         }
 
-        mensajeX = offsetX;
-        mensajeY = offsetY + map.GetHeight() + 2;
+        mensajeX = 10;
+        mensajeY = offsetY + map.GetHeight() + 1;
         if (userInput == seq)
         {
             corrects++;
             if (!worm.empty())
                 worm.pop_back(); // Reducir gusano
-            utils.PrintAtPosition(mensajeX, mensajeY, L"¡Correcto! El gusano pierde una sección.", GREEN);
+            utils.PrintAtPosition(mensajeX, mensajeY, L"Right! Worm loses a part", GREEN);
             Sleep(500);
             utils.PrintAtPosition(mensajeX, mensajeY, L"                                             ");
         }
         else
         {
             lives--;
-            utils.PrintAtPosition(mensajeX, mensajeY, L"Incorrecto. Pierdes una vida.", RED);
+            utils.PrintAtPosition(mensajeX, mensajeY, L"Incorrect! Life lost", RED);
             Sleep(500);
             utils.PrintAtPosition(mensajeX, mensajeY, L"                                             ");
         }
@@ -156,14 +157,23 @@ bool Worm::Run(Console consoleSettings)
     // Final del juego
     utils.ClearScreen();
     if (lives == 0)
-        utils.PrintAtPosition(mensajeX, mensajeY, L"Perdiste todas las vidas. Fin del juego.", RED);
+    {
+        utils.PrintAtPosition(mensajeX, mensajeY, L"Game Over. No lives left.", RED);
+        result = false;
+    }
     else if (worm.empty())
-        utils.PrintAtPosition(mensajeX, mensajeY, L"¡Ganaste! El gusano desapareció.", GREEN);
+    {
+        utils.PrintAtPosition(mensajeX, mensajeY, L"You won! Worm vanished.", GREEN);
+        result = true;
+    }
     else
-        utils.PrintAtPosition(mensajeX, mensajeY, L"¡Ganaste! Completaste todas las combinaciones.", GREEN);
+    {
+        utils.PrintAtPosition(mensajeX, mensajeY, L"You won! All combos done.", GREEN);
+        result = true;
+    }
 
     Sleep(2000);
-    return (lives > 0);
+    return result;
 }
 
 void Worm::LoadLevel(std::string key)
@@ -181,31 +191,8 @@ void Worm::LoadLevel(std::string key)
         viewW = map.GetWidth();
 }
 
-void Worm::ShowLoadingAnimation(Console consoleSettings, int cycles = 3, int delay = 300)
-{
-    Sleep(300);
-    consoleSettings.SetConsoleFont(19, 25, L"Lucida Console");
-    consoleSettings.SetColor(FOREGROUND_RED);
-
-    std::wstring baseText = L"Loading";
-    std::wstring dots[] = {L".", L"..", L"..."};
-
-    for (int i = 0; i < cycles * 3; ++i)
-    {
-        std::wstring text = baseText + dots[i % 3];
-
-        utils.ClearScreen();
-        utils.PrintCentered(text);
-
-        Sleep(delay);
-    }
-
-    system("cls");
-}
-
 void Worm::SetGoodStyle(Console consoleSettings)
 {
-    ShowLoadingAnimation(consoleSettings);
     Sleep(300);
     consoleSettings.SetConsoleFont(19, 25, L"Lucida console");
     Sleep(100);
