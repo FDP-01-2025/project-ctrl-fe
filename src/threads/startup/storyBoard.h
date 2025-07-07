@@ -16,10 +16,6 @@ bool ShowStoryBoard(int width, int height, Console consoleSettings, Utils utils)
     Sleep(500);
     utils.SetUtf8(); // Set console output to UTF-8 encoding
 
-    // Construct the full path to the sound file and play it asynchronously
-    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\PikminCreepRadiohead.wav";
-    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC);
-
     // ASCII art for the initial title screen
     const std::wstring frstW[] = {
         L" ___                                                                                      ",

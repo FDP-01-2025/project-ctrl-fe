@@ -31,8 +31,7 @@ bool InitializerThread(int width, int height, Console consoleSettings, Utils uti
         L"                                                                           ",
         L"                                                                           ",
         L"                                                                           ",
-        L"                                                                           "
-    };
+        L"                                                                           "};
 
     // ASCII art for "TOWER OF LEGUIM"
     const std::wstring titleArt[] = {
@@ -99,7 +98,11 @@ bool InitializerThread(int width, int height, Console consoleSettings, Utils uti
 
     // Reset console font to default size
     consoleSettings.SetConsoleFont();
-    Sleep(300);
+    Sleep(600);
+
+    // Construct the full path to the sound file and play it asynchronously
+    std::wstring soundPath2 = utils.GetAssetsPathW() + L"sounds\\PikminCreepRadiohead.wav";
+    PlaySoundW(soundPath2.c_str(), NULL, SND_FILENAME | SND_ASYNC);
 
     return true;
 }

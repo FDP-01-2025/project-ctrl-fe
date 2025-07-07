@@ -4,109 +4,163 @@
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
 #include "core/modules/elevator/hudElevator.h"
+// Required to play sounds using Windows Multimedia API
+#include <mmsystem.h>
+// Link the program with the Windows Multimedia library
+#pragma comment(lib, "winmm.lib")
 
-struct Ejercicio
+// Structure that defines a math exercise/question for the game
+struct Exercise
 {
-    std::wstring pregunta;
-    std::wstring opciones[3];
-    int respuestaCorrecta;
+    std::wstring question;   // The question text
+    std::wstring options[3]; // Array of 3 possible answer choices
+    int correctAnswer;       // Index (0, 1, or 2) of the correct answer
 };
 
-Ejercicio GenerarEjercicio()
+Exercise GenerateExercise()
 {
-    int tipo = rand() % 3;
-    Ejercicio e;
+    int type = rand() % 9; // Randomly choose one of the 9 exercise types
+    Exercise e;
 
-    switch (tipo)
+    switch (type)
     {
     case 0:
-        e.pregunta = L"¿Cuál es el resultado de 3x + 2 si x = 2?";
-        e.opciones[0] = L"8";
-        e.opciones[1] = L"6";
-        e.opciones[2] = L"9";
-        e.respuestaCorrecta = 0;
+        e.question = L"What is the result of 3x + 2 if x = 2?";
+        e.options[0] = L"8";
+        e.options[1] = L"6";
+        e.options[2] = L"9";
+        e.correctAnswer = 0;
         break;
     case 1:
-        e.pregunta = L"¿Simplifica: (2x^2 + 4x) / 2x?";
-        e.opciones[0] = L"x + 2";
-        e.opciones[1] = L"x + 1";
-        e.opciones[2] = L"x^2 + 2x";
-        e.respuestaCorrecta = 0;
+        e.question = L"Simplify: (2x^2 + 4x) / 2x";
+        e.options[0] = L"x + 2";
+        e.options[1] = L"x + 1";
+        e.options[2] = L"x^2 + 2x";
+        e.correctAnswer = 0;
         break;
     case 2:
-        e.pregunta = L"¿Cuál es el resultado de (x+3)(x-2) si x = 1?";
-        e.opciones[0] = L"2";
-        e.opciones[1] = L"-2";
-        e.opciones[2] = L"1";
-        e.respuestaCorrecta = 1;
+        e.question = L"What is the result of (x + 3)(x - 2) if x = 1?";
+        e.options[0] = L"2";
+        e.options[1] = L"-2";
+        e.options[2] = L"1";
+        e.correctAnswer = 1;
+        break;
+    case 3:
+        e.question = L"What is the result of 2(x - 3) if x = 5?";
+        e.options[0] = L"4";
+        e.options[1] = L"-4";
+        e.options[2] = L"16";
+        e.correctAnswer = 0;
+        break;
+    case 4:
+        e.question = L"Simplify: (4x^2 - 2x) / 2x";
+        e.options[0] = L"2x - 1";
+        e.options[1] = L"2x - x";
+        e.options[2] = L"2x - 2";
+        e.correctAnswer = 0;
+        break;
+    case 5:
+        e.question = L"What is (x^2 - 4) if x = -2?";
+        e.options[0] = L"0";
+        e.options[1] = L"-8";
+        e.options[2] = L"4";
+        e.correctAnswer = 0;
+        break;
+    case 6:
+        e.question = L"Evaluate: (3x + 1)(x - 2) if x = 2";
+        e.options[0] = L"0";
+        e.options[1] = L"7";
+        e.options[2] = L"6";
+        e.correctAnswer = 0;
+        break;
+    case 7:
+        e.question = L"What is x^2 + 2x + 1 if x = -1?";
+        e.options[0] = L"0";
+        e.options[1] = L"4";
+        e.options[2] = L"1";
+        e.correctAnswer = 2;
+        break;
+    case 8:
+        e.question = L"What is the result of (x^2 - 1)/(x - 1) if x = 3?";
+        e.options[0] = L"4";
+        e.options[1] = L"5";
+        e.options[2] = L"3";
+        e.correctAnswer = 0;
         break;
     }
 
     return e;
 }
-
 class Elevator
 {
 public:
     Elevator();
-    bool Run(Console consoleSettings);
+    bool Run(Console consoleSettings); // Starts the elevator logic and game loop
 
 private:
-    Map map;
-    Utils utils;
-    Player player;
-    HudElevator hud;
+    Map map;         // Game map
+    Utils utils;     // Utility functions
+    Player player;   // Player entity
+    HudElevator hud; // Elevator HUD manager
 
-    int consoleW;
-    int viewW;
-    int playerX;
-    int playerY;
-    bool isRunning;
-    bool result;
-    int lives;
-    int aciertos;
-    int mensajeX;
-    int mensajeY;
-    Ejercicio ejercicioActual;
+    int consoleW;                 // Console width
+    int viewW;                    // Viewport width
+    int playerX;                  // Player X position
+    int playerY;                  // Player Y position
+    bool isRunning;               // Is the elevator running?
+    bool result;                  // Last exercise result (true = correct)
+    int lives;                    // Remaining lives
+    int correctAnswers;           // Number of correct answers
+    int messageX;                 // Message X position
+    int messageY;                 // Message Y position
+    Exercise currentExercise;     // Current math exercise
     int offsetX = 1, offsetY = 1; // Map drawing offset
 
-    void LoadLevel(std::string key);
-    void SetGoodStyle(Console consoleSettings);
-    void ShowLoadingAnimation(Console consoleSettings, int c, int d);
-    void ProceesInput(char input, Console consoleSettings);
-    bool ResolverEjercicio(Ejercicio &e);
-    std::chrono::steady_clock::time_point startTime;
+    void LoadLevel(std::string key);                                  // Loads a level by key
+    void SetGoodStyle(Console consoleSettings);                       // Sets color/style for correct answer
+    void ShowLoadingAnimation(Console consoleSettings, int c, int d); // Displays loading animation
+    void ProcessInput(char input, Console consoleSettings);           // Handles user input
+    bool SolveExercise(Exercise &e);                                  // Solves the current exercise
+    std::chrono::steady_clock::time_point startTime;                  // Start time for time-based mechanics
 };
 
 Elevator::Elevator() : isRunning(true)
 {
     consoleW = utils.GetConsoleWidth();
     viewW = consoleW;
-
-    aciertos = 0;
-    ejercicioActual = GenerarEjercicio();
-    startTime = std::chrono::steady_clock::now();
 }
 
 bool Elevator::Run(Console consoleSettings)
 {
+    startTime = std::chrono::steady_clock::now(); // Start timer
     isRunning = true;
-    lives = player.GetLives();
+    correctAnswers = 0;
+    currentExercise = GenerateExercise(); // Get first exercise
+
+    lives = player.GetLives(); // Load lives from player
     SetGoodStyle(consoleSettings);
     std::string key = utils.GetAssetsPath() + "maps\\elevator\\elevator.txt";
-    LoadLevel(key);
+    LoadLevel(key); // Load map file
 
-    int startX = 2;
-    int spacing = 30;
-    mensajeY = offsetY + map.GetHeight() + 2;
+    int startX = 2;                           // X position to print question
+    int spacing = 30;                         // Horizontal spacing between options
+    messageY = offsetY + map.GetHeight() + 2; // Y position to show question
 
+    player.SetPosition(3, 6); // Set initial player position
+
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\LunarAbyss.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
+    lives = 5;
+
+    std::wstring lastQuestion = L"";
     while (isRunning)
     {
+        // Calculate time remaining
         auto currentTime = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime).count();
         int secondsLeft = 20 - static_cast<int>(elapsed);
 
-        // Tiempo agotado
+        // If time runs out, lose a life
         if (secondsLeft <= 0)
         {
             lives--;
@@ -115,82 +169,91 @@ bool Elevator::Run(Console consoleSettings)
             if (lives <= 0)
             {
                 utils.ClearScreen();
-                result = false;    // retornar que se quedó sin vidas
-                isRunning = false; // parar el juego
+                result = false;    // Player lost all lives
+                isRunning = false; // End game
             }
 
-            // Generar nuevo ejercicio y reiniciar tiempo
-            ejercicioActual = GenerarEjercicio();
-            startTime = std::chrono::steady_clock::now();
+            currentExercise = GenerateExercise();         // Load new exercise
+            startTime = std::chrono::steady_clock::now(); // Reset timer
             continue;
         }
 
         utils.ClearScreen();
-        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY);
-        hud.Draw(player, 1, map.GetWidth(), aciertos, secondsLeft);
+        map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY); // Draw map with camera
+        hud.Draw(player, 1, map.GetWidth(), correctAnswers, secondsLeft);              // Draw HUD
 
-        utils.PrintAtPosition(startX, mensajeY, ejercicioActual.pregunta, BLUE);
-
-        for (int i = 0; i < 3; ++i)
+        if (currentExercise.question != lastQuestion)
         {
-            int number = i + 1;
-            std::wstring respuesta = ToWString(number) + L") " + ejercicioActual.opciones[i];
-            int posX = startX + (i * 20);
-            utils.PrintAtPosition(posX, mensajeY + 2, respuesta, YELLOW_BRIGHT);
+            // Clear question and options lines
+            utils.PrintAtPosition(startX, messageY, std::wstring(80, L' '), RESET);
+            utils.PrintAtPosition(startX, messageY + 2, std::wstring(80, L' '), RESET);
+
+            // Print new question and options
+            utils.PrintAtPosition(startX, messageY, currentExercise.question, PURPLE_BRIGHT);
+            for (int i = 0; i < 3; ++i)
+            {
+                int number = i + 1;
+                std::wstring answer = ToWString(number) + L") " + currentExercise.options[i];
+                int posX = startX + (i * 20);
+                utils.PrintAtPosition(posX, messageY + 2, answer, GRAY_BRIGHT);
+            }
+
+            lastQuestion = currentExercise.question;
         }
 
+        // Wait for user input
         if (_kbhit())
-            ProceesInput(_getch(), consoleSettings);
+            ProcessInput(_getch(), consoleSettings);
 
-        Sleep(50);
+        Sleep(50); // Small delay to avoid high CPU usage
     }
-    consoleSettings.SetConsoleFont();
-    return result;
+
+    PlaySoundW(NULL, NULL, 0);        // Stop background music
+    consoleSettings.SetConsoleFont(); // Reset font size
+    return result;                    // Return game result
 }
 
-void Elevator::ProceesInput(char input, Console consoleSettings)
+void Elevator::ProcessInput(char input, Console consoleSettings)
 {
     std::pair<int, int> dir = player.GetInputDirection(input);
     int dx = dir.first;
     int dy = dir.second;
 
     if (dx == 0 && dy == 0)
-        return; // Invalid key
+        return; // Invalid input key, no movement
 
     int newX = player.GetX() + dx;
     int newY = player.GetY() + dy;
 
     wchar_t tile = map.GetTile(newX, newY);
-    // utils.PrintAtPosition(0, 0, std::wstring(L"Tile: ") + tile, GREEN); // para ver qué hay ahí
+    // utils.PrintAtPosition(0, 0, std::wstring(L"Tile: ") + tile, GREEN); // Debug: show tile char
 
-    if (tile == ' ' || tile == '|')
+    if (tile == L' ' || tile == L'|')
     {
-        player.SetPosition(newX, newY);
+        player.SetPosition(newX, newY); // Move player to new position if tile is empty or vertical bar
     }
 
-    /*if (tile == L'-')
-    {
-        map.SetTile(newX, newY, L'|'); // Abrir automáticamente
-    }*/
-    int posY = mensajeY + 4;
+    // int messagePosY is the line to print feedback messages below question options
+    int messagePosY = messageY + 4;
+
     if (tile == L'1' || tile == L'2' || tile == L'3')
     {
-        int respuestaJugador = tile - L'1'; // convierte '1','2','3' → 0,1,2
-        if (respuestaJugador == ejercicioActual.respuestaCorrecta)
-        {
+        int playerAnswer = tile - L'1'; // Convert '1','2','3' to 0,1,2
 
-            utils.PrintAtPosition(2, posY, L"Correct", GREEN);
+        if (playerAnswer == currentExercise.correctAnswer)
+        {
+            utils.PrintAtPosition(2, messagePosY, L"Correct", GREEN);
             Sleep(500);
-            utils.PrintAtPosition(2, posY, L"               ", RESET);
-            player.SetPosition(2, 2);
-            aciertos++;
+            utils.PrintAtPosition(2, messagePosY, L"       ", RESET); // Clear message
+            player.SetPosition(3, 6);                                 // Reset player position
+            correctAnswers++;
         }
         else
         {
-            utils.PrintAtPosition(2, posY, L"Incorrect", RED);
+            utils.PrintAtPosition(2, messagePosY, L"Incorrect", RED);
             Sleep(500);
-            utils.PrintAtPosition(2, posY, L"               ", RESET);
-            player.SetPosition(2, 2);
+            utils.PrintAtPosition(2, messagePosY, L"         ", RESET); // Clear message
+            player.SetPosition(3, 6);
             Sleep(100);
             lives--;
             player.SetLives(lives);
@@ -198,41 +261,52 @@ void Elevator::ProceesInput(char input, Console consoleSettings)
 
         Sleep(1000);
 
-        if (aciertos >= 3)
+        if (correctAnswers >= 3)
         {
-            result = true;     // Indicar que todavia puede continuar con los demás juegos
-            isRunning = false; // parar el juego
+            result = true;     // Player won
+            isRunning = false; // Stop the game
         }
-
         else if (lives <= 0)
         {
-            result = false;    // Indicar que NO puede continuar con los demás jeugos
-            isRunning = false; // parar el juego
+            result = false;    // Player lost
+            isRunning = false; // Stop the game
         }
 
-        ejercicioActual = GenerarEjercicio(); // siguiente ejercicio
-        startTime = std::chrono::steady_clock::now();
+        currentExercise = GenerateExercise();         // Load next exercise
+        startTime = std::chrono::steady_clock::now(); // Reset timer
     }
 }
 
 void Elevator::LoadLevel(std::string key)
 {
-    // Clear screen and load map if found
+    // Clear the console screen completely before loading the map
     utils.ClearScreenComplety();
-    // We call ReadMap from the Map class to load the map
+
+    // Load the map from the file specified by 'key'
+    // Map dimensions are updated internally by ReadMap
     map.ReadMap(key, map.GetWidth(), map.GetHeight());
+
+    // Set the player position to the map's spawn point
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
-    playerX = player.GetX(); // sincronizar por si acaso
+
+    // Synchronize player position variables in case they are used separately
+    playerX = player.GetX();
     playerY = player.GetY();
 
+    // Get the console width to set the viewport width
     viewW = utils.GetConsoleWidth();
+
+    // Ensure the viewport width does not exceed the map width
     if (viewW > map.GetWidth())
         viewW = map.GetWidth();
 }
 
 void Elevator::SetGoodStyle(Console consoleSettings)
 {
-    Sleep(300);
+    Sleep(300); // Small delay before changing font for smooth transition
+
+    // Set console font to Lucida Console with size 16x22 for better readability
     consoleSettings.SetConsoleFont(16, 22, L"Lucida console");
-    Sleep(100);
+
+    Sleep(100); // Short delay after font change
 }

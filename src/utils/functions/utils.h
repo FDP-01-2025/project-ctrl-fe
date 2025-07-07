@@ -28,10 +28,12 @@ enum MapId
         ChestGame = 4,
         WormGame = 5,
         ElevatorGame = 6,
-        BoosMario = 7,
-        BoosZelda = 8,
-        FrstWay = 9,
-        BoosSalaPrev = 10
+        DodgeGame = 7,
+        SphinxGameM = 8,
+        BoosMario = 9,
+        BoosZelda = 10,
+        FrstWay = 11,
+        BoosSalaPrev = 12
 };
 
 class Utils

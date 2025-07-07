@@ -77,7 +77,7 @@ protected:
     // Esta es una variable que representa el proceso de ejecucion del juego, representa el estado del hilo principal
     // Tamaño horizontal de la vista
     int sizeViewW = 40;
-    const std::string filename = utils.GetAssetsPath() + "data\\GamesCounter.txt", filenameBoss = utils.GetAssetsPath() + "data\\BossesCounter.txt";
+    const std::string filename = utils.GetAssetsPath() + "data\\GamesCounter.txt", filenameBoss = utils.GetAssetsPath() + "data\\BossesCounter.txt", statusFileName = utils.GetAssetsPath() + "data\\status.txt";
     Player::Difficulty currentDificulti;
     int counterMaps = 0, counterBoss = 0;
 
@@ -108,23 +108,44 @@ public:
     {
         if (processThread == STATE_INITIALIZED)
         {
-            // Leer el file (osea, la base de datos trucha)
-            int status = 0; // 0 = primera ejecución status = el estado dependiendo de lo que se lea del file
-            // Después de identificar el estado las acciones
+            // Simulate reading a persistent "fake database" from a file
+            int status = 0; // Default: first time
 
+            // Check if the file exists
+            std::ifstream checkFile(statusFileName);
+            if (checkFile.good())
+            {
+                // File exists, not the first execution
+                status = 1;
+            }
+            else
+            {
+                // File does not exist → first execution
+                // Create the file to mark future runs
+                std::ofstream createFile(statusFileName);
+                if (createFile.is_open())
+                {
+                    createFile << "initialized";
+                    createFile.close();
+                }
+                status = 0;
+            }
+
+            // Decide which state to enter depending on file presence
             switch (status)
             {
-            case 0: // Si es 0 entonces podemos poner que el processThread sea STATE_FIRST_INIT (para mostrar story board y etc)
-                processThread = STATE_FIRST_INIT;
+            case 0:
+                processThread = STATE_FIRST_INIT; // First time: show story, tutorial, etc.
                 break;
-            case 1: // Si es 1 entonces podemos poner processThread = STATE_SECOND_INIT (para YA NO mostrar el storyboard)
-                processThread = STATE_SECOND_INIT;
+            case 1:
+                processThread = STATE_SECOND_INIT; // Already initialized: skip intro
                 break;
             default:
                 break;
             }
         }
     }
+
     // TODO ----- PROCESO (3) ----
     void SetStoryBoard()
     {
@@ -197,7 +218,8 @@ public:
     // Starts the main game flow depending on the current state of the thread.
     void StartGame()
     {
-        // Check if the game state is starting from the very beginning
+        elevator.Run(consoleSettings);
+        /*// Check if the game state is starting from the very beginning
         if (processThread == STATE_GAME_STARTED)
         {
             // Remove previous saved files (if any)
@@ -259,12 +281,12 @@ public:
             {
                 exit(0); // Sale del juego
             }
-        }
+        }*/
     }
 
     bool GamesExecute()
     {
-        MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame, ChestGame};
+        MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, ChestGame, WormGame, ElevatorGame, DodgeGame, SphinxGameM};
         const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
 
         // Open the output file stream in append mode to store the list of completed games.
