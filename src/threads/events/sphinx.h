@@ -101,6 +101,7 @@ GeographyQuestion SphinxGame::GenerateQuestion()
 // Main game loop
 bool SphinxGame::Run(Console consoleSettings)
 {
+    isRunning=true;
     SetGoodStyle(consoleSettings);
 
     std::string key = utils.GetAssetsPath() + "maps\\sphinx\\sphinx.txt";

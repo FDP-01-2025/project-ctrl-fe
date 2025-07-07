@@ -17,10 +17,13 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
 #define MAX_POSITIONS 5000
 
-class MainMaze {
+class MainMaze
+{
 public:
     MainMaze();
     bool Run();
@@ -55,13 +58,15 @@ private:
 MainMaze::MainMaze() {}
 
 // Main loop of the game
-bool MainMaze::Run() {
+bool MainMaze::Run()
+{
     utils.ClearScreen();
     srand(static_cast<unsigned>(time(nullptr))); // Seed for randomness
-    DetermineDifficultyFolder(); // Set map and difficulty settings
-    LoadLevel(); // Load the map and decorate it
+    DetermineDifficultyFolder();                 // Set map and difficulty settings
+    LoadLevel();                                 // Load the map and decorate it
 
-    while (isRunning) {
+    while (isRunning)
+    {
         utils.ClearScreen();
         hud.Draw(player, hasKey, openedBoxes, VIEW_WIDTH);
         map.DrawViewportAroundPlayerMaze(
@@ -72,7 +77,8 @@ bool MainMaze::Run() {
         if (_kbhit())
             processInput(_getch()); // Handle key press
 
-        if (player.GetLives() <= 0) {
+        if (player.GetLives() <= 0)
+        {
             utils.ClearScreen();
             std::wcout << L"\nYou have lost all your lives. Game Over!\n";
             isRunning = false;
@@ -86,21 +92,27 @@ bool MainMaze::Run() {
 }
 
 // Handles user input
-void MainMaze::processInput(char input) {
-    if (input == 'q' || input == 'Q') {
+void MainMaze::processInput(char input)
+{
+    if (input == 'q' || input == 'Q')
+    {
         wchar_t tile = map.GetTile(player.GetX(), player.GetY());
 
         int messageRow = offsetY + VIEW_HEIGHT + 1; // Below the view
 
-        if (tile == L'█') { // Box tile
+        if (tile == L'█')
+        {                                                    // Box tile
             map.SetTile(player.GetX(), player.GetY(), L'░'); // Open it
             openedBoxes++;
 
             std::wstring message;
-            if (player.GetX() == keyBoxPosition.first && player.GetY() == keyBoxPosition.second) {
+            if (player.GetX() == keyBoxPosition.first && player.GetY() == keyBoxPosition.second)
+            {
                 hasKey = true;
                 message = L"You found the key!";
-            } else {
+            }
+            else
+            {
                 message = L"The box is empty.";
             }
 
@@ -114,7 +126,9 @@ void MainMaze::processInput(char input) {
 
             utils.Sleep(600);
             return;
-        } else {
+        }
+        else
+        {
             std::wstring message = L"You are not on a box.";
 
             utils.MoveCursor(offsetX, messageRow);
@@ -142,14 +156,22 @@ void MainMaze::processInput(char input) {
     wchar_t tile = map.GetTile(newX, newY);
 
     // Allow movement if the tile is walkable
-    if (tile == ' ' || tile == 'K' || tile == L'░' || tile == ']' || tile == L'█' || tile == 'E') {
-        if (tile == 'K') {
+    if (tile == ' ' || tile == 'K' || tile == L'░' || tile == ']' || tile == L'█' || tile == 'E')
+    {
+        std::string soundPath = utils.GetAssetsPath() + "sounds\\step.wav";
+        PlaySoundA(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+
+        if (tile == 'K')
+        {
             hasKey = true;
             map.SetTile(newX, newY, ' ');
-        } else if (tile == 'E') {
+        }
+        else if (tile == 'E')
+        {
             int messageRow = offsetY + VIEW_HEIGHT + 1;
 
-            if (hasKey) {
+            if (hasKey)
+            {
                 utils.ClearScreen();
                 std::wstring message = L"Congratulations! You escaped the maze!";
 
@@ -160,7 +182,9 @@ void MainMaze::processInput(char input) {
                 utils.Sleep(1500);
                 isRunning = false;
                 return;
-            } else {
+            }
+            else
+            {
                 std::wstring message = L"You need the key to escape!";
 
                 utils.MoveCursor(offsetX, messageRow);
@@ -179,7 +203,8 @@ void MainMaze::processInput(char input) {
 }
 
 // Load and generate the level
-void MainMaze::LoadLevel() {
+void MainMaze::LoadLevel()
+{
     DetermineDifficultyFolder();
     currentMapPath = utils.GetAssetsPath() + "maps\\maze\\" + difficultyFolder;
 
@@ -193,7 +218,8 @@ void MainMaze::LoadLevel() {
     int consoleHeight = 25;
 
 #ifdef _WIN32
-    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+    {
         consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
         consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
     }
@@ -208,14 +234,21 @@ void MainMaze::LoadLevel() {
     int minX = map.GetWidth(), maxX = 0;
     int minY = map.GetHeight(), maxY = 0;
 
-    for (int y = 0; y < map.GetHeight(); ++y) {
-        for (int x = 0; x < map.GetWidth(); ++x) {
+    for (int y = 0; y < map.GetHeight(); ++y)
+    {
+        for (int x = 0; x < map.GetWidth(); ++x)
+        {
             wchar_t tile = map.GetTile(x, y);
-            if (tile != '#' && tile && tile != 0) {
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
+            if (tile != '#' && tile && tile != 0)
+            {
+                if (x < minX)
+                    minX = x;
+                if (x > maxX)
+                    maxX = x;
+                if (y < minY)
+                    minY = y;
+                if (y > maxY)
+                    maxY = y;
             }
         }
     }
@@ -226,20 +259,28 @@ void MainMaze::LoadLevel() {
     maxY = std::min(map.GetHeight() - 2, maxY);
 
     // Helper to check if a point is inside the maze
-    auto isInsideMaze = [&](int x, int y) {
+    auto isInsideMaze = [&](int x, int y)
+    {
         return x >= minX && x <= maxX && y >= minY && y <= maxY;
     };
 
     // Helper to check if we can place a chest
-    auto isValidCofreSpot = [&](int x, int y) {
-        if (!isInsideMaze(x, y)) return false;
-        if (map.GetTile(x, y) != ' ') return false;
+    auto isValidCofreSpot = [&](int x, int y)
+    {
+        if (!isInsideMaze(x, y))
+            return false;
+        if (map.GetTile(x, y) != ' ')
+            return false;
 
         int wallCount = 0;
-        if (map.GetTile(x + 1, y) == '#') wallCount++;
-        if (map.GetTile(x - 1, y) == '#') wallCount++;
-        if (map.GetTile(x, y + 1) == '#') wallCount++;
-        if (map.GetTile(x, y - 1) == '#') wallCount++;
+        if (map.GetTile(x + 1, y) == '#')
+            wallCount++;
+        if (map.GetTile(x - 1, y) == '#')
+            wallCount++;
+        if (map.GetTile(x, y + 1) == '#')
+            wallCount++;
+        if (map.GetTile(x, y - 1) == '#')
+            wallCount++;
 
         return wallCount <= 1;
     };
@@ -250,16 +291,20 @@ void MainMaze::LoadLevel() {
     int selectedCount = 0;
     int cofreX[MAX_POSITIONS], cofreY[MAX_POSITIONS];
 
-    for (int z = 0; z < zones; ++z) {
+    for (int z = 0; z < zones; ++z)
+    {
         int zoneHeight = (maxY - minY) / zones;
         int yStart = minY + z * zoneHeight;
         int yEnd = (z == zones - 1) ? maxY : yStart + zoneHeight;
 
         int validX[MAX_POSITIONS], validY[MAX_POSITIONS], validCount = 0;
 
-        for (int y = yStart; y <= yEnd; ++y) {
-            for (int x = minX; x <= maxX; ++x) {
-                if (isValidCofreSpot(x, y)) {
+        for (int y = yStart; y <= yEnd; ++y)
+        {
+            for (int x = minX; x <= maxX; ++x)
+            {
+                if (isValidCofreSpot(x, y))
+                {
                     validX[validCount] = x;
                     validY[validCount] = y;
                     ++validCount;
@@ -268,14 +313,16 @@ void MainMaze::LoadLevel() {
         }
 
         // Shuffle valid positions and pick a few
-        for (int i = validCount - 1; i > 0; --i) {
+        for (int i = validCount - 1; i > 0; --i)
+        {
             int j = rand() % (i + 1);
             std::swap(validX[i], validX[j]);
             std::swap(validY[i], validY[j]);
         }
 
         int n = std::min(cofresPorZona, validCount);
-        for (int i = 0; i < n && selectedCount < totalCofres; ++i) {
+        for (int i = 0; i < n && selectedCount < totalCofres; ++i)
+        {
             map.SetTile(validX[i], validY[i], L'█');
             cofreX[selectedCount] = validX[i];
             cofreY[selectedCount] = validY[i];
@@ -284,11 +331,16 @@ void MainMaze::LoadLevel() {
     }
 
     // Fill any missing chests
-    if (selectedCount < totalCofres) {
-        for (int y = minY; y <= maxY; ++y) {
-            for (int x = minX; x <= maxX; ++x) {
-                if (selectedCount >= totalCofres) break;
-                if (isValidCofreSpot(x, y)) {
+    if (selectedCount < totalCofres)
+    {
+        for (int y = minY; y <= maxY; ++y)
+        {
+            for (int x = minX; x <= maxX; ++x)
+            {
+                if (selectedCount >= totalCofres)
+                    break;
+                if (isValidCofreSpot(x, y))
+                {
                     map.SetTile(x, y, L'█');
                     cofreX[selectedCount] = x;
                     cofreY[selectedCount] = y;
@@ -299,15 +351,21 @@ void MainMaze::LoadLevel() {
     }
 
     // Choose one chest to hide the key
-    if (selectedCount > 0) {
+    if (selectedCount > 0)
+    {
         int keyIndex = 0;
-        if (player.GetDifficulty() == Player::Difficulty::EASY) {
+        if (player.GetDifficulty() == Player::Difficulty::EASY)
+        {
             keyIndex = rand() % selectedCount;
-        } else {
+        }
+        else
+        {
             bool found = false;
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; ++i)
+            {
                 int idx = rand() % selectedCount;
-                if (cofreY[idx] > (minY + maxY) / 2) {
+                if (cofreY[idx] > (minY + maxY) / 2)
+                {
                     keyIndex = idx;
                     found = true;
                     break;
@@ -349,8 +407,10 @@ void MainMaze::LoadLevel() {
 }
 
 // Set difficulty based folder and settings
-void MainMaze::DetermineDifficultyFolder() {
-    switch (player.GetDifficulty()) {
+void MainMaze::DetermineDifficultyFolder()
+{
+    switch (player.GetDifficulty())
+    {
     case Player::Difficulty::EASY:
         VIEW_WIDTH = 30;
         VIEW_HEIGHT = 20;

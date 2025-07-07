@@ -338,21 +338,7 @@ public:
             else if (player.GetLives() == 0)
             {
 
-                bool restart = victoryScreen.Show(utils);
-                if (restart)
-                {
-                    // Reinicia el estado del jugador y vuelve al menú o al inicio
-                    player.ResetState(SetDificultyDetails());
-                    counterMaps = 0;
-                    counterBoss = 0;
-                    StartGame(); // o regresa al menú inicial si quieres
-                }
-                else
-                {
-                    exit(0); // Sale del juego
-                }
-
-                /*
+                
                 // Mostrar Game Over y preguntar
                 bool restart = gameOver.Show(utils);
                 if (restart)
@@ -364,7 +350,7 @@ public:
                 else
                 {
                     exit(0); // Sale del juego
-                }*/
+                }
             }
             Sleep(50);
         }
