@@ -38,14 +38,17 @@ public:
             y = 0;
 
         // Game objective
-        utils.PrintLine(hudX, y, L" |You're close", GRAY);
-        utils.PrintLine(hudX, y, L" |to the end,", GRAY);
+        utils.PrintLine(hudX, y, L" |You're", GRAY);
+        utils.PrintLine(hudX, y, L" |close to", GRAY);
+        utils.PrintLine(hudX, y, L" |the end", GRAY);
         utils.PrintLine(hudX, y, L" |your courage", GRAY);
-        utils.PrintLine(hudX, y, L" |won't bend.", GRAY);
-        utils.PrintLine(hudX, y, L" |Face the fear,", GRAY);
-        utils.PrintLine(hudX, y, L" |defy the pain,", GRAY);
-        utils.PrintLine(hudX, y, L" |end this dark", GRAY);
-        utils.PrintLine(hudX, y, L" |and deadly game.", GRAY);
+        utils.PrintLine(hudX, y, L" |won't bend", GRAY);
+        utils.PrintLine(hudX, y, L" |Face the", GRAY);
+        utils.PrintLine(hudX, y, L" |fear defy", GRAY);
+        utils.PrintLine(hudX, y, L" |the pain", GRAY);
+        utils.PrintLine(hudX, y, L" |end this", GRAY);
+        utils.PrintLine(hudX, y, L" |dark and", GRAY);
+        utils.PrintLine(hudX, y, L" |deadly game", GRAY);
 
         std::wcout << RESET; // Reset text color
     }

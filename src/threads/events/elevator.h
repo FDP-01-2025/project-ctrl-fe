@@ -242,7 +242,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
         if (playerAnswer == currentExercise.correctAnswer)
         {
             utils.PrintAtPosition(2, messagePosY, L"Correct", GREEN);
-            Sleep(500);
+            Sleep(600);
             utils.PrintAtPosition(2, messagePosY, L"       ", RESET); // Clear message
             player.SetPosition(3, 8);                                 // Reset player position
             correctAnswers++;
@@ -250,7 +250,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
         else
         {
             utils.PrintAtPosition(2, messagePosY, L"Incorrect", RED);
-            Sleep(500);
+            Sleep(600);
             utils.PrintAtPosition(2, messagePosY, L"         ", RESET); // Clear message
             player.SetPosition(3, 8);
             Sleep(100);

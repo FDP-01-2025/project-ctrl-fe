@@ -339,7 +339,7 @@ public:
         // Loop while the number of completed maps is less than allowed number of games to show/play
         while (counterMaps < showMapsLot)
         {
-            std::wcout << counterMaps;
+            //std::wcout << counterMaps;
 
             // Load the IDs of games already played into a set
             std::set<int> gamesAlreadyPlayed;

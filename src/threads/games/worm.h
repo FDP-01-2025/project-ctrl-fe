@@ -183,6 +183,7 @@ bool Worm::Run(Console consoleSettings)
             utils.PrintAtPosition(messageX, messageY, L"Right! Worm loses a part", GREEN);
             Sleep(500);
             utils.PrintAtPosition(messageX, messageY, L"                                             ");
+            result = true;
         }
         else
         {
@@ -190,6 +191,7 @@ bool Worm::Run(Console consoleSettings)
             utils.PrintAtPosition(messageX, messageY, L"Incorrect! Life lost", RED);
             Sleep(500);
             utils.PrintAtPosition(messageX, messageY, L"                                             ");
+            result = false;
         }
         Sleep(500);
     }

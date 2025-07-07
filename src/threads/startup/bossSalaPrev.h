@@ -70,7 +70,7 @@ MapId BossRoomPreview::Run(Console consoleSettings, MapId options[2])
     }
 
     Sleep(100);
-    consoleSettings.SetConsoleFont(25, 25, L"Lucida console"); // Set console font size for readability
+    consoleSettings.SetConsoleFont(22, 25, L"Lucida console"); // Set console font size for readability
     Sleep(100);
 
     // Load boss preview map
@@ -221,7 +221,7 @@ void BossRoomPreview::ProcessInput(char input, Console consoleSettings)
                 // Reset font and larger size for normal gameplay
                 consoleSettings.SetConsoleFont();
                 Sleep(100);
-                consoleSettings.SetConsoleFont(23, 28, L"Lucida console");
+                consoleSettings.SetConsoleFont(22, 25, L"Lucida console");
                 Sleep(100);
 
                 // Move player back a few steps to previous position
