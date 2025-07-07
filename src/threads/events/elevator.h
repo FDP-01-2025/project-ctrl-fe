@@ -206,10 +206,10 @@ bool Elevator::Run(Console consoleSettings)
 
         Sleep(50); // Small delay to avoid high CPU usage
     }
-
+    system("cls");
     PlaySoundW(NULL, NULL, 0);        // Stop background music
     consoleSettings.SetConsoleFont(); // Reset font size
-    return result;                    // Return game result
+    return result; // Return game result
 }
 
 void Elevator::ProcessInput(char input, Console consoleSettings)
@@ -262,7 +262,9 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
 
         if (correctAnswers >= 3)
         {
-            result = true;     // Player won
+            result = true; // Player won
+            utils.PrintAtPosition(2, messagePosY, L"You won!", GREEN);
+            Sleep(1500);
             isRunning = false; // Stop the game
         }
         else if (lives <= 0)

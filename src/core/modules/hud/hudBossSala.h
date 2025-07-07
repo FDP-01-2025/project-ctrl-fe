@@ -38,20 +38,14 @@ public:
             y = 0;
 
         // Game objective
-        utils.PrintLine(hudX, y, L" |With every", GRAY);
-        utils.PrintLine(hudX, y, L" |trial you", GRAY);
-        utils.PrintLine(hudX, y, L" |overcome", GRAY);
-        utils.PrintLine(hudX, y, L" |three doors", GRAY);
-        utils.PrintLine(hudX, y, L" |arise. One", GRAY);
-        utils.PrintLine(hudX, y, L" |by one", GRAY);
-        utils.PrintLine(hudX, y, L" |Cross them", GRAY);
-        utils.PrintLine(hudX, y, L" |all don’t", GRAY);
-        utils.PrintLine(hudX, y, L" |lose your", GRAY);
-        utils.PrintLine(hudX, y, L" |way and", GRAY);
-        utils.PrintLine(hudX, y, L" |reach your", GRAY);
-        utils.PrintLine(hudX, y, L" |love at", GRAY);
-        utils.PrintLine(hudX, y, L" |break of", GRAY);
-        utils.PrintLine(hudX, y, L" |day", GRAY);
+        utils.PrintLine(hudX, y, L" |You're close", GRAY);
+        utils.PrintLine(hudX, y, L" |to the end,", GRAY);
+        utils.PrintLine(hudX, y, L" |your courage", GRAY);
+        utils.PrintLine(hudX, y, L" |won't bend.", GRAY);
+        utils.PrintLine(hudX, y, L" |Face the fear,", GRAY);
+        utils.PrintLine(hudX, y, L" |defy the pain,", GRAY);
+        utils.PrintLine(hudX, y, L" |end this dark", GRAY);
+        utils.PrintLine(hudX, y, L" |and deadly game.", GRAY);
 
         std::wcout << RESET; // Reset text color
     }
