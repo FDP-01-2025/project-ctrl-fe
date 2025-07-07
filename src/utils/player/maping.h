@@ -549,7 +549,7 @@ public:
                         case '}':
                             std::wcout << BROWN << L"═" << RESET;
                             break;
-                             case '¿':
+                             case '¡':
                             std::wcout << BROWN << L"║" << RESET;
                             break;
                         }
