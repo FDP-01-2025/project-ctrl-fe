@@ -113,7 +113,7 @@ bool Worm::Run(Console consoleSettings)
     map.DrawWithPlayer(map.GetWidth(), map.GetHeight(), 5, 10, offsetX, offsetY);
     int animationFrame = 0;
 
-    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\Skogen.wav";
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\Solomons.wav";
     PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
     while (isRunning && lives > 0 && correctAnswers < maxCorrectAnswers && !worm.empty())
     {
