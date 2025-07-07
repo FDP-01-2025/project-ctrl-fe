@@ -192,28 +192,59 @@ public:
         }
     }
     // TODO ----- PROCESO (6) ----
+    // Starts the main game flow depending on the current state of the thread.
     void StartGame()
     {
-        if (processThread != STATE_GAME_STARTED)
+        // Check if the game state is starting from the very beginning
+        if (processThread == STATE_GAME_STARTED)
+        {
+            // Remove previous saved files (if any)
+            std::remove(filename.c_str());
+            std::remove(filenameBoss.c_str());
+
+            // Remove player status file (if it exists)
+            player.removeStatusFile();
+
+            // Clear the entire console screen
+            utils.ClearScreenComplety();
+
+            // Reset the player's state with new difficulty settings
+            player.ResetState(SetDificultyDetails());
+        }
+        // If starting from the manual load menu (continue game)
+        else if (processThread == STATE_SECOND_MENU_DONE)
+        {
+            // Load manually saved player state
+            player.LoadStateManual();
+
+            // Set the difficulty based on loaded data (+1 for indexing or internal adjustment)
+            selectedDifficulty = player.GetDifficulty() + 1;
+
+            // Apply the selected difficulty settings
+            SetDificultyDetails();
+        }
+        // If not in any of the above valid states, exit the function
+        else
+        {
             return;
+        }
 
-        player.removeStatusFile();
-        utils.ClearScreenComplety();
-
-        player.ResetState(SetDificultyDetails());
-
+        // Attempt to change the map to the current one; if it fails, exit
         if (!ChangeMap(currentMap))
             return;
 
+        // Execute the list of available games (minigames); if any error occurs, exit
         if (!GamesExecute())
             return;
 
+        // If the required number of maps have been played, launch the boss sequence
         if (counterMaps == showMapsLot)
             BossesExecute();
 
+        // If enough bosses have been defeated, show the end of the game (not implemented yet)
         if (counterBoss == showBoossLot)
         {
-            // TODO: Mostrar final del juego
+            // TODO: Display end of the game
         }
     }
 
@@ -222,13 +253,36 @@ public:
         MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame, ChestGame};
         const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
 
+        // Open the output file stream in append mode to store the list of completed games.
+        // This allows new game IDs to be added without erasing the existing content.
         wofstream gamesCompleted(filename, std::ios::app);
-        wifstream gamesLecture;
 
-        counterMaps = 0;
+        // Open the input file stream in append mode to read the list of previously completed games.
+        // NOTE: Using std::ios::app here for reading is unusual — normally you use std::ios::in for input.
+        wifstream gamesLecture(filename, std::ios::app);
+
+        // Check if the game was loaded from a previously saved state (manual load)
+        if (processThread == STATE_SECOND_MENU_DONE)
+        {
+            counterMaps = 0; // Initialize map counter to zero
+
+            int value;
+            // Read each integer (representing a game ID) from the file
+            // Each successful read means one game was completed in the past
+            while (gamesLecture >> value)
+            {
+                counterMaps++; // Increment for each game found in the file
+            }
+        }
+        else
+        {
+            // If it's not a resumed game, start with zero maps played
+            counterMaps = 0;
+        }
 
         while (counterMaps < showMapsLot)
         {
+            std::wcout << counterMaps;
             std::set<int> gamesAlreadyPlayed;
             ReadFileGamesId(filename, gamesAlreadyPlayed);
 
@@ -260,6 +314,8 @@ public:
             if (valid && ChangeMapAndCheck(selected))
             {
                 gamesCompleted << static_cast<int>(selected) << std::endl;
+                // Increment the player's room when a game is successfully played
+                player.SetRoom(player.GetRoom() + 1);
                 counterMaps++;
 
                 if (counterMaps >= showMapsLot)
@@ -399,12 +455,10 @@ public:
             return elevator.Run(consoleSettings);
 
         case BoosMario:
-            bossFightMario.Run();
-            return true;
+            return bossFightMario.Run();
 
         case BoosZelda:
-            bossFightZelda.Run();
-            return true;
+            return bossFightZelda.Run();
 
         case MainRoom:
             break;

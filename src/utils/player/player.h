@@ -28,28 +28,28 @@ public:
     // Get the player's X position from saved file
     int GetX()
     {
-        loadState();
+        LoadState();
         return x;
     }
 
     // Get the player's Y position
     int GetY()
     {
-        loadState();
+        LoadState();
         return y;
     }
 
     // Get how many lives the player currently has
     int GetLives()
     {
-        loadState();
+        LoadState();
         return lives;
     }
 
     // Get how many bombs the player can currently place
     int GetBombs()
     {
-        loadState();
+        LoadState();
         return bombsAvailable;
     }
 
@@ -59,27 +59,27 @@ public:
     // Get the current game difficulty
     Difficulty GetDifficulty()
     {
-        loadState();
+        LoadState();
         return difficulty;
     }
 
     // Get the current event or state of the player
     int GetRoom()
     {
-        loadState();
+        LoadState();
         return room;
     }
 
     // Get the current event or state of the player
     int GetEvent()
     {
-        loadState();
+        LoadState();
         return event;
     }
     // Obtener cuántos cofres ha abierto el jugador
     int GetOpenedChests()
     {
-        loadState();
+        LoadState();
         return openedChests;
     }
 
@@ -94,7 +94,7 @@ public:
     // Check whether control B (bomb placement) is active
     bool IsControlBActive()
     {
-        loadState();
+        LoadState();
         return controlB;
     }
 
@@ -309,7 +309,7 @@ public:
     // Force load player state manually (e.g. from outside class)
     void LoadStateManual()
     {
-        loadState();
+        LoadState();
     }
 
 private:
@@ -362,7 +362,7 @@ private:
     // Load the player state from file
     // This function reads the saved player state from the file,
     // restoring all fields by reading line by line.
-    void loadState()
+    void LoadState()
     {
         std::ifstream in(filename, std::ios::binary);
         if (in.is_open())

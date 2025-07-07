@@ -66,7 +66,8 @@ bool MainBomberman::Run()
     player.ActivateControlB(true); // Enable 'B' control for placing bombs
     DetermineDifficultyFolder();   // Set level folder based on difficulty
     LoadLevel(currentLevel);       // Load first level
-
+    isRunning = true; 
+    
     while (isRunning)
     {
         utils.ClearScreen();

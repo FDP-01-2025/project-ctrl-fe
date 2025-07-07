@@ -22,7 +22,7 @@ public:
     bool Run();
 
 private:
-    bool isRunning, lampEventActive = true;
+    bool isRunning = true, lampEventActive = true;
     int activeMap;
     std::string mapGeniusArchive;
     int offsetX = 1, offsetY = 1;

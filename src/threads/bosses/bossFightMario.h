@@ -40,6 +40,7 @@ public:
         CalculateOffsets();                   // Calculate where to draw things centered
 
         boss.Init(player.playerBase.GetDifficulty()); // Set boss stats based on difficulty
+        isRunning = true;                // Start the game loop
 
         // Main game loop
         while (isRunning)
