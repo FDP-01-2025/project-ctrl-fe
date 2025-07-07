@@ -440,7 +440,7 @@ public:
         // Loop while the number of completed maps is less than allowed number of bosses
         while (counterMaps < showBoossLot)
         {
-            std::wcout << counterMaps;
+            //std::wcout << counterMaps;
             std::set<int> gamesAlreadyPlayed;
             ReadFileGamesId(filename, gamesAlreadyPlayed); // Reads completed game IDs into the set
 
