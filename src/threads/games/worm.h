@@ -212,7 +212,7 @@ bool Worm::Run(Console consoleSettings)
         result = true;
     }
     Sleep(2000);
-
+    system("cls");
     PlaySoundW(NULL, NULL, 0);        // Stop background music
     consoleSettings.SetConsoleFont(); // Reset font size
     return result;
