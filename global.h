@@ -339,8 +339,6 @@ public:
         // Loop while the number of completed maps is less than allowed number of games to show/play
         while (counterMaps < showMapsLot)
         {
-            //std::wcout << counterMaps;
-
             // Load the IDs of games already played into a set
             std::set<int> gamesAlreadyPlayed;
             ReadFileGamesId(filename, gamesAlreadyPlayed);
@@ -438,9 +436,8 @@ public:
         }
 
         // Loop while the number of completed maps is less than allowed number of bosses
-        while (counterMaps < showBoossLot)
+        while (counterBoss < showBoossLot)
         {
-            //std::wcout << counterMaps;
             std::set<int> gamesAlreadyPlayed;
             ReadFileGamesId(filename, gamesAlreadyPlayed); // Reads completed game IDs into the set
 
@@ -475,9 +472,9 @@ public:
             {
                 gamesCompleted << static_cast<int>(selected) << std::endl; // Record completed boss
                 player.SetRoom(player.GetRoom() + 1);                      // Increment player's current room count
-                counterMaps++;
+                counterBoss++;
 
-                if (counterMaps >= showMapsLot)
+                if (counterBoss >= showBoossLot)
                     break; // Reached maximum allowed bosses
             }
             else if (player.GetLives() == 0)
