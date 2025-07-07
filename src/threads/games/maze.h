@@ -57,7 +57,8 @@ MainMaze::MainMaze() {}
 bool MainMaze::Run()
 {
     utils.ClearScreen();
-    DetermineDifficultyFolder();
+    srand(static_cast<unsigned>(time(nullptr))); // Inicializa aleatoriedad
+    DetermineDifficultyFolder();                 // Solo una vez
     LoadLevel();
 
     while (isRunning)
@@ -221,27 +222,77 @@ void MainMaze::LoadLevel()
 
     hud.SetCenteredOffset(offsetX);
 
-    // ✅ Cofres garantizados en franjas
+    // 📌 Detectar bordes del laberinto (zona jugable entre muros)
+    int minX = map.GetWidth(), maxX = 0;
+    int minY = map.GetHeight(), maxY = 0;
+
+    for (int y = 0; y < map.GetHeight(); ++y)
+    {
+        for (int x = 0; x < map.GetWidth(); ++x)
+        {
+            wchar_t tile = map.GetTile(x, y);
+            if (tile != '#' && tile && tile != 0)
+            {
+                if (x < minX)
+                    minX = x;
+                if (x > maxX)
+                    maxX = x;
+                if (y < minY)
+                    minY = y;
+                if (y > maxY)
+                    maxY = y;
+            }
+        }
+    }
+
+    // Aseguramos un margen mínimo (por si el contenido es muy pequeño)
+    minX = std::max(1, minX);
+    minY = std::max(1, minY);
+    maxX = std::min(map.GetWidth() - 2, maxX);
+    maxY = std::min(map.GetHeight() - 2, maxY);
+
+    auto isInsideMaze = [&](int x, int y)
+    {
+        return x >= minX && x <= maxX && y >= minY && y <= maxY;
+    };
+
+auto isValidCofreSpot = [&](int x, int y)
+{
+    if (!isInsideMaze(x, y)) return false;
+
+    if (map.GetTile(x, y) != ' ') return false;
+
+    // Asegura que no esté junto a muro doble
+    int wallCount = 0;
+    if (map.GetTile(x + 1, y) == '#') wallCount++;
+    if (map.GetTile(x - 1, y) == '#') wallCount++;
+    if (map.GetTile(x, y + 1) == '#') wallCount++;
+    if (map.GetTile(x, y - 1) == '#') wallCount++;
+
+    // Evita lugares con más de 1 muro alrededor
+    return wallCount <= 1;
+};
+
+
+    // 📦 Colocar cofres
     int zones = 3;
     int cofresPorZona = totalCofres / zones;
-
     int selectedCount = 0;
-    int cofreX[MAX_POSITIONS];
-    int cofreY[MAX_POSITIONS];
+    int cofreX[MAX_POSITIONS], cofreY[MAX_POSITIONS];
 
     for (int z = 0; z < zones; ++z)
     {
-        int zoneHeight = map.GetHeight() / zones;
-        int yStart = z * zoneHeight;
-        int yEnd = (z == zones - 1) ? map.GetHeight() : yStart + zoneHeight;
+        int zoneHeight = (maxY - minY) / zones;
+        int yStart = minY + z * zoneHeight;
+        int yEnd = (z == zones - 1) ? maxY : yStart + zoneHeight;
 
         int validX[MAX_POSITIONS], validY[MAX_POSITIONS], validCount = 0;
 
-        for (int y = yStart + 1; y < yEnd - 1; ++y)
+        for (int y = yStart; y <= yEnd; ++y)
         {
-            for (int x = 1; x < map.GetWidth() - 1; ++x)
+            for (int x = minX; x <= maxX; ++x)
             {
-                if (map.GetTile(x, y) == ' ')
+                if (isValidCofreSpot(x, y))
                 {
                     validX[validCount] = x;
                     validY[validCount] = y;
@@ -267,95 +318,76 @@ void MainMaze::LoadLevel()
         }
     }
 
-    // Rellenar si faltan
+    // 🔁 Cofres restantes
     if (selectedCount < totalCofres)
     {
-        int allX[MAX_POSITIONS], allY[MAX_POSITIONS], allCount = 0;
-        for (int y = 1; y < map.GetHeight() - 1; ++y)
+        for (int y = minY; y <= maxY; ++y)
         {
-            for (int x = 1; x < map.GetWidth() - 1; ++x)
+            for (int x = minX; x <= maxX; ++x)
             {
-                if (map.GetTile(x, y) == ' ')
+                if (selectedCount >= totalCofres)
+                    break;
+                if (isValidCofreSpot(x, y))
                 {
-                    allX[allCount] = x;
-                    allY[allCount] = y;
-                    ++allCount;
+                    map.SetTile(x, y, L'█');
+                    cofreX[selectedCount] = x;
+                    cofreY[selectedCount] = y;
+                    ++selectedCount;
                 }
             }
         }
-        for (int i = 0; i < allCount && selectedCount < totalCofres; ++i)
-        {
-            map.SetTile(allX[i], allY[i], L'█');
-            cofreX[selectedCount] = allX[i];
-            cofreY[selectedCount] = allY[i];
-            ++selectedCount;
-        }
     }
 
+    // 🗝️ Elegir cofre con la llave
     if (selectedCount > 0)
     {
         int keyIndex = 0;
-
         if (player.GetDifficulty() == Player::Difficulty::EASY)
         {
-            // En fácil: totalmente aleatorio.
             keyIndex = rand() % selectedCount;
         }
         else
         {
-            // En normal y difícil: favorece cofres de la mitad o zona baja.
-            int biasAttempts = 10; // Más intentos para encontrar uno abajo
-            for (int attempt = 0; attempt < biasAttempts; ++attempt)
+            bool found = false;
+            for (int i = 0; i < 10; ++i)
             {
                 int idx = rand() % selectedCount;
-                int y = cofreY[idx];
-
-                // Checa si está en la mitad baja
-                if (y > map.GetHeight() / 2)
+                if (cofreY[idx] > (minY + maxY) / 2)
                 {
                     keyIndex = idx;
+                    found = true;
                     break;
                 }
             }
-
-            // Si no encontró, elige cualquiera (fallback)
-            if (keyIndex == 0)
-            {
+            if (!found)
                 keyIndex = rand() % selectedCount;
-            }
         }
 
         keyBoxPosition = std::make_pair(cofreX[keyIndex], cofreY[keyIndex]);
     }
 
-    // 🎋 Área verde, mesas, antorchas, laguito igual que antes
-    for (int y = map.GetHeight() - 4; y < map.GetHeight() - 1; ++y)
-        for (int x = map.GetWidth() - 6; x < map.GetWidth() - 2; ++x)
-            if (map.GetTile(x, y) == ' ')
-                map.SetTile(x, y, L'♣');
-
-    int mesaX[] = {3, map.GetWidth() - 4, 3, map.GetWidth() - 4};
-    int mesaY[] = {2, 2, map.GetHeight() - 3, map.GetHeight() - 3};
+    // 🪑 Mesas
+    int mesaX[] = {minX + 2, maxX - 2, minX + 2, maxX - 2};
+    int mesaY[] = {minY + 1, minY + 1, maxY - 1, maxY - 1};
     for (int i = 0; i < 4; ++i)
-        if (map.GetTile(mesaX[i], mesaY[i]) == ' ')
+        if (isValidCofreSpot(mesaX[i], mesaY[i]))
             map.SetTile(mesaX[i], mesaY[i], L'T');
 
-    for (int x = 2; x < map.GetWidth() - 2; x += 10)
-        for (int y = 2; y < map.GetHeight() - 2; y += 5)
-            if (map.GetTile(x, y) == ' ' &&
-                map.GetTile(x - 1, y) == ' ' &&
-                map.GetTile(x + 1, y) == ' ' &&
-                map.GetTile(x, y - 1) == ' ' &&
-                map.GetTile(x, y + 1) == ' ')
+    // 🕯️ Antorchas
+    for (int x = minX + 2; x < maxX - 2; x += 10)
+        for (int y = minY + 2; y < maxY - 2; y += 5)
+            if (isValidCofreSpot(x, y))
                 map.SetTile(x, y, L'*');
 
-    int lakeX = map.GetWidth() / 4;
-    int lakeY = map.GetHeight() / 2;
+    // 🌊 Lago
+    int lakeX = (minX + maxX) / 2 - 2;
+    int lakeY = (minY + maxY) / 2 - 1;
     bool canPlaceLake = true;
     for (int y = lakeY; y < lakeY + 3 && canPlaceLake; ++y)
         for (int x = lakeX; x < lakeX + 6; ++x)
-            if (map.GetTile(x, y) != ' ')
+            if (!isValidCofreSpot(x, y))
                 canPlaceLake = false;
+
     if (canPlaceLake)
         for (int y = lakeY; y < lakeY + 3; ++y)
             for (int x = lakeX; x < lakeX + 6; ++x)
