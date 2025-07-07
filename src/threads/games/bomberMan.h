@@ -15,6 +15,10 @@
 #include <conio.h> // for _kbhit() and _getch() that allow non-blocking keyboard input
 #include <limits>  // for std::numeric_limits that allows us to clear input buffer
 #include <tuple>   // for std::pair used in player movement direction
+// Required to play sounds using Windows Multimedia API
+#include <mmsystem.h>
+// Link the program with the Windows Multimedia library
+#pragma comment(lib, "winmm.lib")
 
 #ifdef _WIN32
 #include <windows.h> // Only needed for sound effects on Windows
@@ -66,8 +70,11 @@ bool MainBomberman::Run()
     player.ActivateControlB(true); // Enable 'B' control for placing bombs
     DetermineDifficultyFolder();   // Set level folder based on difficulty
     LoadLevel(currentLevel);       // Load first level
-    isRunning = true; 
-    
+    isRunning = true;
+
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\bomberman.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
+
     while (isRunning)
     {
         utils.ClearScreen();

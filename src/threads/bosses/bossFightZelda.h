@@ -16,6 +16,10 @@
 #include "core/modules/bomberman/bomb.h"
 #include "core/modules/bomberman/bombRenderer.h"
 #include "core/modules/hud/hudBossZelda.h"
+// Required to play sounds using Windows Multimedia API
+#include <mmsystem.h>
+// Link the program with the Windows Multimedia library
+#pragma comment(lib, "winmm.lib")
 // Main class for the Zelda-style boss fight
 class MainBossFightZelda
 {
@@ -80,6 +84,9 @@ public:
         bossDefeated = false;
 
         utils.ClearScreenComplety(); // Clear the console before starting
+
+        std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\bossZelda.wav";
+        PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
 
         // Main game loop: runs until the player wins, loses, or exits
         while (isRunning)
