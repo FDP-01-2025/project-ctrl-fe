@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 X: 4
 Y: 6
+=======
+X: 59
+Y: 11
+>>>>>>> 05e4cf4f5316a19e05081bbc75724a56b56f61ef
 Lives: 5
 Bombs: 10
 Difficulty: 0
 ControlB: 0
-Room: 1
+Room: 4
 Event: 0
 OpenedChests: 0

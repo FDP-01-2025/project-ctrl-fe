@@ -6,6 +6,9 @@
 #include "utils/functions/utils.h"
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
+#include "core/modules/hud/hudBossSala.h"
+#include <mmsystem.h>             // Reproducir sonido
+#pragma comment(lib, "winmm.lib") // Enlace con la librería de sonido
 
 class BossSalaPrev
 {
@@ -17,6 +20,7 @@ private:
     Map map;
     Utils utils;
     Player player;
+    HudBossSala hud;
 
     int viewW;
     int consoleW;
@@ -24,12 +28,16 @@ private:
     int playerY;
     MapId selection;
     MapId opcionesBoses[2];
+    int totalOpciones = 0;
 
     int offsetX = 1, offsetY = 1; // Map drawing offset
 
     bool isRunning;
     void ProceesInput(char input, Console consoleSettings);
     void LoadLevel(std::string key);
+    void ReplaceDoorsName(MapId op[2]);
+    std::wstring GetMapName(MapId id);
+    void WriteTextOnMap(Map &map, int row, int colStart, const std::wstring &text);
 };
 
 BossSalaPrev::BossSalaPrev() : isRunning(true)
@@ -40,24 +48,73 @@ BossSalaPrev::BossSalaPrev() : isRunning(true)
 
 MapId BossSalaPrev::Run(Console consoleSettings, MapId opciones[2])
 {
+    isRunning = true;
+    totalOpciones = 0;
     for (int i = 0; i < 3; ++i)
     {
         opcionesBoses[i] = opciones[i];
+        if (opciones[i] != MapId::None)
+            totalOpciones++;
     }
+    Sleep(100);
+    consoleSettings.SetConsoleFont(25, 25, L"Lucida console");
+    Sleep(100);
     std::string key = utils.GetAssetsPath() + "maps\\main\\boosSalaPrev.txt";
     LoadLevel(key);
     player.SetPosition(3, 7);
+
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\LookOut.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
     while (isRunning)
     {
+        viewW = 30;
         utils.ClearScreen();
         map.DrawWithWindowView(viewW, player.GetX(), player.GetY(), offsetX, offsetY, MapId::MainRoom);
+        hud.Draw(player, 1, viewW);
 
         if (_kbhit())
             ProceesInput(_getch(), consoleSettings);
 
         Sleep(15);
     }
+    PlaySoundW(NULL, NULL, 0);
+    consoleSettings.SetConsoleFont();
     return selection;
+}
+
+void BossSalaPrev::ReplaceDoorsName(MapId op[3])
+{
+    for (int i = 0; i < totalOpciones; ++i)
+    {
+        if (opcionesBoses[i] == MapId::None)
+            continue;
+
+        std::wstring nombre = GetMapName(opcionesBoses[i]);
+
+        int fila;
+        switch (i)
+        {
+        case 0:
+            fila = 3;
+            break;
+        case 1:
+            fila = 6;
+            break;
+        case 2:
+            fila = 9;
+            break;
+        }
+
+        WriteTextOnMap(map, fila, 44, nombre);
+    }
+}
+
+void BossSalaPrev::WriteTextOnMap(Map &map, int row, int colStart, const std::wstring &text)
+{
+    for (size_t i = 0; i < text.length(); ++i)
+    {
+        map.SetTile(colStart + i, row, text[i]);
+    }
 }
 
 void BossSalaPrev::ProceesInput(char input, Console consoleSettings)
@@ -148,4 +205,30 @@ void BossSalaPrev::LoadLevel(std::string key)
     viewW = utils.GetConsoleWidth();
     if (viewW > map.GetWidth())
         viewW = map.GetWidth();
+}
+
+std::wstring BossSalaPrev::GetMapName(MapId id)
+{
+    // MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, WormGame, ElevatorGame};
+    switch (id)
+    {
+    case BomberManGame:
+        return L"Bomberman";
+    case MazeGame:
+        return L"Laberinto";
+    case GeniusGame:
+        return L"Genio";
+    case ChestGame:
+        return L"Cofres";
+    case WormGame:
+        return L"Gusano";
+    case ElevatorGame:
+        return L"Ascensor";
+    case BoosMario:
+        return L"Jefe Mario";
+    case BoosZelda:
+        return L"Jefe Zelda";
+    default:
+        return L"Desconocido";
+    }
 }

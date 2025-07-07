@@ -415,7 +415,7 @@ public:
             int cantidadOpciones = std::min(3, (int)gamesNotPlayed.size());
             GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size(), opcionesGames, cantidadOpciones);
 
-            selected = mainRoom.Run(consoleSettings, opcionesGames);
+            selected = bossSalaPrev.Run(consoleSettings, opcionesGames);
 
             bool valid = false;
             for (int i = 0; i < cantidadOpciones; ++i)
