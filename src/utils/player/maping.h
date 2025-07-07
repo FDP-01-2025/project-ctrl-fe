@@ -494,6 +494,12 @@ public:
                             std::wcout << GREEN << L" " << RESET;
                             drawn = true;
                             break;
+                        case 'b':
+                            std::wcout << BROWN << L"║" << RESET;
+                            break;
+                        case 'a':
+                            std::wcout << BROWN << L"═" << RESET;
+                            break;
                         }
                         break;
 
@@ -526,9 +532,28 @@ public:
                                  std::wcout << RED << L"─" << RESET;
                                  drawn = true;
                                  break;*/
+                        case 'b':
+                            std::wcout << BROWN << L"║" << RESET;
+                            break;
+                        case 'a':
+                            std::wcout << BROWN << L"═" << RESET;
+                            break;
                         }
                         break;
-
+                    case ElevatorGame:
+                        switch (tile)
+                        {
+                        case '¿':
+                            std::wcout << BROWN << L"║" << RESET;
+                            break;
+                        case '}':
+                            std::wcout << BROWN << L"═" << RESET;
+                            break;
+                             case '¿':
+                            std::wcout << BROWN << L"║" << RESET;
+                            break;
+                        }
+                        break;
                     default:
                         break;
                     }
@@ -543,12 +568,6 @@ public:
                         case '|':
                         case '_':
                             std::wcout << GRAY << L"░" << RESET;
-                            break;
-                        case 'b':
-                            std::wcout << BROWN << L"║" << RESET;
-                            break;
-                        case 'a':
-                            std::wcout << BROWN << L"═" << RESET;
                             break;
                         default:
                             std::wcout << tile;

@@ -150,7 +150,6 @@ bool Elevator::Run(Console consoleSettings)
 
     std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\LunarAbyss.wav";
     PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
-    lives = 5;
 
     std::wstring lastQuestion = L"";
     while (isRunning)
@@ -228,7 +227,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
     wchar_t tile = map.GetTile(newX, newY);
     // utils.PrintAtPosition(0, 0, std::wstring(L"Tile: ") + tile, GREEN); // Debug: show tile char
 
-    if (tile == L' ' || tile == L'|')
+    if (tile == L' ' || tile == L'¿')
     {
         player.SetPosition(newX, newY); // Move player to new position if tile is empty or vertical bar
     }
