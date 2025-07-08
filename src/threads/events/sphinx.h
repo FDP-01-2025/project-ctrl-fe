@@ -4,8 +4,8 @@
 #include "utils/player/player.h"
 #include "../../core/engine/settings/console.h"
 #include "core/modules/sphinx/hudSphinx.h"
+#include <locale>
 
-// This struct represents a multiple-choice question
 struct GeographyQuestion
 {
     std::wstring question;
@@ -25,8 +25,8 @@ private:
     Player player;
     HUDSphinx hud;
 
-    int viewWidth = 36;
-    int viewHeight = 18;
+    int viewWidth = 40;
+    int viewHeight = 20;
     int playerX, playerY;
     bool isRunning;
     int lives;
@@ -44,14 +44,14 @@ private:
     int answerStatus; // -1 = no message, 0 = wrong, 1 = correct
     bool questionAnswered;
 
-    void LoadLevel(std::string key);
+    void LoadLevel(const std::string &key);
     void SetGoodStyle(Console consoleSettings);
     void ProcessInput(char input);
     void InitializeQuestions();
     GeographyQuestion GenerateQuestion();
 };
 
-// Constructor: set initial values and get first question
+// Constructor
 SphinxGame::SphinxGame()
     : isRunning(true), correctAnswers(0), currentQuestion(1), answerStatus(-1), questionAnswered(false)
 {
@@ -62,7 +62,6 @@ SphinxGame::SphinxGame()
     question = GenerateQuestion();
 }
 
-// Load all the questions into the array
 void SphinxGame::InitializeQuestions()
 {
     questions[0] = {L"Who was the first President of the United States?", {L"George Washington", L"Thomas Jefferson", L"Abraham Lincoln"}, 0};
@@ -78,7 +77,6 @@ void SphinxGame::InitializeQuestions()
         usedQuestions[i] = false;
 }
 
-// Pick a random question that hasn't been used
 GeographyQuestion SphinxGame::GenerateQuestion()
 {
     int available[8];
@@ -91,47 +89,43 @@ GeographyQuestion SphinxGame::GenerateQuestion()
     }
 
     if (count == 0)
-        return questions[0]; // default fallback
+        return questions[0]; // fallback
 
     int randomIndex = available[rand() % count];
     usedQuestions[randomIndex] = true;
     return questions[randomIndex];
 }
 
-// Main game loop
 bool SphinxGame::Run(Console consoleSettings)
 {
-    isRunning=true;
-    SetGoodStyle(consoleSettings);
+SetGoodStyle(consoleSettings);  // ya no cambia tamaño agresivamente
 
     std::string key = utils.GetAssetsPath() + "maps\\sphinx\\sphinx.txt";
-    LoadLevel(key);
+    LoadLevel(key); // Ya pone mapa completo
+
+    isRunning = true;
+
+    // Mostrar TODO el mapa
     viewWidth = map.GetWidth();
+    viewHeight = map.GetHeight();
 
-    // Center the map in the screen
-    offsetX = (utils.GetConsoleWidth() - viewWidth) / 2 - 4;
-    offsetY = (utils.GetConsoleHeight() - map.GetHeight()) / 2 - 1;
-    if (offsetX < 0) offsetX = 0;
-    if (offsetY < 0) offsetY = 0;
-
-    messageX = offsetX;
-    messageY = offsetY + map.GetHeight() + 2;
+    // Centrado
+    offsetX = (utils.GetConsoleWidth() - viewWidth) / 2;
+    offsetY = (utils.GetConsoleHeight() - viewHeight) / 2;
+    offsetX = std::max(0, offsetX);
+    offsetY = std::max(0, offsetY);
 
     hud.SetCenteredOffset(offsetX);
-    utils.ClearScreenComplety();
 
     while (isRunning)
     {
-        // Draw the map and player
-        map.DrawWithPlayerSphinx(
-            map.GetWidth(), map.GetHeight(),
-            player.GetX(), player.GetY(),
-            offsetX, offsetY);
+        utils.ClearScreenComplety();  // ❗ solo aquí
 
-        // Draw HUD and question
+        map.DrawWithSphinx(viewWidth, player.GetX(), player.GetY(), offsetX, offsetY);
         hud.Draw(player, currentQuestion, viewWidth, answerStatus);
 
-        int preguntaY = offsetY + map.GetHeight() + 1;
+        // Mostrar pregunta
+        int preguntaY = offsetY + viewHeight + 1;
         int preguntaX = offsetX + (viewWidth - question.question.length()) / 2;
         utils.PrintAtPosition(preguntaX, preguntaY, question.question, ORANGE);
 
@@ -142,20 +136,18 @@ bool SphinxGame::Run(Console consoleSettings)
             utils.PrintAtPosition(optionX, preguntaY + 2 + i, text, YELLOW_BRIGHT);
         }
 
-        // Read input
         if (_kbhit())
         {
             char input = _getch();
             ProcessInput(input);
         }
 
-        Sleep(20);
+        Sleep(30);
     }
 
     return (lives > 0);
 }
 
-// Handle user input and movement
 void SphinxGame::ProcessInput(char input)
 {
     std::pair<int, int> dir = player.GetInputDirection(input);
@@ -168,12 +160,10 @@ void SphinxGame::ProcessInput(char input)
     int newY = player.GetY() + dy;
     wchar_t tile = map.GetTile(newX, newY);
 
-    // Only move if it's not blocked
     if (tile != L'A' && tile != L'B' && tile != L'#')
     {
         player.SetPosition(newX, newY);
 
-        // Check if player answered a question
         if (!questionAnswered && (tile == L'1' || tile == L'2' || tile == L'3'))
         {
             int answer = tile - L'1';
@@ -194,7 +184,6 @@ void SphinxGame::ProcessInput(char input)
                 }
 
                 question = GenerateQuestion();
-                questionAnswered = false;
             }
             else
             {
@@ -209,27 +198,26 @@ void SphinxGame::ProcessInput(char input)
                     isRunning = false;
                     return;
                 }
-
-                questionAnswered = false;
             }
+
+            questionAnswered = false;
         }
     }
 }
 
-// Load the level map and set player's start position
-void SphinxGame::LoadLevel(std::string key)
+void SphinxGame::LoadLevel(const std::string &key)
 {
     utils.ClearScreenComplety();
-    map.ReadMap(key, map.GetWidth(), map.GetHeight());
-    player.SetPosition(14, 17);
+    map.ReadMap(key, 0, 0); // usa dimensiones del archivo
+    player.SetPosition(14, 17); // Puedes ajustar esto según mapa
     playerX = player.GetX();
     playerY = player.GetY();
 }
 
-// Set console style and show intro
 void SphinxGame::SetGoodStyle(Console consoleSettings)
 {
-    consoleSettings.SetConsoleFont(8, 12, L"Lucida Console");
+   // consoleSettings.SetConsoleFont(10, 18, L"Consolas");
+    std::wcout.imbue(std::locale(""));
     utils.ClearScreenComplety();
     utils.PrintCentered(L"The sphinx challenges you with geography questions...");
     Sleep(1300);
