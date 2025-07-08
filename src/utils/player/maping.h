@@ -25,7 +25,6 @@ class Map
 protected:
     //* Initial values
     // Note: Even though one of the goals was to make this variable (based on console size),
-    // it's not feasible — vectors are required for that
     const int mH = 50; // Fixed internal height
     const int mW = 30; // Fixed internal width
 

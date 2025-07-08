@@ -6,113 +6,137 @@
 #include "../../utils/screen/colors.h"
 #include "../../utils/functions/utils.h"
 #include "../../core/engine/settings/console.h"
-#include <sstream> // for std::wistringstream
+#include <sstream>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 
 bool ShowStoryBoard(int width, int height, Console consoleSettings, Utils utils)
 {
     Sleep(500);
-    utils.SetUtf8(); // Set console output to UTF-8 encoding
+    utils.SetUtf8(); // Enable UTF-8 output in the console
 
-    // ASCII art for the initial title screen
+    // ASCII art that will be revealed column by column
     const std::wstring frstW[] = {
         L" ___                                                                                      ",
         L"  |  ._     _.   |_      ._   _ _|_ |_   _ _|_ o  _  _. |   |    |    | _  ._ |  _|       ",
         L" _|_ | |   (_|   | | |_| |_) (_) |_ | | (/_ |_ | (_ (_| |    '--' '--' (_) |  | (_| o o o ",
         L"                     /   |                                                                "};
-    const int titleLines = sizeof(frstW) / sizeof(frstW[0]); // Number of lines in the ASCII art
+    const int titleLines = sizeof(frstW) / sizeof(frstW[0]); // Total number of lines in the ASCII art
 
-    // Set a smaller console font for the title screen to fit the ASCII art
-    consoleSettings.SetConsoleFont(10, 17, L"Lucida Console");
-    system("cls"); // Clear the console screen
+    consoleSettings.SetConsoleFont(10, 17, L"Lucida Console"); // Set a small readable font
+    system("cls"); // Clear screen
 
-    // Get the current console width and height
+    // Get current console size
     int consoleW = utils.GetConsoleWidth();
     int consoleH = utils.GetConsoleHeight();
+    int verticalPadding = std::max(0, (consoleH - titleLines) / 2); // Vertical centering
 
-    // Calculate vertical padding to center the ASCII art vertically
-    int verticalPadding = std::max(0, (consoleH - titleLines) / 2);
-    std::wcout << std::wstring(verticalPadding, L'\n'); // Print newlines as top padding
-
-    // Print each line of the ASCII art centered horizontally, in red color
+    // Calculate the longest line for column-based animation
+    int maxCols = 0;
     for (int i = 0; i < titleLines; ++i)
     {
-        int padding = std::max(0, (consoleW - static_cast<int>(frstW[i].length())) / 2);
-        std::wcout << std::wstring(padding, L' ') << RED << frstW[i] << RESET << L"\n";
+        if (frstW[i].length() > static_cast<size_t>(maxCols))
+            maxCols = static_cast<int>(frstW[i].length());
     }
 
-    Sleep(3000); // Pause for 3 seconds to let the user see the title
-    system("cls"); // Clear the screen
+    // Reveal ASCII art column by column
+    for (int col = 0; col < maxCols; ++col)
+    {
+        for (int row = 0; row < titleLines; ++row)
+        {
+            int paddingLeft = std::max(0, (consoleW - maxCols) / 2); // Horizontal centering
+            if (col < static_cast<int>(frstW[row].length()))
+            {
+                wchar_t ch = frstW[row][col]; // Character at current column/row
+                utils.PrintAtPosition(paddingLeft + col, verticalPadding + row, RED + std::wstring(1, ch) + RESET);
+            }
+        }
+        Sleep(10); // Delay between columns for animation
+    }
 
-    // Array of story paragraphs to be displayed one by one
+    Sleep(3000); // Hold final title for 3 seconds
+    system("cls");
+    int posY = consoleH / 2;
+
+    // Paragraphs for the story
     const std::wstring storyParagraphs[] = {
         L"On an ordinary day in the village of Kirby, we find our heroine, the valiant knight Arlak, enjoying a peaceful moment with her beloved, Prince Onailiem.",
         L"Suddenly, without warning, the jealous master of a nearby dungeon—furious at the sight of their love—abducts the handsome prince and drags him to his lair.",
         L"Burning with rage, Arlak does not hesitate. She sets off on a daring quest to help the wicked Leugim get closer to God... all to rescue her beloved and live happily ever after."};
 
-    const int numParagraphs = sizeof(storyParagraphs) / sizeof(storyParagraphs[0]); // Number of paragraphs
-    const int maxLines = 20;  // Maximum number of lines to display per paragraph
-    const int maxWidth = 100; // Maximum width (characters) for each line when wrapping text
+    const int numParagraphs = sizeof(storyParagraphs) / sizeof(storyParagraphs[0]);
+    const int maxLines = 20;   // Max number of lines allowed per paragraph
+    const int maxWidth = 100;  // Max line width in characters
 
-    // Loop through each paragraph to display it
     for (int p = 0; p < numParagraphs; ++p)
     {
-        system("cls"); // Clear screen before showing the next paragraph
+        system("cls");
 
-        std::wstring lines[maxLines]; // Array to store wrapped lines for current paragraph
-        int lineCount = 0;            // Counter for how many lines are used
+        // Line wrapping preparation
+        std::wstring lines[maxLines];
+        int lineCount = 0;
+        std::wistringstream iss(storyParagraphs[p]);
+        std::wstring word, currentLine;
 
-        std::wistringstream iss(storyParagraphs[p]); // Create stream from paragraph string
-        std::wstring word, currentLine;              // Variables for word processing and current line
-
-        // Read words one by one and build lines that fit maxWidth
+        // Wrap paragraph into multiple lines based on maxWidth
         while (iss >> word)
         {
-            // Check if adding the next word would exceed maxWidth
             if (currentLine.length() + word.length() + 1 > static_cast<size_t>(maxWidth))
             {
                 if (lineCount < maxLines)
                 {
-                    lines[lineCount++] = currentLine; // Store current line
-                    currentLine = word;                // Start a new line with the new word
+                    lines[lineCount++] = currentLine;
+                    currentLine = word;
                 }
                 else
-                {
-                    break; // If maxLines reached, stop adding more lines
-                }
+                    break;
             }
             else
             {
                 if (!currentLine.empty())
-                    currentLine += L" "; // Add space before next word if line not empty
-                currentLine += word;     // Append word to current line
+                    currentLine += L" ";
+                currentLine += word;
             }
         }
 
-        // Add the last line if it is not empty and we have space
+        // Add last line if not empty
         if (!currentLine.empty() && lineCount < maxLines)
-        {
             lines[lineCount++] = currentLine;
-        }
 
-        // Calculate vertical padding to center the paragraph vertically
+        // Calculate vertical centering
         int topPad = std::max(0, (consoleH - lineCount) / 2);
-        std::wcout << std::wstring(topPad, L'\n'); // Print top padding lines
+        std::wcout << std::wstring(topPad, L'\n'); // Print vertical padding
 
-        // Print each wrapped line centered horizontally in yellow color
+        // Calculate total number of characters for timing
+        int totalChars = 0;
+        for (int i = 0; i < lineCount; ++i)
+            totalChars += static_cast<int>(lines[i].length());
+
+        // Distribute 7 seconds (7000 ms) over all characters
+        int delayPerChar = totalChars > 0 ? (7000 / totalChars) : 0;
+
+        // Animated line-by-line reveal from left to right
         for (int i = 0; i < lineCount; ++i)
         {
-            int leftPad = std::max(0, (consoleW - static_cast<int>(lines[i].length())) / 2);
-            std::wcout << std::wstring(leftPad, L' ') << YELLOW << lines[i] << RESET << L"\n";
+            const std::wstring line = lines[i];
+            int len = static_cast<int>(line.length());
+            int startX = std::max(0, (consoleW - len) / 2); // Horizontal centering
+            int y = topPad + i;
+
+            // Animate each character from left to right
+            for (int j = 0; j < len; ++j)
+            {
+                utils.PrintAtPosition(startX + j, y, YELLOW + std::wstring(1, line[j]) + RESET);
+                Sleep(delayPerChar);
+            }
         }
 
-        Sleep(7000); // Pause for 7 seconds so user can read the paragraph
+        Sleep(1000); // Short pause after each paragraph
     }
 
-    system("cls");           // Clear screen after all paragraphs shown
-    consoleSettings.SetConsoleFont(); // Reset console font to default
-    Sleep(300);              // Small delay before exiting
+    system("cls");
+    consoleSettings.SetConsoleFont(); // Reset font to default
+    Sleep(300); // Final short delay
 
-    return true;             // Indicate success
+    return true; // Function complete
 }

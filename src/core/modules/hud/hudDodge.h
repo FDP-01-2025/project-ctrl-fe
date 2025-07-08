@@ -1,5 +1,5 @@
-#ifndef HUD_CHEST_H
-#define HUD_CHEST_H
+#ifndef HUD_DODGE_H
+#define HUD_DODGE_H
 
 // Include required libraries
 #include <iostream>
@@ -13,7 +13,7 @@
 #include "utils/functions/toWstring.h"
 
 // Class to draw the HUD (HUD = info panel)
-class HUDChest
+class HUDDodge
 {
 public:
     Utils utils; // Instance of Utils class for utility functions
@@ -27,7 +27,7 @@ public:
 
     // Function to draw the HUD on the screen
     // Takes the player, current level, and optional map width
-    void DrawChestEvent(Player player, int currentLevel, int mapWidth = 0)
+    void DrawDodgeEvent(Player player, int currentLevel, int mapWidth, int count)
     {
         utils.ClearScreen();                  // Clear the screen before drawing the HUD
         int hudX = hudOffsetX + mapWidth + 3; // X position of the HUD
@@ -45,8 +45,10 @@ public:
         // Controls
         utils.PrintLine(hudX, y, L"Controls:", WHITE_BRIGHT);
         utils.PrintLine(hudX, y, L"[WASD]: Move");
-        utils.PrintLine(hudX, y, L"Stand in front of the chest to interact");
-        std::wcout << RESET; // Reset text color
+        utils.PrintLine(hudX, y, L"Avoid the projectiles!", RED);
+        utils.PrintLine(hudX, y, L"Then the door will be opened", YELLOW_BRIGHT);
+        utils.PrintLine(hudX, y, L"Projectiles: " + ToWString(count) + L" ", CYAN); // the limit
+        std::wcout << RESET;                                                        // Reset text color
     }
 
 private:
