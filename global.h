@@ -22,6 +22,7 @@
 #include "./src/threads/startup/gameOver.h"
 #include "./src/threads/startup/Win.h"
 #include "./src/threads/events/chest.h"
+#include "./src/threads/games/dodge.h"
 
 #include <set>
 
@@ -42,6 +43,7 @@ protected:
     SphinxGame sphinx;
     MainGenious geniusLamp;
     ChestEvent chestGame;
+    DodgeEvent dodgeEvent;
     Utils utils;
     MainBossFight bossFightMario;
     MainRoomGame mainRoom;
@@ -574,7 +576,7 @@ public:
         case ElevatorGame:
             return elevator.Run(consoleSettings);
         case DodgeGame:
-            return sphinx.Run(consoleSettings);
+            return dodgeEvent.Run();
 
         case SphinxGameM:
             return sphinx.Run(consoleSettings);

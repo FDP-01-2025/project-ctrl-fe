@@ -13,6 +13,10 @@
 #include <conio.h>
 #include <string>
 #include <random>
+// Required to play sounds using Windows Multimedia API
+#include <mmsystem.h>
+// Link the program with the Windows Multimedia library
+#pragma comment(lib, "winmm.lib")
 
 #ifdef _WIN32
 #include <windows.h>
@@ -224,6 +228,8 @@ inline bool ChestEvent::Run() // call this in main.cpp
 {
     LoadMap();
     player.SetPosition(map.GetSpawnX(), map.GetSpawnY());
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\chestRoom.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
     while (isRunning)
     {
         utils.ClearScreen();

@@ -15,6 +15,11 @@
 #include <random>
 #include <algorithm>
 
+// Required to play sounds using Windows Multimedia API
+#include <mmsystem.h>
+// Link the program with the Windows Multimedia library
+#pragma comment(lib, "winmm.lib")
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -245,6 +250,8 @@ inline bool DodgeEvent::Run()
     // Dibuja al jugador por primera vez
     utils.MoveCursor(offsetX + player.GetX(), offsetY + player.GetY());
     std::wcout << PINK << L"இ" << RESET;
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\dodgeRoom.wav"; //music
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
     while (isRunning)
     {
