@@ -42,7 +42,6 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 | ⚙️ Eventos Aleatorios (6) | Cofre bueno               | Puede contener vida extra                                                                                          |
 |                           | Cofre malo (Mimic)        | Apariencia engañosa, si lo abres pierdes vida                                                                      |
 |                           | Elevador lógico           | Puzzle o acertijo para avanzar                                                                                     |
-|                           | Esfinge                   | 3 preguntas, si fallas una, mueres                                                                                 |
 |                           | Genio bueno               | Elige 1 de 3 deseos aleatorios (ej. +3 vidas, saltar pisos)                                                        |
 |                           | Genio malvado             | Mismas opciones buenas, pero invertidas tras elegir                                                                |
 | 💀 Jefes                  | Jefe tipo Mario Bross     | Se tiene que saltar para esquivar al jefe, y dispararle                                                            |
