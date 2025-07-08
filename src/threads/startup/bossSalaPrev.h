@@ -87,7 +87,7 @@ MapId BossRoomPreview::Run(Console consoleSettings, MapId options[2])
     // Main game loop
     while (isRunning)
     {
-        viewWidth = 30;      // Fixed view width for boss preview screen
+        viewWidth = 33;      // Fixed view width for boss preview screen
         utils.ClearScreen(); // Clear console
 
         // Draw map portion around player with offset and view width

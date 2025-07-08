@@ -3,7 +3,6 @@
 #include <iostream>
 #include <deque>
 #include <string>
-#include <vector>
 #include <conio.h>
 #include <windows.h>
 #include <ctime>
@@ -21,7 +20,6 @@ public:
     bool Run(Console consoleSettings); // Starts the worm game loop
 
 private:
-    std::deque<wchar_t> worm;   // Worm body segments
     int maxLength = 10;         // Maximum length of the worm
     int lives;                  // Player lives
     int correctAnswers = 0;     // Correct inputs collected
@@ -72,7 +70,7 @@ private:
 Worm::Worm() : isRunning(true)
 {
     srand(time(NULL));
-    std::vector<std::wstring> wormArt = {
+    const wchar_t* wormArt[] = {
         L"⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
         L"⢀⢴⣖⢤⣀⣼⠛⡚⣳⠢⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
         L"⢸⡃⢸⣿⡷⣯⠀⣟⢿⠀⠘⡌⢢⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
@@ -90,13 +88,8 @@ Worm::Worm() : isRunning(true)
         L"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠢⣀⠀⡰⠁⠀⠀⡇⠀⢀⠕⠃⠀⠀⠀⠀",
         L"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠐⠒⠒⠒⠓⠉⠁⠀⠀ ⠀⠀ "};
 
-    wormWidth = (int)wormArt[0].size();
+    wormWidth = (int)wcslen(wormArt[0]);
     currentWidth = wormWidth;
-
-    for (int i = 0; i < maxLength; ++i)
-    {
-        worm.push_back(L'@');
-    }
 }
 
 bool Worm::Run(Console consoleSettings)
@@ -113,7 +106,7 @@ bool Worm::Run(Console consoleSettings)
 
     std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\Solomons.wav";
     PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
-    while (isRunning && lives > 0 && correctAnswers < maxCorrectAnswers && !worm.empty())
+    while (isRunning && lives > 0 && correctAnswers < maxCorrectAnswers)
     {
         std::wstring sequence = GenerateKeys(); // Generate a random letter sequence
 
