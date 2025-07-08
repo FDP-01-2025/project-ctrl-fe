@@ -129,7 +129,7 @@ void MainRoomGame::ReplaceDoorNames(MapId options[3])
             break;
         }
 
-        WriteTextOnMap(map, row, 44, doorName);
+        //WriteTextOnMap(map, row, 44, doorName);
     }
 
     // If there is no third option, block door 3 by drawing walls (rows 10 and 11)
@@ -284,8 +284,6 @@ std::wstring MainRoomGame::GetMapName(MapId id)
         return L"Boss Mario";
     case BoosZelda:
         return L"Boss Zelda";
-    case SphinxGameM:
-        return L"Sphinx";
     case DodgeGame:
         return L"Dodge";
     default:

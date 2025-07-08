@@ -1,19 +1,9 @@
-<<<<<<< HEAD
-X: 1
-Y: 10
-Lives: 5
-Bombs: 13
-Difficulty: 0
-ControlB: 0
-Room: 2
-=======
-X: 9
+X: 55
 Y: 8
 Lives: 5
 Bombs: 10
 Difficulty: 0
 ControlB: 0
 Room: 1
->>>>>>> 32481157806e216df8ac0bbfa2cabe2f1e26ba45
 Event: 0
 OpenedChests: 0

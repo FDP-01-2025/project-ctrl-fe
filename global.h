@@ -16,7 +16,6 @@
 #include "./src/threads/startup/mainRoom.h"
 #include "./src/threads/games/worm.h"
 #include "./src/threads/events/elevator.h"
-#include "./src/threads/events/sphinx.h"
 #include "./src/threads/startup/way1.h"
 #include "./src/threads/startup/bossSalaPrev.h"
 #include "./src/threads/startup/gameOver.h"
@@ -39,7 +38,6 @@ protected:
     Player player;
     MainBomberman bomberman;
     MainMaze maze;
-    SphinxGame sphinx;
     MainGenious geniusLamp;
     ChestEvent chestGame;
     Utils utils;
@@ -307,7 +305,7 @@ public:
     bool GamesExecute()
     {
         // List of all available games
-        MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, ChestGame, WormGame, ElevatorGame, DodgeGame, SphinxGameM};
+        MapId allGames[] = {BomberManGame, MazeGame, GeniusGame, ChestGame, WormGame, ElevatorGame, DodgeGame};
         const int totalGames = sizeof(allGames) / sizeof(allGames[0]);
 
         // Open output file stream in append mode to record completed games
@@ -573,11 +571,9 @@ public:
 
         case ElevatorGame:
             return elevator.Run(consoleSettings);
+            
         case DodgeGame:
-            return sphinx.Run(consoleSettings);
-
-        case SphinxGameM:
-            return sphinx.Run(consoleSettings);
+            return elevator.Run(consoleSettings);
 
         case BoosMario:
             return bossFightMario.Run();

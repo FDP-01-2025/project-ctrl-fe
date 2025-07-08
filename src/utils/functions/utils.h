@@ -29,7 +29,6 @@ enum MapId
         WormGame = 5,
         ElevatorGame = 6,
         DodgeGame = 7,
-        SphinxGameM = 8,
         BoosMario = 9,
         BoosZelda = 10,
         FrstWay = 11,
