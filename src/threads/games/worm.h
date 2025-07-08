@@ -32,8 +32,6 @@ private:
     int wormWidth;
     int currentWidth;
 
-    std::vector<wchar_t> animationFrames = {L'@', L'o', L'O', L'0'}; // Worm animation characters
-
     Map map;            // Game map
     Utils utils;        // Utility functions
     Player player;      // Player entity

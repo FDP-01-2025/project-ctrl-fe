@@ -284,23 +284,22 @@ public:
 
         // If the required number of maps have been played, launch the boss sequence
         if (counterMaps == showMapsLot)
-            BossesExecute();
-
-        // If enough bosses have been defeated, show the end of the game (not implemented yet)
-        if (counterBoss == showBoossLot)
         {
-            bool restart = victoryScreen.Show(utils);
-            if (restart)
+            if (BossesExecute())
             {
-                // Reset player state and return to menu or start
-                player.ResetState(SetDifficultyDetails());
-                counterMaps = 0;
-                counterBoss = 0;
-                StartGame(); // Or return to the main menu if preferred
-            }
-            else
-            {
-                exit(0); // Exit the game
+                bool restart = victoryScreen.Show(utils);
+                if (restart)
+                {
+                    // Reset player state and return to menu or start
+                    player.ResetState(SetDifficultyDetails());
+                    counterMaps = 0;
+                    counterBoss = 0;
+                    StartGame(); // Or return to the main menu if preferred
+                }
+                else
+                {
+                    exit(0); // Exit the game
+                }
             }
         }
     }
@@ -533,7 +532,7 @@ public:
     }
 
     // From allGames array, filters out games already played (in 'played' set)
-    // and appends the unplayed games to the 'notPlayed' vector
+    // and appends the unplayed games to the 'notPlayed'
     void ReduceGamesPlayed(MapId all[], int total, const std::set<int> &played, std::vector<MapId> &notPlayed)
     {
         for (int i = 0; i < total; ++i)

@@ -17,18 +17,18 @@ public:
     MapId Run(Console consoleSettings, MapId options[3]); // Main loop, returns selected MapId
 
 private:
-    Map map;               // Game map object
-    Utils utils;           // Utility helper functions
-    Player player;         // Player object for position and input
-    HudBossSala hud;       // HUD display for boss room
+    Map map;         // Game map object
+    Utils utils;     // Utility helper functions
+    Player player;   // Player object for position and input
+    HudBossSala hud; // HUD display for boss room
 
-    int viewWidth;         // Width of the viewport to display map
-    int consoleWidth;      // Console window width
-    int playerX;           // Player X coordinate
-    int playerY;           // Player Y coordinate
-    MapId selection;       // Currently selected boss room option
-    MapId bossOptions[2];  // Array holding boss options available
-    int totalOptions = 0;  // Number of valid boss options
+    int viewWidth;        // Width of the viewport to display map
+    int consoleWidth;     // Console window width
+    int playerX;          // Player X coordinate
+    int playerY;          // Player Y coordinate
+    MapId selection;      // Currently selected boss room option
+    MapId bossOptions[2]; // Array holding boss options available
+    int totalOptions = 0; // Number of valid boss options
 
     int offsetX = 1, offsetY = 1; // Offset for drawing map within console window
 
@@ -53,7 +53,7 @@ private:
 BossRoomPreview::BossRoomPreview() : isRunning(true)
 {
     consoleWidth = utils.GetConsoleWidth(); // Get console width for view calculation
-    viewWidth = consoleWidth;                // Initialize view width to full console width
+    viewWidth = consoleWidth;               // Initialize view width to full console width
 }
 
 MapId BossRoomPreview::Run(Console consoleSettings, MapId options[2])
@@ -87,8 +87,8 @@ MapId BossRoomPreview::Run(Console consoleSettings, MapId options[2])
     // Main game loop
     while (isRunning)
     {
-        viewWidth = 30;             // Fixed view width for boss preview screen
-        utils.ClearScreen();        // Clear console
+        viewWidth = 30;      // Fixed view width for boss preview screen
+        utils.ClearScreen(); // Clear console
 
         // Draw map portion around player with offset and view width
         map.DrawWithWindowView(viewWidth, player.GetX(), player.GetY(), offsetX, offsetY, MapId::MainRoom);
@@ -122,7 +122,7 @@ void BossRoomPreview::ReplaceDoorNames(MapId op[3])
 
         // Currently commented out: get the name of the boss and write on map
 
-        //std::wstring name = GetMapName(bossOptions[i]);
+        // std::wstring name = GetMapName(bossOptions[i]);
 
         int row;
         switch (i)
@@ -138,7 +138,7 @@ void BossRoomPreview::ReplaceDoorNames(MapId op[3])
             break;
         }
 
-        //WriteTextOnMap(map, row, 44, name);
+        // WriteTextOnMap(map, row, 44, name);
     }
 }
 

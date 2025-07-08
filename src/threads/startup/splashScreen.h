@@ -84,13 +84,13 @@ bool InitializerThread(int width, int height, Console consoleSettings, Utils uti
     system("cls");
 
     int verticalPadding = std::max(0, (consoleH - titleLines) / 2);
-    std::wcout << std::wstring(verticalPadding, L'\n'); // Add top padding for title
 
-    // Print title in red
+    // Animate the titleArt line by line (top to bottom)
     for (int i = 0; i < titleLines; ++i)
     {
         int padding = std::max(0, (consoleW - static_cast<int>(titleArt[i].length())) / 2);
-        std::wcout << std::wstring(padding, L' ') << RED << titleArt[i] << RESET << L"\n";
+        utils.PrintAtPosition(padding, verticalPadding + i, RED + titleArt[i] + RESET);
+        Sleep(120); // Delay per line for animation
     }
 
     Sleep(2499); // Pause before clearing
