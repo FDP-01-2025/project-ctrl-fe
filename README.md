@@ -1,5 +1,6 @@
 <h1 align="center">Proyecto de C++ - La Caballera y la Mazmorra de Leugim (Mazmorra de niveles)</h1>
 <br>
+![logo](https://github.com/FDP-01-2025/project-ctrl-fe/blob/be1bf8a6bf43f5fde54722cd4aecb38f63bd46e6/assets/image/logo.png)
 
 <h3 align="center">🎮 Descripción del Proyecto</h3>
 
