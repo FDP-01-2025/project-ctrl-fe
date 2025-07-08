@@ -11,31 +11,30 @@ Un día como cualquier otro, en la villa Kirby, se encuentra nuestra protagonist
 
 #### _🙍‍♀️ Papel del jugador_
 
-El jugador controla a la caballera, que está en su camino para rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim, resguardado en su mazmorra. La aventura se desarrolla dentro de la mazmorra de 10 pisos, que la protagonista deberá superar para llegar hasta Leugim, enfrentarlo en un enfrentamiento final y recuperar a su pushamon de sus malvadas garras.
+El jugador controla a la caballera, que está en su camino para rescatar a su príncipe, quien ha sido secuestrado por el villano Leugim, resguardado en su mazmorra. La aventura se desarrolla dentro de la mazmorra de distintos pisos, que la protagonista deberá superar para llegar hasta Leugim, enfrentarlo en un enfrentamiento final y recuperar a su pushamon de sus malvadas garras.
 
 - **🖼️ Tematica y ambienticación:**
-  El juego se desarrolla en La Torre de Leugim, una estructura mágica vertical de 10 pisos que flota en los cielos sobre una villa. Fue construida por un poderoso hechicero llamado Leugim, quien encerró al príncipe en la cima por Simp.
+  El juego se desarrolla en La Torre de Leugim, una estructura mágica vertical de distintos pisos que flota en los cielos sobre una villa. Fue construida por un poderoso hechicero llamado Leugim, quien encerró al príncipe en la cima por SIMPatico y quería compañia Leugim.
 
 > Cada piso de la torre tiene una ambientación única según el minijuego o evento que aparece:
 
-- 🔩 **Mecanica:**
-  Cada sala tendrá tres puertas hacia diferentes salas, donde el usuario se encontrará con diferentes eventos los cuales deberá superar para avanzar, en dado caso no lo supere, perderá una vida y tendrá que empezar el reto de nuevo hasta superarlo, donde las opciones de los eventos será:
-
 - 👾 **Idea general de la jugabilidad:**
   La Torre de Leugim es un juego tipo Dungeon Crawler donde una heroína debe ascender 10 niveles de una torre mágica enfrentando enemigos, trampas, y superando 4 minijuegos distintos. A lo largo del camino, podrá encontrar eventos aleatorios con resultados positivos o negativos. El juego combina acción, lógica, estrategia y combate por turnos, culminando en una batalla final contra el jefe Leugim para rescatar al príncipe.
+
+- 🔩 **Mecanica:**
+  Cada sala tendrá tres puertas hacia diferentes salas, donde el usuario se encontrará con diferentes eventos los cuales deberá superar para avanzar, en dado caso no lo supere, perderá una vida y tendrá que empezar el reto de nuevo hasta superarlo, la cantidad de retos que debera enfrentar va a depender de la dificultad que elija, por ejemplo en la facil será 3 eventos/retos con la batalla contra el jefe, normal con 5 y dificil con 6, de ahi podra tener dos posibles batallas finales contra el jefe, pero esto sera aleatorio, de ahí donde las opciones de los eventos/jefes será:
 
 ---
 
 | Categoría                 | Subcategoría              | Detalles                                                                                                           |
 | ------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| 🧱 Estructura del Juego   | 📦 Niveles                | 9 niveles aleatorios                                                                                               |
-|                           |                           | 1 nivel final con jefe                                                                                             |
-|                           | Contenido por nivel       | - Minijuego<br>- Evento aleatorio<br>- Combate con enemigo                                                         |
+| 🧱 Estructura del Juego   | 📦 Niveles                | 9 niveles (incluyendo jefes) aleatorios                                                                            |
+|                           | Contenido por nivel       | - Minijuego<br>- Evento aleatorio<br>- Combate con Jefe                                                            |
 | 🧑‍💻 Mecánicas Generales    | Vidas                     | Comienzas con 3 vidas                                                                                              |
 |                           |                           | Fallar un reto (morir o perder) = -1 vida                                                                          |
 |                           |                           | Pierdes si llegas a 0 vidas                                                                                        |
 |                           |                           | Puedes ganar vidas en ciertos eventos                                                                              |
-|                           | Objetivo                  | Llegar al nivel 10 y vencer al jefe                                                                                |
+|                           | Objetivo                  | Completar x niveles dependiendo de la dificultad y vencer al jefe                                                  |
 | 🎮 Minijuegos (4)         | Explosivos / "Bomberman"  | - Rompe escombros para llegar a la salida<br>- Uso limitado de bombas (te pueden dañar)<br>- Mapas tipo laberinto  |
 |                           | Laberinto de habitaciones | - Encuentra llave y salida<br>- Algunas habitaciones tienen monstruos o nuevas puertas                             |
 |                           | Shoot n' Run              | - Pasillo de acción con enemigos y obstáculos<br>- Usa espada y arco<br>- Jefe al final (si pierdes, caes un piso) |
@@ -46,6 +45,9 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 |                           | Esfinge                   | 3 preguntas, si fallas una, mueres                                                                                 |
 |                           | Genio bueno               | Elige 1 de 3 deseos aleatorios (ej. +3 vidas, saltar pisos)                                                        |
 |                           | Genio malvado             | Mismas opciones buenas, pero invertidas tras elegir                                                                |
+| 💀 Jefes                  | Jefe tipo Mario Bross     | Se tiene que saltar para esquivar al jefe, y dispararle                                                            |
+|                           | Jefe tipo Zelda           | Se tiene que esquivar los ataques de la estatua y posicionarse para ponerle una bomba para hacerle daño            |
+||
 
 ## **Temas vistos**
 
@@ -86,6 +88,7 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
    Guardado de proceso.
 
 ## **Consideraciones técnicas del desarrollo**
+
 - El proyecto fue desarrollado en C++, con el compilador de g++.exe (MinGW.org GCC-6.3.0-1) 6.3.0.
 
 - Window 11, debido a caracteres especiales del unicode pertenecientes.
@@ -101,7 +104,6 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
 - El juego se compila como aplicación de escritorio (-mwindows) para evitar mostrar consola negra adicional.
 
 - El juego está organizado usando programación orientada a objetos (OOP), dividiendo funcionalidades en clases específicas, lo cual permite modularidad, reutilización de código y una mejor organización, donde facilita el mantenimiento, se puede añadir más contenido después de forma más fácil y cada clase tiene una responsabilidad clara, lo que mejora la legibilidad del proyecto.
-
 
 ## **Imagenes**
 
