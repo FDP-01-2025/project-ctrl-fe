@@ -22,7 +22,6 @@
 #include "./src/threads/startup/gameOver.h"
 #include "./src/threads/startup/Win.h"
 #include "./src/threads/events/chest.h"
-#include "./src/threads/games/dodge.h"
 
 #include <set>
 
@@ -43,7 +42,6 @@ protected:
     SphinxGame sphinx;
     MainGenious geniusLamp;
     ChestEvent chestGame;
-    DodgeEvent dodgeGame;
     Utils utils;
     MainBossFight bossFightMario;
     MainRoomGame mainRoom;
@@ -345,10 +343,11 @@ public:
             ReadFileGamesId(filename, gamesAlreadyPlayed);
 
             // Filter to get games that have not been played yet
-            std::vector<MapId> gamesNotPlayed;
-            ReduceGamesPlayed(allGames, totalGames, gamesAlreadyPlayed, gamesNotPlayed);
+            MapId gamesNotPlayed[totalGames];
+            int gamesNotPlayedCount = 0;
+            ReduceGamesPlayed(allGames, totalGames, gamesAlreadyPlayed, gamesNotPlayed, gamesNotPlayedCount);
 
-            if (gamesNotPlayed.empty())
+            if (gamesNotPlayedCount == 0)
             {
                 utils.ClearScreenComplety();
                 std::wcout << L"No games left available.\n";
@@ -360,8 +359,8 @@ public:
             for (int i = 0; i < 3; ++i)
                 opcionesGames[i] = MapId::None;
 
-            int optionCount = std::min(3, (int)gamesNotPlayed.size());
-            GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size(), opcionesGames, optionCount);
+            int optionCount = std::min(3, gamesNotPlayedCount);
+            GenerateRandomMapId(gamesNotPlayed, gamesNotPlayedCount, opcionesGames, optionCount);
 
             // Run the main room selection with generated options and get user selection
             selected = mainRoom.Run(consoleSettings, opcionesGames);
@@ -421,19 +420,19 @@ public:
         // If the game was loaded from a saved state (manual load)
         if (processThread == STATE_SECOND_MENU_DONE)
         {
-            counterMaps = 0; // Reset map counter
+            counterBoss = 0; // Reset map counter
 
             int value;
             // Read each saved game ID from the file to count completed games
             while (gamesLecture >> value)
             {
-                counterMaps++; // Increment counter for each completed game found
+                counterBoss++; // Increment counter for each completed game found
             }
         }
         else
         {
             // If not loading a saved game, start fresh with zero completed games
-            counterMaps = 0;
+            counterBoss = 0;
         }
 
         // Loop while the number of completed maps is less than allowed number of bosses
@@ -442,10 +441,11 @@ public:
             std::set<int> gamesAlreadyPlayed;
             ReadFileGamesId(filename, gamesAlreadyPlayed); // Reads completed game IDs into the set
 
-            std::vector<MapId> gamesNotPlayed;
-            ReduceGamesPlayed(allGames, totalGames, gamesAlreadyPlayed, gamesNotPlayed); // Filter unplayed games
+            MapId gamesNotPlayed[totalGames];
+            int gamesNotPlayedCount = 0;
+            ReduceGamesPlayed(allGames, totalGames, gamesAlreadyPlayed, gamesNotPlayed, gamesNotPlayedCount);
 
-            if (gamesNotPlayed.empty())
+            if (gamesNotPlayedCount == 0)
             {
                 utils.ClearScreenComplety();
                 std::wcout << L"No bosses left to play.\n";
@@ -457,8 +457,8 @@ public:
             for (int i = 0; i < 3; ++i)
                 opcionesGames[i] = MapId::None;
 
-            int optionCount = std::min(3, (int)gamesNotPlayed.size());
-            GenerateRandomMapId(gamesNotPlayed.data(), gamesNotPlayed.size(), opcionesGames, optionCount);
+            int optionCount = std::min(3, gamesNotPlayedCount);
+            GenerateRandomMapId(gamesNotPlayed, gamesNotPlayedCount, opcionesGames, optionCount);
 
             // Run the boss selection screen and get selected boss
             selected = bossSalaPrev.Run(consoleSettings, opcionesGames);
@@ -535,13 +535,14 @@ public:
 
     // From allGames array, filters out games already played (in 'played' set)
     // and appends the unplayed games to the 'notPlayed'
-    void ReduceGamesPlayed(MapId all[], int total, const std::set<int> &played, std::vector<MapId> &notPlayed)
+    void ReduceGamesPlayed(MapId all[], int total, const std::set<int> &played, MapId notPlayed[], int &notPlayedCount)
     {
+        notPlayedCount = 0;
         for (int i = 0; i < total; ++i)
         {
             if (played.find(static_cast<int>(all[i])) == played.end())
             {
-                notPlayed.push_back(all[i]);
+                notPlayed[notPlayedCount++] = all[i];
             }
         }
     }
@@ -612,14 +613,24 @@ public:
         for (int i = 0; i < count; ++i)
             dest[i] = MapId::None;
 
-        // Copy source elements into a vector pool and shuffle randomly
-        std::vector<MapId> pool(source, source + sourceSize);
-        std::random_shuffle(pool.begin(), pool.end());
+        // Copy source elements into a temporary array for shuffling
+        MapId *pool = new MapId[sourceSize];
+        for (int i = 0; i < sourceSize; ++i)
+            pool[i] = source[i];
+
+        // Fisher-Yates shuffle on the pool array
+        for (int i = sourceSize - 1; i > 0; --i)
+        {
+            int j = rand() % (i + 1);
+            std::swap(pool[i], pool[j]);
+        }
 
         // Assign first 'count' elements from shuffled pool to dest
-        for (int i = 0; i < count && i < pool.size(); ++i)
+        for (int i = 0; i < count && i < sourceSize; ++i)
         {
             dest[i] = pool[i];
         }
+
+        delete[] pool;
     }
 };
