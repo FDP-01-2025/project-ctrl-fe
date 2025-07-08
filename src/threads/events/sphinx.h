@@ -98,7 +98,7 @@ GeographyQuestion SphinxGame::GenerateQuestion()
 
 bool SphinxGame::Run(Console consoleSettings)
 {
-SetGoodStyle(consoleSettings);  // ya no cambia tamaño agresivamente
+    SetGoodStyle(consoleSettings); // ya no cambia tamaño agresivamente
 
     std::string key = utils.GetAssetsPath() + "maps\\sphinx\\sphinx.txt";
     LoadLevel(key); // Ya pone mapa completo
@@ -106,12 +106,12 @@ SetGoodStyle(consoleSettings);  // ya no cambia tamaño agresivamente
     isRunning = true;
 
     // Mostrar TODO el mapa
-    viewWidth = map.GetWidth();
-    viewHeight = map.GetHeight();
+    viewWidth = 30; // o el tamaño que tú quieras
+    viewHeight = 12;
 
     // Centrado
-    offsetX = (utils.GetConsoleWidth() - viewWidth) / 2;
-    offsetY = (utils.GetConsoleHeight() - viewHeight) / 2;
+    offsetX = 2; // fijo en la izquierda
+    offsetY = 1; // o mantén centrado verticalmente si quieres
     offsetX = std::max(0, offsetX);
     offsetY = std::max(0, offsetY);
 
@@ -119,14 +119,13 @@ SetGoodStyle(consoleSettings);  // ya no cambia tamaño agresivamente
 
     while (isRunning)
     {
-        utils.ClearScreenComplety();  // ❗ solo aquí
 
         map.DrawWithSphinx(viewWidth, player.GetX(), player.GetY(), offsetX, offsetY);
         hud.Draw(player, currentQuestion, viewWidth, answerStatus);
-
         // Mostrar pregunta
         int preguntaY = offsetY + viewHeight + 1;
         int preguntaX = offsetX + (viewWidth - question.question.length()) / 2;
+
         utils.PrintAtPosition(preguntaX, preguntaY, question.question, ORANGE);
 
         for (int i = 0; i < 3; ++i)
@@ -142,7 +141,7 @@ SetGoodStyle(consoleSettings);  // ya no cambia tamaño agresivamente
             ProcessInput(input);
         }
 
-        Sleep(30);
+        Sleep(100);
     }
 
     return (lives > 0);
@@ -208,7 +207,7 @@ void SphinxGame::ProcessInput(char input)
 void SphinxGame::LoadLevel(const std::string &key)
 {
     utils.ClearScreenComplety();
-    map.ReadMap(key, 0, 0); // usa dimensiones del archivo
+    map.ReadMap(key, 0, 0);     // usa dimensiones del archivo
     player.SetPosition(14, 17); // Puedes ajustar esto según mapa
     playerX = player.GetX();
     playerY = player.GetY();
@@ -216,7 +215,7 @@ void SphinxGame::LoadLevel(const std::string &key)
 
 void SphinxGame::SetGoodStyle(Console consoleSettings)
 {
-   // consoleSettings.SetConsoleFont(10, 18, L"Consolas");
+    // consoleSettings.SetConsoleFont(10, 18, L"Consolas");
     std::wcout.imbue(std::locale(""));
     utils.ClearScreenComplety();
     utils.PrintCentered(L"The sphinx challenges you with geography questions...");
