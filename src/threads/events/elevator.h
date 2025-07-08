@@ -206,10 +206,10 @@ bool Elevator::Run(Console consoleSettings)
 
         Sleep(50); // Small delay to avoid high CPU usage
     }
-
+    system("cls");
     PlaySoundW(NULL, NULL, 0);        // Stop background music
     consoleSettings.SetConsoleFont(); // Reset font size
-    return result;                    // Return game result
+    return result; // Return game result
 }
 
 void Elevator::ProcessInput(char input, Console consoleSettings)
@@ -242,7 +242,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
         if (playerAnswer == currentExercise.correctAnswer)
         {
             utils.PrintAtPosition(2, messagePosY, L"Correct", GREEN);
-            Sleep(500);
+            Sleep(600);
             utils.PrintAtPosition(2, messagePosY, L"       ", RESET); // Clear message
             player.SetPosition(3, 8);                                 // Reset player position
             correctAnswers++;
@@ -250,7 +250,7 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
         else
         {
             utils.PrintAtPosition(2, messagePosY, L"Incorrect", RED);
-            Sleep(500);
+            Sleep(600);
             utils.PrintAtPosition(2, messagePosY, L"         ", RESET); // Clear message
             player.SetPosition(3, 8);
             Sleep(100);
@@ -262,7 +262,9 @@ void Elevator::ProcessInput(char input, Console consoleSettings)
 
         if (correctAnswers >= 3)
         {
-            result = true;     // Player won
+            result = true; // Player won
+            utils.PrintAtPosition(2, messagePosY, L"You won!", GREEN);
+            Sleep(1500);
             isRunning = false; // Stop the game
         }
         else if (lives <= 0)

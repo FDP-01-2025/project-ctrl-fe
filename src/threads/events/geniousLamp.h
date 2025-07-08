@@ -10,6 +10,10 @@
 #include <conio.h>
 #include <ctime>
 #include <string>
+// Required to play sounds using Windows Multimedia API
+#include <mmsystem.h>
+// Link the program with the Windows Multimedia library
+#pragma comment(lib, "winmm.lib")
 
 #ifdef _WIN32
 #include <windows.h>
@@ -99,6 +103,8 @@ inline bool MainGenious::Run()
     // Calculate map draw offset
     offsetX = std::max(0, (utils.GetConsoleWidth() - map.GetWidth()) / 4);
     offsetY = std::max(0, (utils.GetConsoleHeight() - map.GetHeight()) / 2);
+    std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\geniusLamp.wav";
+    PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
 
     // First phase: interact with the lamp
     while (lampEventActive)
@@ -239,8 +245,13 @@ inline bool MainGenious::Run()
 
                     interacting = false;
                 }
-                else
-                    processInput(input);
+                processInput(input);
+                if (map.GetTile((player.GetX() + 1), player.GetY()) == '/')
+                {
+                    utils.ClearScreen();
+                    isRunning = false;
+                    return true; // Exit the event
+                }
             }
 
             Sleep(20);
@@ -274,6 +285,7 @@ inline bool MainGenious::Run()
             {
                 utils.ClearScreen();
                 isRunning = false;
+                return true; // Exit the event
             }
         }
 

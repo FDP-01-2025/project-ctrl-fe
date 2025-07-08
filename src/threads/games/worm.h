@@ -140,9 +140,6 @@ bool Worm::Run(Console consoleSettings)
                 previousWidth = currentWidth;
             }
 
-            // Update player's lives
-            player.SetLives(lives);
-
             // Draw the HUD with the remaining time and sequence
             hud.Draw(player, 1, map.GetWidth(), sequence, correctAnswers, maxCorrectAnswers, userInput, secondsLeft);
 
@@ -183,6 +180,7 @@ bool Worm::Run(Console consoleSettings)
             utils.PrintAtPosition(messageX, messageY, L"Right! Worm loses a part", GREEN);
             Sleep(500);
             utils.PrintAtPosition(messageX, messageY, L"                                             ");
+            result = true;
         }
         else
         {
@@ -190,28 +188,27 @@ bool Worm::Run(Console consoleSettings)
             utils.PrintAtPosition(messageX, messageY, L"Incorrect! Life lost", RED);
             Sleep(500);
             utils.PrintAtPosition(messageX, messageY, L"                                             ");
+            result = false;
         }
+        // Update player's lives
+        player.SetLives(lives);
         Sleep(500);
     }
 
     // Game end screen
     utils.ClearScreen();
-    if (lives == 0)
+    if (player.GetLives() == 0)
     {
-        utils.PrintAtPosition(messageX, messageY, L"Game Over. No lives left.", RED);
+        //utils.PrintAtPosition(messageX, messageY, L"Game Over. No lives left.", RED);
         result = false;
     }
-    else if (worm.empty())
-    {
-        utils.PrintAtPosition(messageX, messageY, L"You won! Worm vanished.", GREEN);
-        result = true;
-    }
-    else
+    else if (correctAnswers >= maxCorrectAnswers)
     {
         utils.PrintAtPosition(messageX, messageY, L"You won! All combos done.", GREEN);
         result = true;
     }
-    Sleep(2000);
+
+    Sleep(1500);
     system("cls");
     PlaySoundW(NULL, NULL, 0);        // Stop background music
     consoleSettings.SetConsoleFont(); // Reset font size

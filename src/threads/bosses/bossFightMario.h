@@ -16,6 +16,10 @@
 #include "core/modules/boss-fight-mario/bullet.h"
 #include "core/modules/boss-fight-mario/playerMario.h"
 #include "core/modules/boss-fight-mario/hudFightMario.h"
+// Required to play sounds using Windows Multimedia API
+#include <mmsystem.h>
+// Link the program with the Windows Multimedia library
+#pragma comment(lib, "winmm.lib")
 
 // Main class that controls the Mario-style boss fight
 class MainBossFight
@@ -41,6 +45,9 @@ public:
 
         boss.Init(player.playerBase.GetDifficulty()); // Set boss stats based on difficulty
         isRunning = true;                // Start the game loop
+
+        std::wstring soundPath = utils.GetAssetsPathW() + L"sounds\\marioBoss.wav";
+        PlaySoundW(soundPath.c_str(), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP); // Play background music
 
         // Main game loop
         while (isRunning)

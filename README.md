@@ -86,9 +86,30 @@ El jugador controla a la caballera, que está en su camino para rescatar a su pr
    Guardado de proceso.
 
 ## **Consideraciones técnicas del desarrollo**
+- El proyecto fue desarrollado en C++, con el compilador de g++.exe (MinGW.org GCC-6.3.0-1) 6.3.0.
 
-**Imagenes**
+- Window 11, debido a caracteres especiales del unicode pertenecientes.
+
+- Peso del ejecutable 550 KB.
+
+- Uso exclusivo de gráficos ASCII con UNICODE.
+
+- Modularización completa mediante archivos .h y un único .cpp principal.
+
+- El juego incluye música de fondo mediante integración de sonido de consola y de archivos .wav.
+
+- El juego se compila como aplicación de escritorio (-mwindows) para evitar mostrar consola negra adicional.
+
+- El juego está organizado usando programación orientada a objetos (OOP), dividiendo funcionalidades en clases específicas, lo cual permite modularidad, reutilización de código y una mejor organización, donde facilita el mantenimiento, se puede añadir más contenido después de forma más fácil y cada clase tiene una responsabilidad clara, lo que mejora la legibilidad del proyecto.
+
+
+## **Imagenes**
+
 https://www.figma.com/design/n5lZId7IIKfvx0tRVgtP1N/Cntr-Fe?node-id=0-1&t=tDheFUCTkofCvffx-1
+
+## **Diagrama de flujo**
+
+https://drive.google.com/drive/folders/1ICve8q_SMPjpHk987wgam8xRdul9jr3r?usp=sharing
 
 ## Equipo
 
@@ -119,7 +140,7 @@ Ctrl+Fe
    ```
 2. Entra a la carpeta del proyecto y compílalo con el siguiente comando:
    ```bash
-   g++ main.cpp -o dungeonLeugim -I./src -mwindows
+   g++ main.cpp -o dungeonLeugim -I./src -mwindows -lwinmm
    ```
 3. Una vez compilado, **ejecuta el archivo `main.exe` desde el explorador de archivos de Windows** (doble clic), no desde la terminal, para evitar la apertura de una consola negra adicional.
 
@@ -128,6 +149,34 @@ Ctrl+Fe
 ### ❓ ¿Por qué se utiliza la opción `-mwindows`?
 
 La bandera `-mwindows` le indica al compilador que el programa se ejecutará como una **aplicación de escritorio (GUI)** y no como una **aplicación de consola**. Esto evita que se abra una ventana de terminal negra al ejecutar el `.exe`, lo cual puede ser útil para mejorar la presentación o evitar conflictos visuales, especialmente si se desea una experiencia más limpia para el usuario final.
+
+---
+
+### ❓ ¿Por qué se utiliza la opción `-I`?
+
+La opción `-I` (mayúscula i) le indica al compilador la **ruta de las carpetas donde debe buscar archivos `.h` o archivos de cabecera personalizados**. Es esencial cuando el código fuente está dividido en múltiples carpetas, como `src`, `core`, `utils`, etc.
+
+> Por ejemplo, en el comando:
+>
+> ```bash
+> g++ main.cpp -o dungeonLeugim -I./src
+> ```
+>
+> el compilador buscará dentro de la carpeta `src` cualquier archivo que esté siendo incluido con `#include`.
+
+Esto evita errores como `fatal error: archivo.h: No such file or directory`, y permite una estructura modular del proyecto.
+
+---
+
+### ❓ ¿Por qué se utiliza la opción `-lwinmm`?
+
+La opción `-lwinmm` le indica al compilador que debe **enlazar la biblioteca `winmm.lib` de Windows**, la cual permite usar funciones relacionadas con el **control de audio y multimedia**, como reproducir música o sonidos con `PlaySound()`.
+
+> Esto es necesario porque el juego incluye **música de fondo o efectos de sonido**, y para que esas funciones funcionen correctamente al compilar con `g++`, se debe enlazar manualmente esa librería del sistema operativo.
+
+> Es parte de la API de Windows llamada **Windows Multimedia API**, utilizada para reproducir archivos `.wav` dentro del juego.
+
+---
 
 ## ✅ Reglas para realizar commits
 
