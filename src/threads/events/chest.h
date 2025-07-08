@@ -229,7 +229,7 @@ inline bool ChestEvent::Run() // call this in main.cpp
         utils.ClearScreen();
         map.DrawWithPlayer(mapWidth, mapHeight, player.GetX(), player.GetY(), offsetX, offsetY); // for the map
         hud.SetCenteredOffset(offsetX);
-        hud.DrawLampEvent(player, player.GetRoom(), map.GetWidth());
+        hud.DrawChestEvent(player, player.GetRoom(), map.GetWidth());
 
         if (beginningEvent) // for the first dialogue
         {
@@ -241,9 +241,6 @@ inline bool ChestEvent::Run() // call this in main.cpp
         {
             input = _getch();
             ProcessInput(input); // the movement
-
-            if (input == 27) // ESC para salir
-                isRunning = false;
         }
 
         if (!chestOpened && input == 'y' && player.GetX() == chestLockX && player.GetY() == chestLockY)
@@ -252,8 +249,7 @@ inline bool ChestEvent::Run() // call this in main.cpp
         }
         if (player.GetLives() <= 0)
         {
-            isRunning = false;    // stop the loop
-            gameOver.Show(utils); // when the lives is 0 or less
+            isRunning = false; // stop the game
         }
     }
 

@@ -27,7 +27,7 @@ public:
 
     // Function to draw the HUD on the screen
     // Takes the player, current level, and optional map width
-    void DrawLampEvent(Player player, int currentLevel, int mapWidth = 0)
+    void DrawChestEvent(Player player, int currentLevel, int mapWidth = 0)
     {
         utils.ClearScreen();                  // Clear the screen before drawing the HUD
         int hudX = hudOffsetX + mapWidth + 3; // X position of the HUD
@@ -38,6 +38,7 @@ public:
             y = 0;
 
         std::wcout << L"\033[" << y << ";" << hudX << L"H" << std::wstring(25, ' ');
+        utils.PrintLine(hudX, y, L"Room - " + ToWString(player.GetRoom()), WHITE_BRIGHT);
         utils.PrintLine(hudX, y, L"♥ - " + ToWString(player.GetLives()), RED);
         y++;
 
