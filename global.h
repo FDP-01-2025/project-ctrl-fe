@@ -575,7 +575,7 @@ public:
             return elevator.Run(consoleSettings);
             
         case DodgeGame:
-            return elevator.Run(consoleSettings);
+            return dodgeEvent.Run();
 
         case BoosMario:
             return bossFightMario.Run();
