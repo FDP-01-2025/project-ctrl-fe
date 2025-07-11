@@ -9,7 +9,7 @@ using namespace std;
 
 int StartSecondMenu(Console& consoleSettings, Utils& utils)
 {
-    wstring difficulties[] = {L"Normal", L"Media", L"Difícil"};
+    wstring difficulties[] = {L"Easy", L"Normal", L"Hard"};
     int currentOption = 0;
     int totalOptions = 3;
 
@@ -28,7 +28,7 @@ int StartSecondMenu(Console& consoleSettings, Utils& utils)
         int consoleWidth = GetConsoleWidth();
 
         // Encabezado centrado
-        wstring title = L"ELIGE LA DIFICULTAD";
+        wstring title = L"CHOOSE THE DIFFICULTY";
         int paddingTitle = (consoleWidth - title.length()) / 2;
         wcout << WHITE_BRIGHT << L"\n\n" << wstring(paddingTitle, ' ') << title << endl;
 
